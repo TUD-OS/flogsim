@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+
 #include "time.hpp"
 
 namespace LogP
@@ -10,13 +12,14 @@ struct Model
   Time L, o, g;
   int P;
 
-  void dump()
+  friend std::ostream &operator<<(std::ostream& os, const Model& m)
   {
-    std::printf("L, o, g, P\n");
-    L.dump(); std::printf(",");
-    o.dump(); std::printf(",");
-    g.dump(); std::printf(",");
-    std::printf("%d\n", P);
+    os << "L, o, g, P\n"
+       << m.L << ","
+       << m.o << ","
+       << m.g << ","
+       << m.P << std::endl;
+    return os;
   }
 
   static const Model &get();

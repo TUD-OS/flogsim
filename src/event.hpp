@@ -2,6 +2,8 @@
 
 #include <cassert>
 
+#include <ostream>
+
 #include "time.hpp"
 
 struct Event
@@ -13,9 +15,10 @@ struct Event
 
   virtual Time end() const = 0;
 
-  void dump() const
+  friend std::ostream& operator<<(std::ostream &os, const Event& e)
   {
-    time.dump();
+    os << e.time;
+    return os;
   }
 
   Event() = default;

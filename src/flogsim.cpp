@@ -2,6 +2,7 @@
 #include <cassert>
 
 #include <memory>
+#include <iostream>
 
 #include "event.hpp"
 #include "model.hpp"
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  timeline.dump();
-
+  std::cout << timeline << std::endl;
+  std::cout << LogP::Model::get() << std::endl;
   return 0;
 }

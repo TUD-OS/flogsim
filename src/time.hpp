@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <cinttypes>
 
+#include <ostream>
+
 struct Time
 {
   Time() :
@@ -44,9 +46,10 @@ struct Time
     return !(*this < other) && (other != *this);
   }
 
-  void dump() const
+  friend std::ostream& operator<<(std::ostream &os, const Time& t)
   {
-    std::printf("%" PRIu64 "", time);
+    os << t.time;
+    return os;
   }
 
   static Time max()

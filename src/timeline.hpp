@@ -3,6 +3,8 @@
 #include <deque>
 #include <vector>
 #include <algorithm>
+#include <ostream>
+#include <iterator>
 
 #include "event.hpp"
 
@@ -22,19 +24,19 @@ struct CpuTimeline
 
   CpuTimeline() = default;
 
-  void dump() const
+  friend std::ostream &operator<<(std::ostream &os, const CpuTimeline &ctl)
   {
-    auto dumper = [] (const Event &e) {
-      e.dump();
-      std::printf(" ");
-    };
-    std::for_each(cpu_events.begin(), cpu_events.end(), dumper);
-    std::printf(",");
-    std::for_each(send_gaps.begin(), send_gaps.end(), dumper);
-    std::printf(",");
-    std::for_each(recv_gaps.begin(), recv_gaps.end(), dumper);
-    std::printf(",");
-    finish.dump();
+    std::copy(ctl.cpu_events.begin(), ctl.cpu_events.end(),
+              std::ostream_iterator<Event>(os, " "));
+    os << ',';
+    std::copy(ctl.send_gaps.begin(), ctl.send_gaps.end(),
+              std::ostream_iterator<Event>(os, " "));
+    os << ',';
+    std::copy(ctl.recv_gaps.begin(), ctl.recv_gaps.end(),
+              std::ostream_iterator<Event>(os, " "));
+    os << ',';
+    os << ctl.finish;
+    return os;
   }
 };
 
@@ -55,14 +57,14 @@ public:
     }
   }
 
-  void dump() const
+
+  friend std::ostream &operator<<(std::ostream &os, const Timeline &tl)
   {
-    std::printf("CPU, CpuEvent, SendGaps, RecvGaps, Finish\n");
-    for(int i = 0; i < per_cpu_time.size(); i++) {
-      auto const &cpu = per_cpu_time[i];
-      std::printf("%d,", i);
-      cpu.dump();
-      std::printf("\n");
+    os << "CPU, CpuEvent, SendGaps, RecvGaps, Finish\n";
+    for(int i = 0; i < tl.per_cpu_time.size(); i++) {
+      auto const &cpu = tl.per_cpu_time[i];
+      os << i << ',' << cpu << '\n';
     }
+    return os;
   }
 };
