@@ -1,21 +1,19 @@
 #include "event.hpp"
 #include "model.hpp"
 
-extern Model model;
-
 Time CpuEvent::end() const
 {
-  return start() + model.o;
+  return start() + LogP::Model::get().o;
 }
 
 Time SendGap::end() const
 {
-  return start() + model.g;
+  return start() + LogP::Model::get().g;
 }
 
 Time RecvGap::end() const
 {
-  return start() + model.g;
+  return start() + LogP::Model::get().g;
 }
 
 Time FinishEvent::end() const
