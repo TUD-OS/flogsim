@@ -7,6 +7,7 @@
 #include "event.hpp"
 #include "model.hpp"
 #include "task.hpp"
+#include "configuration.hpp"
 
 class TaskQueue;
 class Collective;
@@ -46,6 +47,8 @@ public:
 
 int main(int argc, char *argv[])
 {
+  Configuration::parse_args(argc, argv);
+
   TaskQueue tq{};
   Timeline timeline(Model::get().P);
 
@@ -55,12 +58,18 @@ int main(int argc, char *argv[])
   while (!tq.empty()) {
     std::shared_ptr<Task> task = tq.pop();
 
-    printf("[%d] Task %s %" PRIu64 " @ node %d", tq.now(), task->type(), task->start(), task->get_node());
+    if (Configuration::get().verbose) {
+      printf("[%d] Task %s %" PRIu64 " @ node %d", tq.now(), task->type(), task->start(), task->get_node());
+    }
     if (task->execute(timeline, tq)) {
       task->notify(coll, tq);
-      printf("\n");
+      if (Configuration::get().verbose) {
+        printf("\n");
+      }
     } else {
-      printf(" rescheduled\n");
+      if (Configuration::get().verbose) {
+        printf(" rescheduled\n");
+      }
     }
   }
 
