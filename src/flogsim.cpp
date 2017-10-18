@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <iostream>
+#include <fstream>
 
 #include "event.hpp"
 #include "model.hpp"
@@ -73,7 +74,13 @@ int main(int argc, char *argv[])
     }
   }
 
-  std::cout << timeline << std::endl;
-  std::cout << LogP::Model::get() << std::endl;
+  auto trace_filename = Configuration::get().log_prefix + ".trace.csv";
+  std::ofstream trace_log(trace_filename);
+  trace_log << timeline;
+
+  auto model_filename = Configuration::get().log_prefix + ".model.csv";
+  std::ofstream model_log(model_filename);
+  model_log << LogP::Model::get();
+
   return 0;
 }
