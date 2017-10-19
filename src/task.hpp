@@ -74,8 +74,8 @@ public:
     auto &cpu = timeline.per_cpu_time[node];
 
     // Calculate time for CpuTime
-    Time cpu_last = CpuTimeline::get_last_or_zero(cpu.cpu_events);
-    Time recv_last = CpuTimeline::get_last_or_zero(cpu.recv_gaps);
+    Time cpu_last = cpu.cpu_events.get_last_or_zero();
+    Time recv_last = cpu.recv_gaps.get_last_or_zero();
 
     auto start_time = std::max({cpu_last, recv_last, tq.now()});
 
@@ -147,8 +147,8 @@ public:
     auto &cpu = timeline.per_cpu_time[node];
 
     // Calculate time for CpuTime
-    Time cpu_last = CpuTimeline::get_last_or_zero(cpu.cpu_events);
-    Time send_last = CpuTimeline::get_last_or_zero(cpu.send_gaps);
+    Time cpu_last = cpu.cpu_events.get_last_or_zero();
+    Time send_last = cpu.send_gaps.get_last_or_zero();
 
     auto start_time = std::max({cpu_last, send_last, tq.now()});
 
@@ -194,9 +194,9 @@ public:
     // Calculate time for CpuTime
     auto cpu_last =  cpu.cpu_events.back();
 
-    cpu.finish = FinishEvent(cpu_last.end());
+    cpu.finish.push_back(FinishEvent(cpu_last.end()));
 
-    timeline.update_total_time(cpu.finish.end());
+    timeline.update_total_time(cpu.finish.back().end());
     return true;
   }
 
