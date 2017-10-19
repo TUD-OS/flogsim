@@ -64,17 +64,6 @@ struct RecvGap : public Event
   Time end() const override;
 };
 
-struct StartEvent : public Event
-{
-  StartEvent() = default;
-
-  StartEvent(Time time) :
-    Event(time)
-  {}
-
-  Time end() const override;
-};
-
 struct FinishEvent : public Event
 {
   FinishEvent() = default;
