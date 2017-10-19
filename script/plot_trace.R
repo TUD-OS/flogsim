@@ -14,7 +14,7 @@ event.cols <- names(trace.df)[-1]
 cpu.col <- names(trace.df)[1]
 
 trace.df[, (event.cols) := map(.SD, ~strsplit(., " ")) ,.SDcols = event.cols]
-trace.df[, (event.cols) := map(.SD, ~map(., function(x) as.integer64(x))) ,.SDcols = event.cols]
+trace.df[, (event.cols) := map(.SD, ~map(., function(x) as.double(x))) ,.SDcols = event.cols]
 trace.df[, (cpu.col) := as.integer(get(cpu.col))]
 
 trace.df <- melt(trace.df, id.vars=cpu.col)
@@ -28,14 +28,21 @@ model.df <- fread(model.filename)
 trace.df[event=="CpuEvent", end := start + model.df$o]
 trace.df[event=="SendGaps", end := start + model.df$g]
 trace.df[event=="RecvGaps", end := start + model.df$g]
+trace.df[event=="Finish", end := start + 0.1]
 
-events <- c("CpuEvent" = 2, "SendGaps" = 3, "RecvGaps" = 4, "Finish" = 5)
+full.stop <- trace.df[event=="Finish", max(start)]
+
+events <- c("CpuEvent" = 2, "SendGaps" = 3, "RecvGaps" = 4, "Finish" = 1)
 
 ## Model specific part ended
 
-ggplot(trace.df[event!="CpuEvent"],
+#pdf("sth.pdf", width=20, height=64)
+ggplot(trace.df[!(event %in% c("CpuEvent", "Finish"))],
        aes(ymin = as.double(start), ymax = as.double(end), x = CPU, col = event)) +
-    geom_linerange(alpha = 0.5, size = 4) +
-    geom_linerange(data = trace.df[event=="CpuEvent"], size = 4) +
+    geom_linerange(alpha = 0.3, size = 4) +
+    geom_linerange(data = trace.df[event %in% c("CpuEvent", "Finish")],
+                   size = 4, aes(x = CPU + 0.1)) +
+    geom_hline(yintercept = full.stop, size = 1) +
     scale_colour_manual(name = "Event type", values = events) +
     coord_flip()
+#dev.off()
