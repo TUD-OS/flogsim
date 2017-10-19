@@ -54,25 +54,8 @@ int main(int argc, char *argv[])
   Timeline timeline(Model::get().P);
 
   BinaryBroadcast coll(Model::get().P);
-  coll.populate(tq);
 
-  while (!tq.empty()) {
-    std::shared_ptr<Task> task = tq.pop();
-
-    if (Configuration::get().verbose) {
-      printf("[%d] Task %s %" PRIu64 " @ node %d", tq.now(), task->type(), task->start(), task->get_node());
-    }
-    if (task->execute(timeline, tq)) {
-      task->notify(coll, tq);
-      if (Configuration::get().verbose) {
-        printf("\n");
-      }
-    } else {
-      if (Configuration::get().verbose) {
-        printf(" rescheduled\n");
-      }
-    }
-  }
+  tq.run(coll, timeline);
 
   auto trace_filename = Configuration::get().log_prefix + ".trace.csv";
   std::ofstream trace_log(trace_filename);

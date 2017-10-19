@@ -1,5 +1,7 @@
 #pragma once
 
+#include "task_queue.hpp"
+
 namespace LogP
 {
 

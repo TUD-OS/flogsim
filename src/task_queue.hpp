@@ -5,7 +5,11 @@
 #include <cassert>
 
 #include "time.hpp"
+#include "timeline.hpp"
+
 #include <boost/heap/fibonacci_heap.hpp>
+
+class Collective;
 
 class Task;
 
@@ -70,4 +74,6 @@ public:
   }
 
   void schedule(std::shared_ptr<Task> task);
+
+  void run(Collective &coll, Timeline &timeline);
 };
