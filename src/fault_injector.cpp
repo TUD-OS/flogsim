@@ -2,7 +2,7 @@
 #include <ctime>        // std::time
 
 #include "fault_injector.hpp"
-
+#include "configuration.hpp"
 
 UniformFaults::UniformFaults(int P, int F)
   : P(P), F(F)
@@ -23,10 +23,12 @@ UniformFaults::UniformFaults(int P, int F)
 
   failed_nodes.resize(F);
 
-  std::cout << "Failed nodes: ";
-  for (auto i : failed_nodes)
-    std::cout << i;
-  std::cout << std::endl;
+  if (Configuration::get().verbose) {
+    std::cout << "Failed nodes: ";
+    for (auto i : failed_nodes)
+      std::cout << i;
+    std::cout << std::endl;
+  }
 }
 
 bool UniformFaults::failure(std::shared_ptr<Task> task)
@@ -34,7 +36,9 @@ bool UniformFaults::failure(std::shared_ptr<Task> task)
   if (dynamic_cast<LogP::RecvTask*>(task.get())) {
     if (std::find(failed_nodes.begin(), failed_nodes.end(),
                   task->receiver()) != failed_nodes.end()) {
-      std::cout << "Drop task " << *task << std::endl;
+      if (Configuration::get().verbose) {
+        std::cout << "Drop task " << *task << std::endl;
+      }
       return true;
     }
   }
