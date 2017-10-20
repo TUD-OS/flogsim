@@ -45,7 +45,7 @@ struct CpuEvent : public Event
 
   static std::string header()
   {
-    return "CpuEvent";
+    return "CpuEvent_Time";
   }
 };
 
@@ -61,7 +61,7 @@ struct SendGap : public Event
 
   static std::string header()
   {
-    return "SendGap";
+    return "SendGap_Time";
   }
 };
 
@@ -101,7 +101,7 @@ struct FinishEvent : public Event
 
   static std::string header()
   {
-    return "Finish";
+    return "Finish_Time";
   }
 };
 
