@@ -79,12 +79,12 @@ struct RecvGap : public Event
 
   static std::string header()
   {
-    return "RecvGap_Time,RecvGap_Sender";
+    return "RecvGap_Time|Sender";
   }
 
   friend std::ostream& operator<<(std::ostream &os, const RecvGap& e)
   {
-    os << e.time << ',' << e.sender;
+    os << e.time << '|' << e.sender;
     return os;
   }
 };
@@ -113,7 +113,7 @@ struct EventQueue
   friend std::ostream &operator<<(std::ostream &os, const EventQueue &eq)
   {
     std::copy(eq.items.begin(), eq.items.end(),
-              std::ostream_iterator<Event>(os, " "));
+              std::ostream_iterator<T>(os, " "));
     return os;
   }
 
