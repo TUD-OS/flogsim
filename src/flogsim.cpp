@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 {
   Configuration::parse_args(argc, argv);
 
-  NoFaults fault_injector;
+  UniformFaults fault_injector(Model::get().P, 1);
   TaskQueue tq{fault_injector};
   Timeline timeline(Model::get().P);
 
