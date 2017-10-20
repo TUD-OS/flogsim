@@ -18,3 +18,15 @@ public:
     return false;
   }
 };
+
+class UniformFaults : public FaultInjector
+{
+  int P; // Number of nodes
+  int F; // Number of offline failures
+  std::vector<int> failed_nodes;
+public:
+
+  UniformFaults(int P, int F);
+
+  bool failure(std::shared_ptr<Task>) override final;
+};

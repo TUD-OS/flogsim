@@ -11,7 +11,7 @@
 #include <boost/heap/fibonacci_heap.hpp>
 
 class Collective;
-
+class FaultInjector;
 class Task;
 
 class TaskQueue
