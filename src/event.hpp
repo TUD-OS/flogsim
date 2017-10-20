@@ -141,6 +141,11 @@ struct EventQueue
     return os;
   }
 
+  bool empty() const
+  {
+    return items.size() == 0;
+  }
+
   void push_back(T item)
   {
     items.push_back(item);

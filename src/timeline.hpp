@@ -4,6 +4,7 @@
 #include <ostream>
 #include <sstream>
 #include <algorithm>
+#include <tuple>
 
 #include "event.hpp"
 
@@ -49,11 +50,27 @@ public:
     per_cpu_time(nodes)
   {}
 
+  Time get_total_time() const { return total_time; }
   void update_total_time(Time time)
   {
     if (total_time < time) {
       total_time = time;
     }
+  }
+
+  std::tuple<int, int, int> node_stat() const
+  {
+    int failed = 0, finished = 0, unreached = 0;
+    for (auto &cpu : per_cpu_time) {
+      if (!cpu.failure.empty()) {
+        failed++;
+      } else if (!cpu.finish.empty()) {
+        finished++;
+      } else {
+        unreached++;
+      }
+    }
+    return {failed, finished, unreached};
   }
 
   friend std::ostream &operator<<(std::ostream &os, const Timeline &tl)
