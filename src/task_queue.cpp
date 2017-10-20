@@ -15,16 +15,16 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
     std::shared_ptr<Task> task = pop();
 
     if (Configuration::get().verbose) {
-      printf("[%d] Task %s %" PRIu64 " @ node %d", now(), task->type(), task->start(), task->get_node());
+      std::cout << "NOW=" << now() << " " << *task;
     }
     if (task->execute(timeline, *this)) {
       task->notify(coll, *this);
       if (Configuration::get().verbose) {
-        printf("\n");
+        std::cout << std::endl;
       }
     } else {
       if (Configuration::get().verbose) {
-        printf(" rescheduled\n");
+        std::cout << " rescheduled" << std::endl;
       }
     }
   }

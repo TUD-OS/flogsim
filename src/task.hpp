@@ -11,18 +11,17 @@ class Task
 {
 protected:
   Time time;
-  int node; // Node where the task is executed
+  int _sender; // Node where the task is executed
+  int _receiver; // Destination node. Can be the same as sender
 public:
 
-  Task(Time time, int node) :
-    time(time), node(node)
+  Task(Time time, int sender, int receiver) :
+    time(time), _sender(sender), _receiver(receiver)
   {
   }
 
-  int get_node() const
-  {
-    return node;
-  }
+  int sender() const { return _sender; }
+  int receiver() const { return _receiver; }
 
   Time start() const
   {
@@ -38,7 +37,7 @@ public:
 
   bool operator<(const Task &other) const
   {
-    return (time < other.time) ? true : (node < other.node);
+    return (time < other.time) ? true : (sender() < other.sender());
   }
 
   bool operator==(const Task &other) const
@@ -57,6 +56,14 @@ public:
   }
 
   virtual const char* type() const = 0;
+
+  friend std::ostream &operator<<(std::ostream &os, const Task &t)
+  {
+    os << "Task[@ " << t.time << "] "
+       << t.type() << " "
+       << t.sender() << " -> " << t.receiver();
+    return os;
+  }
 };
 
 namespace LogP
@@ -64,15 +71,11 @@ namespace LogP
 
 class RecvTask : public Task
 {
-  int recv;
 public:
-  int sender() const { return node; }
-  int receiver() const { return recv; }
-
   RecvTask(const RecvTask &other) = default;
 
-  RecvTask(Time time, int send, int recv) :
-    Task(time, send), recv(recv)
+  RecvTask(Time time, int sender, int receiver) :
+    Task(time, sender, receiver)
   {}
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final
@@ -112,13 +115,9 @@ public:
 
 class MsgTask : public Task
 {
-  int recv;
 public:
-  int sender() const { return node; }
-  int receiver() const { return recv; }
-
-  MsgTask(Time time, int send, int recv) :
-    Task(time, send), recv(recv)
+  MsgTask(Time time, int sender, int receiver) :
+    Task(time, sender, receiver)
   {
   }
 
@@ -144,19 +143,17 @@ public:
 
 class SendTask : public Task
 {
-  int recv;
 public:
   SendTask(const SendTask &other) = default;
 
-  SendTask(Time time, int node, int recv) :
-    Task(time, node), recv(recv)
+  SendTask(Time time, int sender, int receiver) :
+    Task(time, sender, receiver)
   {
-    assert(time < Time(50));
   }
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final
   {
-    auto &cpu = timeline.per_cpu_time[node];
+    auto &cpu = timeline.per_cpu_time[sender()];
 
     // Calculate time for CpuTime
     Time cpu_last = cpu.cpu_events.get_last_or_zero();
@@ -165,7 +162,7 @@ public:
     auto start_time = std::max({cpu_last, send_last, tq.now()});
 
     if (start_time > tq.now()) {
-      tq.schedule(std::make_shared<SendTask>(start_time, node, recv));
+      tq.schedule(std::make_shared<SendTask>(start_time, sender(), receiver()));
       return false;
     }
 
@@ -175,7 +172,7 @@ public:
     cpu.send_gaps.push_back(sg);
     cpu.cpu_events.push_back(cpu_event);
 
-    tq.schedule(std::make_shared<MsgTask>(cpu_event.end(), node, recv));
+    tq.schedule(std::make_shared<MsgTask>(cpu_event.end(), sender(), receiver()));
     return true;
   }
 
@@ -194,14 +191,14 @@ class FinishTask : public Task
 {
 public:
 
-  FinishTask(int node) :
-    Task(Time::max(), node)
+  FinishTask(int sender) :
+    Task(Time::max(), sender, sender)
   {
   }
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final
   {
-    auto &cpu = timeline.per_cpu_time[node];
+    auto &cpu = timeline.per_cpu_time[sender()];
 
     // Calculate time for CpuTime
     auto cpu_last =  cpu.cpu_events.back();
