@@ -18,17 +18,18 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
   while (!empty()) {
     std::shared_ptr<Task> task = pop();
 
+    std::stringstream ss;
     if (Configuration::get().verbose) {
-      std::cout << "NOW=" << now() << " " << *task;
+      ss << "NOW=" << now() << " " << *task;
     }
     if (task->execute(timeline, *this)) {
       task->notify(coll, *this);
       if (Configuration::get().verbose) {
-        std::cout << std::endl;
+        std::cout << ss.str() << std::endl;
       }
     } else {
       if (Configuration::get().verbose) {
-        std::cout << " rescheduled" << std::endl;
+        std::cout << ss.str() << " rescheduled" << std::endl;
       }
     }
   }
