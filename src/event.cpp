@@ -20,3 +20,8 @@ Time FinishEvent::end() const
 {
   return start();
 }
+
+Time FailureEvent::end() const
+{
+  return start();
+}

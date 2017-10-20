@@ -105,6 +105,30 @@ struct FinishEvent : public Event
   }
 };
 
+struct FailureEvent : public Event
+{
+  int sender;
+
+  FailureEvent() = default;
+
+  FailureEvent(Time time, int sender) :
+    Event(time), sender(sender)
+  {}
+
+  Time end() const override;
+
+  static std::string header()
+  {
+    return "Failure_Time|Sender";
+  }
+
+  friend std::ostream& operator<<(std::ostream &os, const FailureEvent& e)
+  {
+    os << e.time << '|' << e.sender;
+    return os;
+  }
+};
+
 template<class T>
 struct EventQueue
 {

@@ -70,3 +70,14 @@ bool LogP::FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
   timeline.update_total_time(cpu.finish.back().end());
   return true;
 }
+
+bool LogP::FailureTask::execute(Timeline &timeline, TaskQueue &tq) const
+{
+  auto &cpu = timeline.per_cpu_time[receiver()];
+
+  // Calculate time for CpuTime
+  cpu.failure.push_back(FailureEvent(start(), sender()));
+
+  timeline.update_total_time(cpu.failure.back().end());
+  return true;
+}

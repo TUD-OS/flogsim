@@ -157,4 +157,26 @@ public:
   }
 };
 
+class FailureTask : public Task
+{
+public:
+
+  FailureTask(const std::shared_ptr<Task> task) :
+    Task(task->start(), task->sender(), task->receiver())
+  {
+  }
+
+  bool execute(Timeline &timeline, TaskQueue &tq) const override final;
+
+  void notify(Collective &coll, TaskQueue &tq) override final
+  {
+    coll.accept(*this, tq);
+  }
+
+  virtual const char* type() const override final
+  {
+    return "FailureTask";
+  }
+};
+
 }

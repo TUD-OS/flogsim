@@ -13,6 +13,7 @@ struct CpuTimeline
   EventQueue<SendGap> send_gaps;
   EventQueue<RecvGap> recv_gaps;
   EventQueue<FinishEvent> finish;
+  EventQueue<FailureEvent> failure;
 
   CpuTimeline() = default;
 
@@ -21,7 +22,8 @@ struct CpuTimeline
     os << ctl.cpu_events << ','
        << ctl.send_gaps << ','
        << ctl.recv_gaps << ','
-       << ctl.finish;
+       << ctl.finish << ','
+       << ctl.failure;
     return os;
   }
 
@@ -31,7 +33,8 @@ struct CpuTimeline
     ss << decltype(cpu_events)::header() << ','
        << decltype(send_gaps)::header() << ','
        << decltype(recv_gaps)::header() << ','
-       << decltype(finish)::header();
+       << decltype(finish)::header() << ','
+       << decltype(failure)::header();
     return ss.str();
   }
 };

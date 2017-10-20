@@ -9,6 +9,7 @@ class SendTask;
 class RecvTask;
 class MsgTask;
 class FinishTask;
+class FailureTask;
 
 }
 
@@ -32,6 +33,10 @@ public:
   }
 
   virtual void accept(const LogP::FinishTask&, TaskQueue&)
+  {
+  }
+
+  virtual void accept(const LogP::FailureTask&, TaskQueue&)
   {
   }
 };
