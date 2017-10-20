@@ -43,21 +43,23 @@ trace.df[variable=="SendGap", End := Time + model.df$g]
 trace.df[variable=="RecvGap", End := Time + model.df$g]
 trace.df[variable=="RecvGap", Start := Start - model.df$L]
 trace.df[variable=="Finish", End := Time + 0.1]
+trace.df[variable=="Failure", End := Time + 0.1]
+trace.df[variable=="Failure", Start := Start - model.df$L]
 
 full.stop <- trace.df[variable=="Finish", max(Time)]
 
-variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Finish" = 1)
+variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Finish" = 1)
 
 ## Model specific part ended
 
 #pdf("sth.pdf", width=20, height=64)
-ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish"))],
+ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
        aes(ymin = as.double(Time), ymax = as.double(End), x = CPU, col = variable)) +
     geom_linerange(alpha = 0.3, size = 4) +
-    geom_linerange(data = trace.df[variable %in% c("CpuEvent", "Finish")],
+    geom_linerange(data = trace.df[variable %in% c("CpuEvent", "Finish", "Failure")],
                    size = 4, aes(x = CPU + 0.1)) +
     geom_hline(yintercept = full.stop, size = 1) +
-    geom_segment(data = trace.df[variable == "RecvGap"], aes(x = Sender + 0.05, xend = CPU + 0.05, y = Start, yend = Time),
+    geom_segment(data = trace.df[!is.na(Sender)], aes(x = Sender + 0.05, xend = CPU + 0.05, y = Start, yend = Time, col = variable),
                  arrow = arrow(length = unit(0.01, "npc"))) +
     scale_colour_manual(name = "Event type", values = variables) +
     coord_flip()
