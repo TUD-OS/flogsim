@@ -36,7 +36,7 @@ public:
 
   virtual void accept(const LogP::RecvTask& task, TaskQueue& tq)
   {
-    post_sends(task.get_node(), tq);
+    post_sends(task.receiver(), tq);
   }
 
   void populate(TaskQueue &tq) override

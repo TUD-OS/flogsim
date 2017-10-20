@@ -67,17 +67,25 @@ struct SendGap : public Event
 
 struct RecvGap : public Event
 {
+  int sender;
+
   RecvGap() = default;
 
-  RecvGap(Time time) :
-    Event{time}
+  RecvGap(Time time, int sender) :
+    Event{time}, sender(sender)
   {}
 
   Time end() const override;
 
   static std::string header()
   {
-    return "RecvGap";
+    return "RecvGap_Time,RecvGap_Sender";
+  }
+
+  friend std::ostream& operator<<(std::ostream &os, const RecvGap& e)
+  {
+    os << e.time << ',' << e.sender;
+    return os;
   }
 };
 

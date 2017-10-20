@@ -5,6 +5,8 @@
 #include "collective.hpp"
 #include "model.hpp"
 
+#include <iostream>
+
 class Task
 {
 protected:
@@ -62,16 +64,20 @@ namespace LogP
 
 class RecvTask : public Task
 {
+  int recv;
 public:
+  int sender() const { return node; }
+  int receiver() const { return recv; }
+
   RecvTask(const RecvTask &other) = default;
 
-  RecvTask(Time time, int node) :
-    Task(time, node)
+  RecvTask(Time time, int send, int recv) :
+    Task(time, send), recv(recv)
   {}
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final
   {
-    auto &cpu = timeline.per_cpu_time[node];
+    auto &cpu = timeline.per_cpu_time[receiver()];
 
     // Calculate time for CpuTime
     Time cpu_last = cpu.cpu_events.get_last_or_zero();
@@ -80,11 +86,11 @@ public:
     auto start_time = std::max({cpu_last, recv_last, tq.now()});
 
     if (start_time > tq.now()) {
-      tq.schedule(std::make_shared<RecvTask>(start_time, this->node));
+      tq.schedule(std::make_shared<RecvTask>(start_time, sender(), receiver()));
       return false;
     }
 
-    RecvGap rg{start_time};
+    RecvGap rg{start_time, sender()};
     CpuEvent cpu_event{start_time};
 
     cpu.recv_gaps.push_back(rg);
@@ -106,9 +112,13 @@ public:
 
 class MsgTask : public Task
 {
+  int recv;
 public:
-  MsgTask(Time time, int node) :
-    Task(time, node)
+  int sender() const { return node; }
+  int receiver() const { return recv; }
+
+  MsgTask(Time time, int send, int recv) :
+    Task(time, send), recv(recv)
   {
   }
 
@@ -117,7 +127,7 @@ public:
     // Calculate time when receive task can be scheduled
     auto recv_time = tq.now() + LogP::Model::get().L;
 
-    tq.schedule(std::make_shared<RecvTask>(recv_time, node));
+    tq.schedule(std::make_shared<RecvTask>(recv_time, sender(), receiver()));
     return true;
   }
 
@@ -140,7 +150,9 @@ public:
 
   SendTask(Time time, int node, int recv) :
     Task(time, node), recv(recv)
-  {}
+  {
+    assert(time < Time(50));
+  }
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final
   {
@@ -153,7 +165,7 @@ public:
     auto start_time = std::max({cpu_last, send_last, tq.now()});
 
     if (start_time > tq.now()) {
-      tq.schedule(std::make_shared<SendTask>(start_time, this->node, this->recv));
+      tq.schedule(std::make_shared<SendTask>(start_time, node, recv));
       return false;
     }
 
@@ -163,7 +175,7 @@ public:
     cpu.send_gaps.push_back(sg);
     cpu.cpu_events.push_back(cpu_event);
 
-    tq.schedule(std::make_shared<MsgTask>(cpu_event.end(), recv));
+    tq.schedule(std::make_shared<MsgTask>(cpu_event.end(), node, recv));
     return true;
   }
 
