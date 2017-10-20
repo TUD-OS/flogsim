@@ -4,7 +4,9 @@
 
 void TaskQueue::schedule(std::shared_ptr<Task> task)
 {
-  queue.emplace(task->start(), task);
+  if (!fault_injector.failure(task)) {
+    queue.emplace(task->start(), task);
+  }
 }
 
 void TaskQueue::run(Collective &coll, Timeline &timeline)

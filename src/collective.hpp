@@ -12,6 +12,8 @@ class FinishTask;
 
 }
 
+class TaskQueue;
+
 class Collective
 {
 public:

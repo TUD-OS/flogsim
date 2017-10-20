@@ -6,6 +6,7 @@
 
 #include "time.hpp"
 #include "timeline.hpp"
+#include "fault_injector.hpp"
 
 #include <boost/heap/fibonacci_heap.hpp>
 
@@ -49,10 +50,12 @@ class TaskQueue
     assert(!(absolute < current_time));
     current_time = absolute;
   }
+
+  FaultInjector &fault_injector;
 public:
 
-  TaskQueue() :
-    queue()
+  TaskQueue(FaultInjector &fault_injector) :
+    queue(), fault_injector(fault_injector)
   {}
 
   Time now() const

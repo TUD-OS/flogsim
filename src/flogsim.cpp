@@ -50,7 +50,8 @@ int main(int argc, char *argv[])
 {
   Configuration::parse_args(argc, argv);
 
-  TaskQueue tq{};
+  NoFaults fault_injector;
+  TaskQueue tq{fault_injector};
   Timeline timeline(Model::get().P);
 
   BinaryBroadcast coll(Model::get().P);
