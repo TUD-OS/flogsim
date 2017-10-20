@@ -13,36 +13,52 @@ trace.df <- fread(trace.filename, colClasses = "character")
 event.cols <- names(trace.df)[-1]
 cpu.col <- names(trace.df)[1]
 
+## Tidy the data table
 trace.df[, (event.cols) := map(.SD, ~strsplit(., " ")) ,.SDcols = event.cols]
-trace.df[, (event.cols) := map(.SD, ~map(., function(x) as.double(x))) ,.SDcols = event.cols]
-trace.df[, (cpu.col) := as.integer(get(cpu.col))]
-
 trace.df <- melt(trace.df, id.vars=cpu.col)
 trace.df <- unnest(trace.df, value)
-names(trace.df) <- c(cpu.col, "event", "start")
-trace.df[, end := start]
 
-## Now I write very model specific code. And I expect LogP model
-model.df <- fread(model.filename)
+trace.df[, variable := as.character(variable)]
 
-trace.df[event=="CpuEvent", end := start + model.df$o]
-trace.df[event=="SendGaps", end := start + model.df$g]
-trace.df[event=="RecvGaps", end := start + model.df$g]
-trace.df[event=="Finish", end := start + 0.1]
+trace.df[, c("variable", "field") := colsplit(trace.df$variable, "_", c("event", "field"))]
 
-full.stop <- trace.df[event=="Finish", max(start)]
+cols <- c("value", "field")
+trace.df[, (cols) := map(.SD, ~strsplit(., "\\|")) ,.SDcols = cols]
+trace.df[, id := 1:nrow(.SD)]
+trace.df <- unnest(trace.df, value, field)
 
-events <- c("CpuEvent" = 2, "SendGaps" = 3, "RecvGaps" = 4, "Finish" = 1)
+trace.df[, value := as.double(value)]
+trace.df[, CPU := as.integer(CPU)]
+
+trace.df <- spread(trace.df, field, value)
+
+# Enforce order
+
+trace.df[order(Time)]
+
+trace.df[, End := Time]
+trace.df[, Start := Time]
+trace.df[variable=="CpuEvent", End := Time + model.df$o]
+trace.df[variable=="SendGap", End := Time + model.df$g]
+trace.df[variable=="RecvGap", End := Time + model.df$g]
+trace.df[variable=="RecvGap", Start := Start - model.df$L]
+trace.df[variable=="Finish", End := Time + 0.1]
+
+full.stop <- trace.df[variable=="Finish", max(Time)]
+
+variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Finish" = 1)
 
 ## Model specific part ended
 
 #pdf("sth.pdf", width=20, height=64)
-ggplot(trace.df[!(event %in% c("CpuEvent", "Finish"))],
-       aes(ymin = as.double(start), ymax = as.double(end), x = CPU, col = event)) +
+ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish"))],
+       aes(ymin = as.double(Time), ymax = as.double(End), x = CPU, col = variable)) +
     geom_linerange(alpha = 0.3, size = 4) +
-    geom_linerange(data = trace.df[event %in% c("CpuEvent", "Finish")],
+    geom_linerange(data = trace.df[variable %in% c("CpuEvent", "Finish")],
                    size = 4, aes(x = CPU + 0.1)) +
     geom_hline(yintercept = full.stop, size = 1) +
-    scale_colour_manual(name = "Event type", values = events) +
+    geom_segment(data = trace.df[variable == "RecvGap"], aes(x = Sender + 0.05, xend = CPU + 0.05, y = Start, yend = Time),
+                 arrow = arrow(length = unit(0.01, "npc"))) +
+    scale_colour_manual(name = "Event type", values = variables) +
     coord_flip()
 #dev.off()
