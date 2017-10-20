@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <ctime>        // std::time
 
 #include "fault_injector.hpp"
 
@@ -6,6 +7,8 @@
 UniformFaults::UniformFaults(int P, int F)
   : P(P), F(F)
 {
+  std::srand(unsigned(std::time(0)));
+
   // Probably not the most efficient way, but the easiest way to
   // achive uniformity
   failed_nodes.reserve(P);
@@ -13,7 +16,10 @@ UniformFaults::UniformFaults(int P, int F)
     failed_nodes.push_back(i);
   }
 
-  std::random_shuffle(failed_nodes.begin(), failed_nodes.end());
+  std::random_shuffle(failed_nodes.begin(), failed_nodes.end(),
+                      [&] (int i) {
+                        return std::rand() % i;
+                      });
 
   failed_nodes.resize(F);
 
