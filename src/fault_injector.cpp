@@ -1,11 +1,25 @@
 #include <algorithm>
 #include <ctime>        // std::time
+#include <stdexcept>
 
 #include "fault_injector.hpp"
-#include "configuration.hpp"
 
-UniformFaults::UniformFaults(int P, int F)
-  : P(P), F(F)
+std::unique_ptr<FaultInjector> FaultInjector::create()
+{
+  auto &conf = Configuration::get();
+
+  if (conf.fault_injector == "none") {
+    return std::make_unique<NoFaults>();
+  } else if (conf.fault_injector == "uniform") {
+    return std::make_unique<UniformFaults>(conf.F);
+  } else {
+    throw std::invalid_argument("Fault injector does not exist:" +
+                                conf.fault_injector);
+  }
+}
+
+UniformFaults::UniformFaults(int F)
+  : P(Configuration::get().P), F(F)
 {
   std::srand(unsigned(std::time(0)));
 

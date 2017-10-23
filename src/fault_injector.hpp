@@ -1,6 +1,7 @@
 #pragma once
 
 #include "task.hpp"
+#include "configuration.hpp"
 
 class Task;
 
@@ -8,6 +9,10 @@ class FaultInjector
 {
 public:
   virtual bool failure(std::shared_ptr<Task> task) = 0;
+
+  // Factory method, which creates fault injector based on
+  // configuration.
+  static std::unique_ptr<FaultInjector> create();
 };
 
 class NoFaults : public FaultInjector
@@ -26,7 +31,7 @@ class UniformFaults : public FaultInjector
   std::vector<int> failed_nodes;
 public:
 
-  UniformFaults(int P, int F);
+  UniformFaults(int F);
 
   bool failure(std::shared_ptr<Task>) override final;
 };

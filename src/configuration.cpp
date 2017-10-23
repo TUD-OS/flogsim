@@ -47,6 +47,18 @@ void Configuration::parse_args(int argc, char *argv[])
 
   desc.add(model);
 
+  po::options_description faults("Fault injector options");
+  faults.add_options()
+    ("faults",
+     po::value<std::string>(&temp_conf.fault_injector)->default_value("none"),
+     "Type of fault injector")
+    ("F",
+     po::value<int>(&temp_conf.F)->default_value(1),
+     "Number of faults")
+    ;
+
+  desc.add(faults);
+
   po::variables_map args;
 
   try {

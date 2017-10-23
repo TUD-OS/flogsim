@@ -50,8 +50,8 @@ int main(int argc, char *argv[])
 {
   Configuration::parse_args(argc, argv);
 
-  UniformFaults fault_injector(Model::get().P, 1);
-  TaskQueue tq{fault_injector};
+  auto fault_injector = FaultInjector::create();
+  TaskQueue tq{std::move(fault_injector)};
   Timeline timeline(Model::get().P);
 
   BinaryBroadcast coll(Model::get().P);
