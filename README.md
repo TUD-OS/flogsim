@@ -28,3 +28,4 @@ Example usage
   - [ ] Add checked correction
   - [ ] If root node is dead, it still sends messages.
   - [ ] Fix visualization bug with arrows
+  - [ ] Add number of messages send
