@@ -9,6 +9,7 @@ trace.filename <- 'log.trace.csv'
 model.filename <- 'log.model.csv'
 
 trace.df <- fread(trace.filename, colClasses = "character")
+model.df <- fread(model.filename)
 
 event.cols <- names(trace.df)[-1]
 cpu.col <- names(trace.df)[1]
