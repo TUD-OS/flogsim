@@ -6,22 +6,68 @@
 #include "task_queue.hpp"
 
 #include <iostream>
+#include <type_traits>
 
 class TaskQueue;
+
+// class for sequence numbers
+struct Sequence
+{
+  int id;
+
+  explicit Sequence(int id)
+    : id(id)
+  {}
+  Sequence(const Sequence &other) = default;
+
+  static Sequence next();
+};
 
 class Task
 {
 protected:
+  Sequence _seq;
   Time time;
   int _sender; // Node where the task is executed
   int _receiver; // Destination node. Can be the same as sender
 public:
 
-  Task(Time time, int sender, int receiver) :
-    time(time), _sender(sender), _receiver(receiver)
+  Task(Sequence seq, Time time, int sender, int receiver)
+    : _seq(seq),
+      time(time),
+      _sender(sender),
+      _receiver(receiver)
+  {}
+
+
+  Task(const Task &other) = default;
+
+  static auto make_task_attime(auto *task, Time time)
   {
+    typedef typename std::remove_cv<
+      typename std::remove_pointer<typeof(task)>::type>::type task_t;
+    return std::make_shared<task_t>(task->seq(), time, task->sender(), task->receiver());
   }
 
+  template<typename T, class ...Args>
+  static std::shared_ptr<T> make_from_task(const Task *task, Args... args)
+  {
+    return std::make_shared<T>(task->seq(), args...);
+  }
+
+  template<typename T>
+  static std::shared_ptr<T> make_from_task(const Task *task)
+  {
+    return std::make_shared<T>(task);
+  }
+
+  template<typename T, class ...Args>
+  static auto make_new(Args... args)
+  {
+    return std::make_shared<T>(Sequence::next(), args...);
+  }
+
+  Sequence seq() const { return _seq; }
   int sender() const { return _sender; }
   int receiver() const { return _receiver; }
 
@@ -76,8 +122,8 @@ class RecvTask : public Task
 public:
   RecvTask(const RecvTask &other) = default;
 
-  RecvTask(Time time, int sender, int receiver) :
-    Task(time, sender, receiver)
+  RecvTask(Sequence seq, Time time, int sender, int receiver) :
+    Task(seq, time, sender, receiver)
   {}
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
@@ -96,8 +142,8 @@ public:
 class MsgTask : public Task
 {
 public:
-  MsgTask(Time time, int sender, int receiver) :
-    Task(time, sender, receiver)
+  MsgTask(Sequence seq, Time time, int sender, int receiver) :
+    Task(seq, time, sender, receiver)
   {
   }
 
@@ -119,8 +165,8 @@ class SendTask : public Task
 public:
   SendTask(const SendTask &other) = default;
 
-  SendTask(Time time, int sender, int receiver) :
-    Task(time, sender, receiver)
+  SendTask(Sequence seq, Time time, int sender, int receiver) :
+    Task(seq, time, sender, receiver)
   {
   }
 
@@ -141,8 +187,8 @@ class FinishTask : public Task
 {
 public:
 
-  FinishTask(int sender) :
-    Task(Time::max(), sender, sender)
+  FinishTask(Sequence seq, int sender) :
+    Task(seq, Time::max(), sender, sender)
   {
   }
 
@@ -163,8 +209,8 @@ class FailureTask : public Task
 {
 public:
 
-  FailureTask(const std::shared_ptr<Task> task) :
-    Task(task->start(), task->sender(), task->receiver())
+  FailureTask(const Task *task) :
+    Task(task->seq(), task->start(), task->sender(), task->receiver())
   {
   }
 

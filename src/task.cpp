@@ -1,5 +1,11 @@
 #include "task.hpp"
 
+Sequence Sequence::next()
+{
+  static int next_id = 0;
+  return Sequence(next_id++);
+}
+
 bool LogP::RecvTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[receiver()];
@@ -11,7 +17,7 @@ bool LogP::RecvTask::execute(Timeline &timeline, TaskQueue &tq) const
   auto start_time = std::max({cpu_last, recv_last, tq.now()});
 
   if (start_time > tq.now()) {
-    tq.schedule(std::make_shared<RecvTask>(start_time, sender(), receiver()));
+    tq.schedule(make_task_attime(this, start_time));
     return false;
   }
 
@@ -29,7 +35,7 @@ bool LogP::MsgTask::execute(Timeline &timeline, TaskQueue &tq) const
   // Calculate time when receive task can be scheduled
   auto recv_time = tq.now() + LogP::Model::get().L;
 
-  tq.schedule(std::make_shared<RecvTask>(recv_time, sender(), receiver()));
+  tq.schedule(make_from_task<RecvTask>(this, recv_time, sender(), receiver()));
   return true;
 }
 
@@ -44,7 +50,7 @@ bool LogP::SendTask::execute(Timeline &timeline, TaskQueue &tq) const
   auto start_time = std::max({cpu_last, send_last, tq.now()});
 
   if (start_time > tq.now()) {
-    tq.schedule(std::make_shared<SendTask>(start_time, sender(), receiver()));
+    tq.schedule(make_task_attime(this, start_time));
     return false;
   }
 
@@ -54,7 +60,7 @@ bool LogP::SendTask::execute(Timeline &timeline, TaskQueue &tq) const
   cpu.send_gaps.push_back(sg);
   cpu.cpu_events.push_back(cpu_event);
 
-  tq.schedule(std::make_shared<MsgTask>(cpu_event.end(), sender(), receiver()));
+  tq.schedule(make_from_task<MsgTask>(this, cpu_event.end(), sender(), receiver()));
   return true;
 }
 
