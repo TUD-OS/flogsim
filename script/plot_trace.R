@@ -1,7 +1,6 @@
 suppressMessages(library(ggplot2))
 suppressMessages(library(purrr))
 suppressMessages(library(data.table))
-suppressMessages(library(bit64))
 suppressMessages(library(tidyr))
 suppressMessages(library(reshape2))
 
