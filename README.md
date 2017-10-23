@@ -23,9 +23,7 @@ Example usage
 
 # TODO
 
-  - [ ] Add sequence ids to messages
   - [ ] Replace priority queue with vector
   - [ ] Add checked correction
   - [ ] If root node is dead, it still sends messages.
-  - [ ] Fix visualization bug with arrows
-  - [ ] Add number of messages send
+  - [ ] Add number of messages sent
