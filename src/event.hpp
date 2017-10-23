@@ -7,6 +7,7 @@
 #include <iterator>
 
 #include "time.hpp"
+#include "sequence.hpp"
 
 struct Event
 {
@@ -19,17 +20,18 @@ struct Event
 
   friend std::ostream& operator<<(std::ostream &os, const Event& e)
   {
-    os << e.time;
+    os << e.seq.id << '|' << e.time;
     return os;
   }
 
   Event() = default;
 
-  Event(Time time) :
-    time(time)
+  Event(Sequence seq, Time time) :
+    seq(seq), time(time)
   {}
 
 protected:
+  Sequence seq;
   Time time;
 };
 
@@ -37,15 +39,15 @@ struct CpuEvent : public Event
 {
   CpuEvent() = default;
 
-  CpuEvent(Time time) :
-    Event{time}
+  CpuEvent(Sequence seq, Time time) :
+    Event{seq, time}
   {}
 
   Time end() const override;
 
   static std::string header()
   {
-    return "CpuEvent_Time";
+    return "CpuEvent_Sequence|Time";
   }
 };
 
@@ -53,39 +55,31 @@ struct SendGap : public Event
 {
   SendGap() = default;
 
-  SendGap(Time time) :
-    Event{time}
+  SendGap(Sequence seq, Time time) :
+    Event{seq, time}
   {}
 
   Time end() const override;
 
   static std::string header()
   {
-    return "SendGap_Time";
+    return "SendGap_Sequence|Time";
   }
 };
 
 struct RecvGap : public Event
 {
-  int sender;
-
   RecvGap() = default;
 
-  RecvGap(Time time, int sender) :
-    Event{time}, sender(sender)
+  RecvGap(Sequence seq, Time time) :
+    Event{seq, time}
   {}
 
   Time end() const override;
 
   static std::string header()
   {
-    return "RecvGap_Time|Sender";
-  }
-
-  friend std::ostream& operator<<(std::ostream &os, const RecvGap& e)
-  {
-    os << e.time << '|' << e.sender;
-    return os;
+    return "RecvGap_Sequence|Time";
   }
 };
 
@@ -93,15 +87,15 @@ struct FinishEvent : public Event
 {
   FinishEvent() = default;
 
-  FinishEvent(Time time) :
-    Event(time)
+  FinishEvent(Sequence seq, Time time) :
+    Event(seq, time)
   {}
 
   Time end() const override;
 
   static std::string header()
   {
-    return "Finish_Time";
+    return "Finish_Sequence|Time";
   }
 };
 
@@ -111,21 +105,15 @@ struct FailureEvent : public Event
 
   FailureEvent() = default;
 
-  FailureEvent(Time time, int sender) :
-    Event(time), sender(sender)
+  FailureEvent(Sequence seq, Time time) :
+    Event(seq, time)
   {}
 
   Time end() const override;
 
   static std::string header()
   {
-    return "Failure_Time|Sender";
-  }
-
-  friend std::ostream& operator<<(std::ostream &os, const FailureEvent& e)
-  {
-    os << e.time << '|' << e.sender;
-    return os;
+    return "Failure_Sequence|Time";
   }
 };
 

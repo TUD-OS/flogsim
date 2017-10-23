@@ -4,24 +4,12 @@
 #include "collective.hpp"
 #include "model.hpp"
 #include "task_queue.hpp"
+#include "sequence.hpp"
 
 #include <iostream>
 #include <type_traits>
 
 class TaskQueue;
-
-// class for sequence numbers
-struct Sequence
-{
-  int id;
-
-  explicit Sequence(int id)
-    : id(id)
-  {}
-  Sequence(const Sequence &other) = default;
-
-  static Sequence next();
-};
 
 class Task
 {

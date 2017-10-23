@@ -21,8 +21,8 @@ bool LogP::RecvTask::execute(Timeline &timeline, TaskQueue &tq) const
     return false;
   }
 
-  RecvGap rg{start_time, sender()};
-  CpuEvent cpu_event{start_time};
+  RecvGap rg{seq(), start_time};
+  CpuEvent cpu_event{seq(), start_time};
 
   cpu.recv_gaps.push_back(rg);
   cpu.cpu_events.push_back(cpu_event);
@@ -54,8 +54,8 @@ bool LogP::SendTask::execute(Timeline &timeline, TaskQueue &tq) const
     return false;
   }
 
-  SendGap sg{start_time};
-  CpuEvent cpu_event{start_time};
+  SendGap sg{seq(), start_time};
+  CpuEvent cpu_event{seq(), start_time};
 
   cpu.send_gaps.push_back(sg);
   cpu.cpu_events.push_back(cpu_event);
@@ -71,7 +71,7 @@ bool LogP::FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
   // Calculate time for CpuTime
   auto cpu_last =  cpu.cpu_events.back();
 
-  cpu.finish.push_back(FinishEvent(cpu_last.end()));
+  cpu.finish.push_back(FinishEvent(seq(), cpu_last.end()));
 
   timeline.update_total_time(cpu.finish.back().end());
   return true;
@@ -82,7 +82,7 @@ bool LogP::FailureTask::execute(Timeline &timeline, TaskQueue &tq) const
   auto &cpu = timeline.per_cpu_time[receiver()];
 
   // Calculate time for CpuTime
-  cpu.failure.push_back(FailureEvent(start(), sender()));
+  cpu.failure.push_back(FailureEvent(seq(), start()));
 
   timeline.update_total_time(cpu.failure.back().end());
   return true;
