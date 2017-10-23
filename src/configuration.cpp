@@ -74,6 +74,18 @@ void Configuration::parse_args(int argc, char *argv[])
 
   desc.add(faults);
 
+  po::options_description collectives("Collectives options");
+  collectives.add_options()
+    ("coll",
+     po::value<std::string>(&temp_conf.collective)->default_value("binary_bcast"),
+     "Type of collective to model")
+    ("k",
+     po::value<int>(&temp_conf.k)->default_value(2),
+     "K-arity of the tree")
+    ;
+
+  desc.add(collectives);
+
   po::variables_map args;
 
   try {

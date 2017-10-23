@@ -14,6 +14,10 @@ struct Configuration
 
   static void parse_args(int argc, char *argv[]);
 
+  // Collectives parameters
+  std::string collective;
+  int k;
+
   static const Configuration &get();
 private:
   bool initialized = false;

@@ -1,11 +1,13 @@
 #pragma once
 
 #include "timeline.hpp"
-#include "task_queue.hpp"
 #include "collective.hpp"
 #include "model.hpp"
+#include "task_queue.hpp"
 
 #include <iostream>
+
+class TaskQueue;
 
 class Task
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "task_queue.hpp"
+#include <memory>
 
 namespace LogP
 {
@@ -39,4 +39,8 @@ public:
   virtual void accept(const LogP::FailureTask&, TaskQueue&)
   {
   }
+
+  // Factory method, which creates collectives based on
+  // configuration.
+  static std::unique_ptr<Collective> create();
 };
