@@ -10,4 +10,6 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug
 
   - [ ] Add sequence ids to messages
   - [ ] Replace priority queue with vector
-  - [ ] Add FT tree broadcast
+  - [ ] Add checked correction
+  - [ ] If root node is dead, it still sends messages.
+  - [ ] Fix visualization bug with arrows
