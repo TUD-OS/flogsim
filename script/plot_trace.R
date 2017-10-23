@@ -53,6 +53,9 @@ variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Fin
 
 ## Model specific part ended
 
+major.breaks <- seq(0, model.df$P + 4, 5)
+minor.break <- seq(min(range(major.breaks)), max(range(major.breaks)))
+
 #pdf("sth.pdf", width=20, height=64)
 ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
        aes(ymin = as.double(Time), ymax = as.double(End), x = CPU, col = variable)) +
@@ -63,5 +66,7 @@ ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
     geom_segment(data = trace.df[!is.na(Sender)], aes(x = Sender + 0.05, xend = CPU + 0.05, y = Start, yend = Time, col = variable),
                  arrow = arrow(length = unit(0.01, "npc"))) +
     scale_colour_manual(name = "Event type", values = variables) +
-    coord_flip()
+    coord_flip() +
+    scale_x_continuous(minor_breaks = minor.break, breaks = major.breaks, labels = major.breaks) +
+    xlim(0, max(major.breaks))
 #dev.off()
