@@ -5,6 +5,21 @@
 
 #include "configuration.hpp"
 
+static Configuration &__get()
+{
+  static Configuration conf;
+  return conf;
+}
+
+const Configuration &Configuration::get()
+{
+  auto &conf = __get();
+  if (!conf.initialized) {
+    std::runtime_error("Initialize configuration first");
+  }
+  return conf;
+}
+
 namespace po = boost::program_options;
 
 void
@@ -76,12 +91,7 @@ void Configuration::parse_args(int argc, char *argv[])
     // no return
   }
 
-  auto &conf = const_cast<Configuration&>(Configuration::get());
+  auto &conf = __get();
   conf = temp_conf;
-}
-
-const Configuration &Configuration::get()
-{
-  static Configuration conf;
-  return conf;
+  conf.initialized = true;
 }
