@@ -18,16 +18,34 @@ void Configuration::parse_args(int argc, char *argv[])
 {
   Configuration temp_conf;
 
-  po::options_description desc("Allowed options");
+  po::options_description desc("General options");
   desc.add_options()
     ("help", "Show help message")
-    ("log,l",
+    ("log",
      po::value<std::string>(&temp_conf.log_prefix)->default_value("log"),
      "Where to store the logs. Adds suffixes '.model.csv' and '.trace.csv' to the output files.")
     ("verbose,v",
      po::bool_switch(&temp_conf.verbose)->default_value(false),
      "Be verbose")
     ;
+
+  po::options_description model("Model options");
+  model.add_options()
+    ("L",
+     po::value<int>(&temp_conf.L)->default_value(1),
+     "Network latency")
+    ("o",
+     po::value<int>(&temp_conf.o)->default_value(1),
+     "CPU overhead")
+    ("g",
+     po::value<int>(&temp_conf.g)->default_value(2),
+     "Send/Recv gap")
+    ("P",
+     po::value<int>(&temp_conf.P)->default_value(8),
+     "Number of processors")
+    ;
+
+  desc.add(model);
 
   po::variables_map args;
 

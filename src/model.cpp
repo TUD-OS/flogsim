@@ -1,8 +1,13 @@
 #include "model.hpp"
+#include "configuration.hpp"
 
 const LogP::Model &LogP::Model::get()
 {
-  static Model model{Time(1), Time(1), Time(2), 1023};
+  auto &conf = Configuration::get();
+  static Model model{Time(conf.L),
+                     Time(conf.o),
+                     Time(conf.g),
+                     conf.P};
 
   return model;
 }
