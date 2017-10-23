@@ -1,9 +1,9 @@
-library(ggplot2)
-library(purrr)
-library(data.table)
-library(bit64)
-library(tidyr)
-library(reshape2)
+suppressMessages(library(ggplot2))
+suppressMessages(library(purrr))
+suppressMessages(library(data.table))
+suppressMessages(library(bit64))
+suppressMessages(library(tidyr))
+suppressMessages(library(reshape2))
 
 trace.filename <- 'log.trace.csv'
 model.filename <- 'log.model.csv'
@@ -35,9 +35,7 @@ trace.df <- spread(trace.df, field, value)
 
 # Enforce order
 
-trace.df[order(Time)]
-
-trace.df[, End := Time]
+trace.df$End = 0
 trace.df[, Start := Time]
 trace.df[variable=="CpuEvent", End := Time + model.df$o]
 trace.df[variable=="SendGap", End := Time + model.df$g]
@@ -54,19 +52,21 @@ variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Fin
 ## Model specific part ended
 
 major.breaks <- seq(0, model.df$P + 4, 5)
-minor.break <- seq(min(range(major.breaks)), max(range(major.breaks)))
+minor.breaks <- seq(min(range(major.breaks)), max(range(major.breaks)))
 
-#pdf("sth.pdf", width=20, height=64)
-ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
-       aes(ymin = as.double(Time), ymax = as.double(End), x = CPU, col = variable)) +
-    geom_linerange(alpha = 0.3, size = 4) +
+pdf("plot.pdf", width=20, height=model.df$P / 4)
+p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
+            aes(ymin = as.double(Time), ymax = as.double(End), x = CPU, col = variable)) +
+    geom_linerange(alpha = 0.3, size = 2) +
     geom_linerange(data = trace.df[variable %in% c("CpuEvent", "Finish", "Failure")],
-                   size = 4, aes(x = CPU + 0.1)) +
+                   size = 1, aes(x = CPU + 0.2)) +
     geom_hline(yintercept = full.stop, size = 1) +
-    geom_segment(data = trace.df[!is.na(Sender)], aes(x = Sender + 0.05, xend = CPU + 0.05, y = Start, yend = Time, col = variable),
-                 arrow = arrow(length = unit(0.01, "npc"))) +
     scale_colour_manual(name = "Event type", values = variables) +
     coord_flip() +
-    scale_x_continuous(minor_breaks = minor.break, breaks = major.breaks, labels = major.breaks) +
-    xlim(0, max(major.breaks))
-#dev.off()
+    scale_x_continuous(breaks = minor.breaks, labels = minor.breaks, limits = c(0, max(model.df$P)))
+
+p + geom_segment(data = trace.df[!is.na(Sender)][order(Sender)],
+                 aes(x = Sender + 0.05, xend = CPU + 0.05, y = Start, yend = Time, col = variable),
+                 arrow = arrow(length = unit(0.01, "npc")))
+print(p)
+dev.off()
