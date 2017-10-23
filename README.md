@@ -27,3 +27,4 @@ Example usage
   - [ ] Add checked correction
   - [ ] If root node is dead, it still sends messages.
   - [ ] Add number of messages sent
+  - [ ] Add tags to messages
