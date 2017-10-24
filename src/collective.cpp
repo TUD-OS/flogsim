@@ -92,6 +92,6 @@ std::unique_ptr<Collective> Collective::create()
     return std::make_unique<CorrectedTreeBroadcast>();
   } else {
     throw std::invalid_argument("Collective does not exist:" +
-                                conf.fault_injector);
+                                conf.collective);
   }
 }
