@@ -77,6 +77,11 @@ public:
       true : ((time == other.time) && (seq() < other.seq()));
   }
 
+  bool operator>(const Task &other) const
+  {
+    return (other < *this);
+  }
+
   bool operator==(const Task &other) const
   {
     return !(*this < other) && !(other < *this);
@@ -85,11 +90,6 @@ public:
   bool operator!=(const Task &other) const
   {
     return !(*this == other);
-  }
-
-  bool operator>(const Task &other) const
-  {
-    return !(*this < other) && (other != *this);
   }
 
   virtual const char* type() const = 0;
