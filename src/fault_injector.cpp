@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "fault_injector.hpp"
+#include "task.hpp"
 
 std::unique_ptr<FaultInjector> FaultInjector::create()
 {

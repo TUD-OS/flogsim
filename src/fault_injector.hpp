@@ -1,6 +1,10 @@
 #pragma once
 
-#include "task.hpp"
+#include <memory>
+#include <vector>
+#include <iostream>
+
+#include "model.hpp"
 #include "configuration.hpp"
 
 class Task;
