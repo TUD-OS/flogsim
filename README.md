@@ -9,7 +9,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug
 To generate visualization from plots you need R. With all the packages
 this will require about 100 Mb of space on your disk.
 
-In debian you would need to following install packages:
+In Debian you would need to install following packages:
 
   - r-base
   - r-cran-data.table
@@ -44,8 +44,6 @@ Example usage
 
 # TODO
 
-  - [ ] Replace priority queue with vector
   - [ ] Add checked correction
   - [ ] If root node is dead, it still sends messages.
-  - [ ] Add number of messages sent
   - [ ] Add tags to messages
