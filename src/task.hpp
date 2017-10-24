@@ -164,12 +164,24 @@ public:
 namespace LogP
 {
 
-class RecvTask : public TaskCounted<RecvTask>
+class RecvStartTask : public TaskCounted<RecvStartTask>
 {
 public:
-  RecvTask(const RecvTask &other) = default;
+  RecvStartTask(const RecvStartTask &other) = default;
 
-  RecvTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
+  RecvStartTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
+    TaskCounted(TaskData{seq, tag, time, sender, receiver})
+  {}
+
+  bool execute(Timeline &timeline, TaskQueue &tq) const override final;
+};
+
+class RecvEndTask : public TaskCounted<RecvEndTask>
+{
+public:
+  RecvEndTask(const RecvEndTask &other) = default;
+
+  RecvEndTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
     TaskCounted(TaskData{seq, tag, time, sender, receiver})
   {}
 
@@ -187,12 +199,25 @@ public:
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
 };
 
-class SendTask : public TaskCounted<SendTask>
+class SendStartTask : public TaskCounted<SendStartTask>
 {
 public:
-  SendTask(const SendTask &other) = default;
+  SendStartTask(const SendStartTask &other) = default;
 
-  SendTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
+  SendStartTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
+    TaskCounted(TaskData{seq, tag, time, sender, receiver})
+  {
+  }
+
+  bool execute(Timeline &timeline, TaskQueue &tq) const override final;
+};
+
+class SendEndTask : public TaskCounted<SendEndTask>
+{
+public:
+  SendEndTask(const SendEndTask &other) = default;
+
+  SendEndTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
     TaskCounted(TaskData{seq, tag, time, sender, receiver})
   {
   }

@@ -11,7 +11,7 @@ class BinaryBroadcast : public Collective
     for (int i = 1; i <= 2; i++) {
       int recv = 2 * sender + i;
       if (recv < nodes) {
-        tq.schedule(LogP::SendTask::make_new(Tag(0), tq.now(), sender, recv));
+        tq.schedule(LogP::SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
       }
     }
     tq.schedule(LogP::FinishTask::make_new(sender));
@@ -22,7 +22,7 @@ public:
   {
   }
 
-  virtual void accept(const LogP::RecvTask& task, TaskQueue& tq)
+  virtual void accept(const LogP::RecvStartTask& task, TaskQueue& tq)
   {
     post_sends(task.receiver(), tq);
   }
@@ -50,13 +50,13 @@ class CorrectedTreeBroadcast : public Collective
     for (int i = 1; i <= k; i++) {
       int recv = sender + i * std::pow(k, lvl);
       if (recv < nodes) {
-        tq.schedule(LogP::SendTask::make_new(Tag(0), tq.now(), sender, recv));
+        tq.schedule(LogP::SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
       }
     }
 
     for (int i = 1; i <= k - 1; i++) {
       int recv = (sender + nodes - i) % nodes;
-      tq.schedule(LogP::SendTask::make_new(Tag(0), tq.now(), sender, recv));
+      tq.schedule(LogP::SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
     }
 
     tq.schedule(LogP::FinishTask::make_new(sender));
@@ -70,7 +70,7 @@ public:
       done(nodes)
   {}
 
-  virtual void accept(const LogP::RecvTask& task, TaskQueue& tq)
+  virtual void accept(const LogP::RecvStartTask& task, TaskQueue& tq)
   {
     post_sends(task.receiver(), tq);
   }

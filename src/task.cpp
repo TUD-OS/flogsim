@@ -1,7 +1,7 @@
 #include "task.hpp"
 #include "task_queue.hpp"
 
-bool LogP::RecvTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool LogP::RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[receiver()];
 
@@ -22,6 +22,12 @@ bool LogP::RecvTask::execute(Timeline &timeline, TaskQueue &tq) const
   cpu.recv_gaps.push_back(rg);
   cpu.cpu_events.push_back(cpu_event);
 
+  tq.schedule(RecvEndTask::make_from_task(this, cpu_event.end(), sender(), receiver()));
+  return true;
+}
+
+bool LogP::RecvEndTask::execute(Timeline &timeline, TaskQueue &tq) const
+{
   return true;
 }
 
@@ -30,11 +36,11 @@ bool LogP::MsgTask::execute(Timeline &timeline, TaskQueue &tq) const
   // Calculate time when receive task can be scheduled
   auto recv_time = tq.now() + LogP::Model::get().L;
 
-  tq.schedule(RecvTask::make_from_task(this, recv_time, sender(), receiver()));
+  tq.schedule(RecvStartTask::make_from_task(this, recv_time, sender(), receiver()));
   return true;
 }
 
-bool LogP::SendTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool LogP::SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[sender()];
 
@@ -55,7 +61,13 @@ bool LogP::SendTask::execute(Timeline &timeline, TaskQueue &tq) const
   cpu.send_gaps.push_back(sg);
   cpu.cpu_events.push_back(cpu_event);
 
-  tq.schedule(MsgTask::make_from_task(this, cpu_event.end(), sender(), receiver()));
+  tq.schedule(SendEndTask::make_from_task(this, cpu_event.end(), sender(), receiver()));
+  return true;
+}
+
+bool LogP::SendEndTask::execute(Timeline &timeline, TaskQueue &tq) const
+{
+  tq.schedule(MsgTask::make_from_task(this, tq.now(), sender(), receiver()));
   return true;
 }
 

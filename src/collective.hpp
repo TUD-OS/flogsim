@@ -5,8 +5,10 @@
 namespace LogP
 {
 
-class SendTask;
-class RecvTask;
+class SendStartTask;
+class SendEndTask;
+class RecvStartTask;
+class RecvEndTask;
 class MsgTask;
 class FinishTask;
 class FailureTask;
@@ -20,11 +22,19 @@ class Collective
 public:
   virtual void populate(TaskQueue &eq) = 0;
 
-  virtual void accept(const LogP::SendTask&, TaskQueue&)
+  virtual void accept(const LogP::SendStartTask&, TaskQueue&)
   {
   }
 
-  virtual void accept(const LogP::RecvTask&, TaskQueue&)
+  virtual void accept(const LogP::SendEndTask&, TaskQueue&)
+  {
+  }
+
+  virtual void accept(const LogP::RecvStartTask&, TaskQueue&)
+  {
+  }
+
+  virtual void accept(const LogP::RecvEndTask&, TaskQueue&)
   {
   }
 
