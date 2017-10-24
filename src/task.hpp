@@ -29,31 +29,6 @@ public:
 
   Task(const Task &other) = default;
 
-  static auto make_task_attime(auto *task, Time time)
-  {
-    typedef typename std::remove_cv<
-      typename std::remove_pointer<typeof(task)>::type>::type task_t;
-    return std::make_shared<task_t>(task->seq(), time, task->sender(), task->receiver());
-  }
-
-  template<typename T, class ...Args>
-  static std::shared_ptr<T> make_from_task(const Task *task, Args... args)
-  {
-    return std::make_shared<T>(task->seq(), args...);
-  }
-
-  template<typename T>
-  static std::shared_ptr<T> make_from_task(const Task *task)
-  {
-    return std::make_shared<T>(task);
-  }
-
-  template<typename T, class ...Args>
-  static auto make_new(Args... args)
-  {
-    return std::make_shared<T>(Sequence::next(), args...);
-  }
-
   Sequence seq() const { return _seq; }
   int sender() const { return _sender; }
   int receiver() const { return _receiver; }
@@ -103,16 +78,64 @@ public:
   }
 };
 
+template<typename CHILD>
+class TaskCounted : public Task
+{
+protected:
+  static int &get_counter()
+  {
+    static int counter;
+    return counter;
+  }
+
+public:
+  TaskCounted(Sequence seq, Time time, int sender, int receiver) :
+    Task(seq, time, sender, receiver)
+  {}
+
+  static auto make_task_attime(auto *task, Time time)
+  {
+    typedef typename std::remove_cv<
+      typename std::remove_pointer<typeof(task)>::type>::type task_t;
+    return std::make_shared<task_t>(task->seq(), time, task->sender(), task->receiver());
+  }
+
+  template<class ...Args>
+  static std::shared_ptr<CHILD> make_from_task(const Task *task, Args... args)
+  {
+    get_counter() ++;
+    return std::make_shared<CHILD>(task->seq(), args...);
+  }
+
+  static std::shared_ptr<CHILD> make_from_task(const Task *task)
+  {
+    get_counter() ++;
+    return std::make_shared<CHILD>(task);
+  }
+
+  template<class ...Args>
+  static auto make_new(Args... args)
+  {
+    get_counter() ++;
+    return std::make_shared<CHILD>(Sequence::next(), args...);
+  }
+
+  static int issued()
+  {
+    return get_counter();
+  }
+};
+
 namespace LogP
 {
 
-class RecvTask : public Task
+class RecvTask : public TaskCounted<RecvTask>
 {
 public:
   RecvTask(const RecvTask &other) = default;
 
   RecvTask(Sequence seq, Time time, int sender, int receiver) :
-    Task(seq, time, sender, receiver)
+    TaskCounted(seq, time, sender, receiver)
   {}
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
@@ -128,11 +151,11 @@ public:
   }
 };
 
-class MsgTask : public Task
+class MsgTask : public TaskCounted<MsgTask>
 {
 public:
   MsgTask(Sequence seq, Time time, int sender, int receiver) :
-    Task(seq, time, sender, receiver)
+    TaskCounted(seq, time, sender, receiver)
   {
   }
 
@@ -149,13 +172,13 @@ public:
   }
 };
 
-class SendTask : public Task
+class SendTask : public TaskCounted<SendTask>
 {
 public:
   SendTask(const SendTask &other) = default;
 
   SendTask(Sequence seq, Time time, int sender, int receiver) :
-    Task(seq, time, sender, receiver)
+    TaskCounted(seq, time, sender, receiver)
   {
   }
 
@@ -172,12 +195,12 @@ public:
   }
 };
 
-class FinishTask : public Task
+class FinishTask : public TaskCounted<FinishTask>
 {
 public:
 
   FinishTask(Sequence seq, int sender) :
-    Task(seq, Time::max(), sender, sender)
+    TaskCounted(seq, Time::max(), sender, sender)
   {
   }
 
@@ -194,12 +217,12 @@ public:
   }
 };
 
-class FailureTask : public Task
+class FailureTask : public TaskCounted<FailureTask>
 {
 public:
 
   FailureTask(const Task *task) :
-    Task(task->seq(), task->start(), task->sender(), task->receiver())
+    TaskCounted(task->seq(), task->start(), task->sender(), task->receiver())
   {
   }
 

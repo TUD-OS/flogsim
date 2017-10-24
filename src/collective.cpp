@@ -11,10 +11,10 @@ class BinaryBroadcast : public Collective
     for (int i = 1; i <= 2; i++) {
       int recv = 2 * sender + i;
       if (recv < nodes) {
-        tq.schedule(Task::make_new<LogP::SendTask>(tq.now(), sender, recv));
+        tq.schedule(LogP::SendTask::make_new(tq.now(), sender, recv));
       }
     }
-    tq.schedule(Task::make_new<LogP::FinishTask>(sender));
+    tq.schedule(LogP::FinishTask::make_new(sender));
   }
 public:
   BinaryBroadcast()
@@ -50,16 +50,16 @@ class CorrectedTreeBroadcast : public Collective
     for (int i = 1; i <= k; i++) {
       int recv = sender + i * std::pow(k, lvl);
       if (recv < nodes) {
-        tq.schedule(Task::make_new<LogP::SendTask>(tq.now(), sender, recv));
+        tq.schedule(LogP::SendTask::make_new(tq.now(), sender, recv));
       }
     }
 
     for (int i = 1; i <= k - 1; i++) {
       int recv = (sender + nodes - i) % nodes;
-      tq.schedule(Task::make_new<LogP::SendTask>(tq.now(), sender, recv));
+      tq.schedule(LogP::SendTask::make_new(tq.now(), sender, recv));
     }
 
-    tq.schedule(Task::make_new<LogP::FinishTask>(sender));
+    tq.schedule(LogP::FinishTask::make_new(sender));
     done[sender] = true;
   }
 
