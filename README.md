@@ -46,4 +46,3 @@ Example usage
 
   - [ ] Add checked correction
   - [ ] If root node is dead, it still sends messages.
-  - [ ] Add tags to messages
