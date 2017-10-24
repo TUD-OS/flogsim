@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <type_traits>
+#include <typeinfo>
 
 class TaskQueue;
 
@@ -120,6 +121,16 @@ public:
     return std::make_shared<CHILD>(Sequence::next(), args...);
   }
 
+  void notify(Collective &coll, TaskQueue &tq) override final
+  {
+    coll.accept(*static_cast<CHILD *>(this), tq);
+  }
+
+  virtual const char* type() const override final
+  {
+    return typeid(CHILD).name();
+  }
+
   static int issued()
   {
     return get_counter();
@@ -139,16 +150,6 @@ public:
   {}
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
-
-  void notify(Collective &coll, TaskQueue &tq) override final
-  {
-    coll.accept(*this, tq);
-  }
-
-  virtual const char* type() const override final
-  {
-    return "RecvTask";
-  }
 };
 
 class MsgTask : public TaskCounted<MsgTask>
@@ -160,16 +161,6 @@ public:
   }
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
-
-  void notify(Collective &coll, TaskQueue &tq) override final
-  {
-    coll.accept(*this, tq);
-  }
-
-  virtual const char* type() const override final
-  {
-    return "MsgTask";
-  }
 };
 
 class SendTask : public TaskCounted<SendTask>
@@ -183,16 +174,6 @@ public:
   }
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
-
-  void notify(Collective &coll, TaskQueue &tq) override final
-  {
-    coll.accept(*this, tq);
-  }
-
-  virtual const char* type() const override final
-  {
-    return "SendTask";
-  }
 };
 
 class FinishTask : public TaskCounted<FinishTask>
@@ -205,16 +186,6 @@ public:
   }
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
-
-  void notify(Collective &coll, TaskQueue &tq) override final
-  {
-    coll.accept(*this, tq);
-  }
-
-  virtual const char* type() const override final
-  {
-    return "FinalTask";
-  }
 };
 
 class FailureTask : public TaskCounted<FailureTask>
@@ -227,16 +198,6 @@ public:
   }
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
-
-  void notify(Collective &coll, TaskQueue &tq) override final
-  {
-    coll.accept(*this, tq);
-  }
-
-  virtual const char* type() const override final
-  {
-    return "FailureTask";
-  }
 };
 
 }
