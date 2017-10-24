@@ -3,7 +3,6 @@
 #include "timeline.hpp"
 #include "collective.hpp"
 #include "model.hpp"
-#include "task_queue.hpp"
 #include "sequence.hpp"
 
 #include <iostream>

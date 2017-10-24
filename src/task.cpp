@@ -1,4 +1,5 @@
 #include "task.hpp"
+#include "task_queue.hpp"
 
 Sequence Sequence::next()
 {
