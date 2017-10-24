@@ -33,7 +33,8 @@ int main(int argc, char *argv[])
   auto [failed, finished, unreached] = timeline.node_stat();
   std::cout << "FailedNodes," << failed << std::endl
             << "FinishedNodes," << finished << std::endl
-            << "UnreachedNodes," << unreached << std::endl;
+            << "UnreachedNodes," << unreached << std::endl
+            << "MsgTask," << LogP::MsgTask::issued() << std::endl;
 
   auto trace_filename = Configuration::get().log_prefix + ".trace.csv";
   std::ofstream trace_log(trace_filename);
