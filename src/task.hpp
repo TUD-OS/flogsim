@@ -72,7 +72,9 @@ public:
 
   bool operator<(const Task &other) const
   {
-    return (time < other.time) ? true : (sender() < other.sender());
+    return (time < other.time);
+    return (time < other.time) ?
+      true : ((time == other.time) && (seq() < other.seq()));
   }
 
   bool operator==(const Task &other) const

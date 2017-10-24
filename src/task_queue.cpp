@@ -5,9 +5,9 @@
 void TaskQueue::schedule(std::shared_ptr<Task> task)
 {
   if (!fault_injector->failure(task)) {
-    queue.emplace(task->start(), task);
+    queue.emplace(task);
   } else {
-    queue.emplace(task->start(), Task::make_from_task<LogP::FailureTask>(task.get()));
+    queue.emplace(Task::make_from_task<LogP::FailureTask>(task.get()));
   }
 }
 
@@ -33,4 +33,13 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
       }
     }
   }
+}
+
+
+std::shared_ptr<Task> TaskQueue::pop()
+{
+  auto item = queue.top();
+  queue.pop();
+  progress(item->start());
+  return item;
 }

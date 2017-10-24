@@ -7,41 +7,26 @@
 #include "time.hpp"
 #include "timeline.hpp"
 #include "fault_injector.hpp"
+#include "task.hpp"
 
 #include <boost/heap/fibonacci_heap.hpp>
 
 class Collective;
 class FaultInjector;
-class Task;
 
 class TaskQueue
 {
-  struct QueueItem
+  typedef std::shared_ptr<Task> queue_item_t;
+
+  struct QueueItemCompare
   {
-    Time time;
-    std::shared_ptr<Task> task;
-
-    QueueItem() = default;
-
-    QueueItem(const QueueItem &other)
+    bool operator()(const queue_item_t &first, const queue_item_t &second) const
     {
-      time = other.time;
-      task = other.task;
-    }
-
-    QueueItem(Time time, std::shared_ptr<Task> task) :
-      time(time), task(task)
-    {}
-
-    // Take time with the minimum value. By default priority_queue
-    // puts the maximum on the top.
-    bool operator<(const QueueItem &other) const
-    {
-      return time > other.time;
+      return second->operator<(*first);
     }
   };
-
-  std::priority_queue<QueueItem> queue;
+  boost::heap::fibonacci_heap<queue_item_t,
+                      boost::heap::compare<QueueItemCompare>> queue;
 
   Time current_time;
 
@@ -63,13 +48,7 @@ public:
     return current_time;
   }
 
-  std::shared_ptr<Task> pop()
-  {
-    auto item = queue.top();
-    queue.pop();
-    progress(item.time);
-    return item.task;
-  }
+  std::shared_ptr<Task> pop();
 
   bool empty() const
   {
