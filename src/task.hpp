@@ -17,6 +17,7 @@ struct Tag : public Integer<Tag>
 
   int get() const { return tag; }
 
+  Tag() = default;
   explicit Tag(int tag)
     : tag(tag)
   {}
@@ -188,6 +189,18 @@ public:
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
 };
 
+class RecvGapEndTask : public TaskCounted<RecvGapEndTask>
+{
+public:
+  RecvGapEndTask(const RecvGapEndTask &other) = default;
+
+  RecvGapEndTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
+    TaskCounted(TaskData{seq, tag, time, sender, receiver})
+  {}
+
+  bool execute(Timeline &timeline, TaskQueue &tq) const override final;
+};
+
 class MsgTask : public TaskCounted<MsgTask>
 {
 public:
@@ -205,6 +218,19 @@ public:
   SendStartTask(const SendStartTask &other) = default;
 
   SendStartTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
+    TaskCounted(TaskData{seq, tag, time, sender, receiver})
+  {
+  }
+
+  bool execute(Timeline &timeline, TaskQueue &tq) const override final;
+};
+
+class SendGapEndTask : public TaskCounted<SendGapEndTask>
+{
+public:
+  SendGapEndTask(const SendGapEndTask &other) = default;
+
+  SendGapEndTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
     TaskCounted(TaskData{seq, tag, time, sender, receiver})
   {
   }

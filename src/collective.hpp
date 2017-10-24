@@ -7,8 +7,10 @@ namespace LogP
 
 class SendStartTask;
 class SendEndTask;
+class SendGapEndTask;
 class RecvStartTask;
 class RecvEndTask;
+class RecvGapEndTask;
 class MsgTask;
 class FinishTask;
 class FailureTask;
@@ -30,11 +32,19 @@ public:
   {
   }
 
+  virtual void accept(const LogP::SendGapEndTask&, TaskQueue&)
+  {
+  }
+
   virtual void accept(const LogP::RecvStartTask&, TaskQueue&)
   {
   }
 
   virtual void accept(const LogP::RecvEndTask&, TaskQueue&)
+  {
+  }
+
+  virtual void accept(const LogP::RecvGapEndTask&, TaskQueue&)
   {
   }
 

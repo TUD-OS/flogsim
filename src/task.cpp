@@ -23,10 +23,16 @@ bool LogP::RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   cpu.cpu_events.push_back(cpu_event);
 
   tq.schedule(RecvEndTask::make_from_task(this, cpu_event.end(), sender(), receiver()));
+  tq.schedule(RecvGapEndTask::make_from_task(this, rg.end(), sender(), receiver()));
   return true;
 }
 
 bool LogP::RecvEndTask::execute(Timeline &timeline, TaskQueue &tq) const
+{
+  return true;
+}
+
+bool LogP::RecvGapEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   return true;
 }
@@ -62,12 +68,18 @@ bool LogP::SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   cpu.cpu_events.push_back(cpu_event);
 
   tq.schedule(SendEndTask::make_from_task(this, cpu_event.end(), sender(), receiver()));
+  tq.schedule(SendGapEndTask::make_from_task(this, sg.end(), sender(), receiver()));
   return true;
 }
 
 bool LogP::SendEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   tq.schedule(MsgTask::make_from_task(this, tq.now(), sender(), receiver()));
+  return true;
+}
+
+bool LogP::SendGapEndTask::execute(Timeline &timeline, TaskQueue &tq) const
+{
   return true;
 }
 
