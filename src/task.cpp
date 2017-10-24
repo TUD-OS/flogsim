@@ -1,12 +1,6 @@
 #include "task.hpp"
 #include "task_queue.hpp"
 
-Sequence Sequence::next()
-{
-  static int next_id = 0;
-  return Sequence(next_id++);
-}
-
 bool LogP::RecvTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[receiver()];
