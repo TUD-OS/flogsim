@@ -6,6 +6,27 @@ cd build
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 ```
 
+To generate visualization from plots you need R. With all the packages
+this will require about 100 Mb of space on your disk.
+
+In debian you would need to following install packages:
+
+  - r-base
+  - r-cran-data.table
+  - r-cran-ggplot2
+  - r-cran-tidyr
+  - r-cran-reshape2
+
+Additionally you need to install `purrr`, which is not currently a
+debian package. Thus you will need to install it using R package
+system. Start R console and type `install.packages('purrr')`. Choose
+where to install (for example into your home dir) and from which
+server you would like to fetch packages. In principle you can replace
+purrr's map with apply. Patches are welcome.
+
+From a directory with the log run `Rscript ../script/plot_trace.R` it
+will generate graph plot.pdf.
+
 # Usage
 
 Use "--help"
