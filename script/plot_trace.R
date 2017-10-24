@@ -57,7 +57,7 @@ variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Fin
 major.breaks <- seq(0, model.df$P + 4, 5)
 minor.breaks <- seq(min(range(major.breaks)), max(range(major.breaks)))
 
-## pdf("plot.pdf", width=20, height=model.df$P / 4)
+pdf("plot.pdf", width=20, height=model.df$P / 4)
 p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
             aes(ymin = as.double(Time), ymax = as.double(End), x = CPU, col = variable)) +
     geom_linerange(alpha = 0.3, size = 2) +
@@ -68,10 +68,8 @@ p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
     coord_flip() +
     scale_x_continuous(breaks = minor.breaks, labels = minor.breaks, limits = c(0, max(model.df$P)))
 
-p
-
-p + geom_segment(data = messages,
+print(p + geom_segment(data = messages,
                  aes(x = From + 0.05, xend = To + 0.05, y = Start, yend = End, col = variable),
-                 arrow = arrow(length = unit(0.01, "npc")), inherit.aes = FALSE)
-## print(p)
-## dev.off()
+                 arrow = arrow(length = unit(0.01, "npc")), inherit.aes = FALSE))
+print(p)
+dev.off()
