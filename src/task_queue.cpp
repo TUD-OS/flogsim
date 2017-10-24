@@ -11,11 +11,23 @@ void TaskQueue::schedule(std::shared_ptr<Task> task)
   }
 }
 
+std::ostream &operator<<(std::ostream &os, std::shared_ptr<Task> t)
+{
+  os << *t;
+  return os;
+}
+
 void TaskQueue::run(Collective &coll, Timeline &timeline)
 {
   coll.populate(*this);
 
   while (!empty()) {
+    if (Configuration::get().verbose) {
+      std::cout << "Heap state:\n\t";
+      std::copy(queue.ordered_begin(), queue.ordered_end(),
+                std::ostream_iterator<std::shared_ptr<Task>>(std::cout, "\n\t"));
+      std::cout << std::endl;
+    }
     std::shared_ptr<Task> task = pop();
 
     std::stringstream ss;
