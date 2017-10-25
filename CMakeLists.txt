@@ -9,7 +9,9 @@ find_package(Boost 1.52 COMPONENTS program_options REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include)
 
 file(GLOB FLOGSIM_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp)
-add_executable(flogsim ${FLOGSIM_SRC})
+file(GLOB COLLECTIVES_SRC ${PROJECT_SOURCE_DIR}/collectives/*.cpp)
+
+add_executable(flogsim ${FLOGSIM_SRC} ${COLLECTIVES_SRC})
 TARGET_LINK_LIBRARIES(flogsim ${Boost_LIBRARIES})
 
 install(DIRECTORY script DESTINATION ${PROJECT_BINARY_BIN}/bin
