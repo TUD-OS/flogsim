@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Boost 1.52 COMPONENTS program_options REQUIRED)
 
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include)
 
 file(GLOB FLOGSIM_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp)
 add_executable(flogsim ${FLOGSIM_SRC})
