@@ -42,7 +42,9 @@ trace.df[variable=="Finish", End := Time + 0.1]
 trace.df[variable=="Failure", End := Time + 0.1]
 
 ## End of CpuEvent is start of latency
-msg.start <- trace.df[, .SD[variable %in% c("CpuEvent"), .(From = CPU, Start = End)], by = Sequence]
+msg.start <- trace.df[, .SD[variable %in% c("CpuEvent"),
+                            .(From = CPU, Start = End, Tag = Tag)],
+                      by = Sequence]
 msg.start <- msg.start[, .SD[which.min(Start)], by = Sequence]
 msg.end = trace.df[, .SD[variable %in% c("RecvGap", "Failure"), .(To = CPU, End = Time, variable = variable)], by = Sequence]
 
@@ -50,7 +52,8 @@ messages <- msg.start[msg.end, on = "Sequence"]
 
 full.stop <- trace.df[variable=="Finish", max(Time)]
 
-variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Finish" = 1)
+variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Finish" = 1,
+               "0" = 1, "2" = 2, "4" = 3)
 
 ## Model specific part ended
 
@@ -69,6 +72,9 @@ p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
     scale_x_continuous(breaks = minor.breaks, labels = minor.breaks, limits = c(0, max(model.df$P)))
 
 print(p + geom_segment(data = messages,
+                 aes(x = From + 0.05, xend = To + 0.05, y = Start, yend = End, col = as.factor(Tag)),
+                 arrow = arrow(length = unit(0.01, "npc")), inherit.aes = FALSE))
+print(p + geom_segment(data = messages[From == 0 | To == 0],
                  aes(x = From + 0.05, xend = To + 0.05, y = Start, yend = End, col = variable),
                  arrow = arrow(length = unit(0.01, "npc")), inherit.aes = FALSE))
 print(p)
