@@ -219,6 +219,9 @@ public:
       if (left.offs[me] > 0) {
         left.complete(me, tq);
       }
+      if (left.done[me] && right.done[me]) {
+        tq.schedule(FinishTask::make_new(me));
+      }
     } else if (task.tag() == left_ring_tag()) {
       // Received correction from the right
       if (right.offs[me] == 0) {
@@ -229,6 +232,9 @@ public:
       }
       if (right.done[me] > 0) {
         right.complete(me, tq);
+      }
+      if (left.done[me] && right.done[me]) {
+        tq.schedule(FinishTask::make_new(me));
       }
     } else {
       assert(false);
