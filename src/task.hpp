@@ -41,7 +41,10 @@ public:
       time(time),
       _sender(sender),
       _receiver(receiver)
-  {}
+  {
+    assert(_sender >= 0);
+    assert(_receiver >= 0);
+  }
 };
 
 class Task : public TaskData
