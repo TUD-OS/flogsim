@@ -1,28 +1,16 @@
 #pragma once
 
-#include "timeline.hpp"
-#include "collective.hpp"
-#include "model.hpp"
-#include "sequence.hpp"
-
 #include <iostream>
 #include <type_traits>
 #include <typeinfo>
 
+#include "timeline.hpp"
+#include "collective.hpp"
+#include "model.hpp"
+#include "sequence.hpp"
+#include "tag.hpp"
+
 class TaskQueue;
-
-struct Tag : public Integer<Tag>
-{
-  int tag;
-
-  int get() const { return tag; }
-
-  Tag() = default;
-  explicit Tag(int tag)
-    : tag(tag)
-  {}
-  Tag(const Tag &other) = default;
-};
 
 struct TaskData
 {
