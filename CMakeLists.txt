@@ -6,9 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Boost 1.52 COMPONENTS program_options REQUIRED)
 
+include_directories(${Boost_INCLUDE_DIRS})
+
 file(GLOB FLOGSIM_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp)
 add_executable(flogsim ${FLOGSIM_SRC})
-target_link_libraries(flogsim ${Boost_PROGRAM_OPTIONS_LIBRARY})
+TARGET_LINK_LIBRARIES(flogsim ${Boost_LIBRARIES})
 
 install(DIRECTORY script DESTINATION ${PROJECT_BINARY_BIN}/bin
   FILES_MATCHING PATTERN "*.R")
