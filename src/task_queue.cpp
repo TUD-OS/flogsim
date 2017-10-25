@@ -53,6 +53,24 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
   }
 }
 
+void TaskQueue::cancel_pending_sends(int node, Tag tag)
+{
+  std::deque<queue_t::handle_type> handles;
+  for (auto it = queue.begin(); it != queue.end(); it++) {
+    SendStartTask *task = dynamic_cast<SendStartTask *>(it->get());
+    if (task == nullptr) {
+      continue;
+    }
+
+    if ((task->tag() == tag) && (task->sender() == node)) {
+      handles.push_back(queue_t::s_handle_from_iterator(it));
+    }
+  }
+
+  for (auto &h : handles) {
+    queue.erase(h);
+  }
+}
 
 std::shared_ptr<Task> TaskQueue::pop()
 {

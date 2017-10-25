@@ -61,4 +61,6 @@ public:
   void schedule(std::shared_ptr<Task> task);
 
   void run(Collective &coll, Timeline &timeline);
+
+  void cancel_pending_sends(int node, Tag tag);
 };
