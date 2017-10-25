@@ -1,7 +1,7 @@
 #include "task.hpp"
 #include "task_queue.hpp"
 
-bool LogP::RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[receiver()];
 
@@ -27,17 +27,17 @@ bool LogP::RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   return true;
 }
 
-bool LogP::RecvEndTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool RecvEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   return true;
 }
 
-bool LogP::RecvGapEndTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool RecvGapEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   return true;
 }
 
-bool LogP::MsgTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool MsgTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   // Calculate time when receive task can be scheduled
   auto recv_time = tq.now() + LogP::Model::get().L;
@@ -46,7 +46,7 @@ bool LogP::MsgTask::execute(Timeline &timeline, TaskQueue &tq) const
   return true;
 }
 
-bool LogP::SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[sender()];
 
@@ -72,18 +72,18 @@ bool LogP::SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   return true;
 }
 
-bool LogP::SendEndTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool SendEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   tq.schedule(MsgTask::make_from_task(this, tq.now(), sender(), receiver()));
   return true;
 }
 
-bool LogP::SendGapEndTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool SendGapEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   return true;
 }
 
-bool LogP::FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[sender()];
 
@@ -96,7 +96,7 @@ bool LogP::FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
   return true;
 }
 
-bool LogP::FailureTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool FailureTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[receiver()];
 

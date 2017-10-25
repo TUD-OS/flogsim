@@ -7,7 +7,7 @@ void TaskQueue::schedule(std::shared_ptr<Task> task)
   if (!fault_injector->failure(task)) {
     queue.emplace(task);
   } else {
-    queue.emplace(LogP::FailureTask::make_from_task(task.get()));
+    queue.emplace(FailureTask::make_from_task(task.get()));
   }
 }
 

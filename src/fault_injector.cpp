@@ -48,7 +48,7 @@ UniformFaults::UniformFaults(int F)
 
 bool UniformFaults::failure(std::shared_ptr<Task> task)
 {
-  if (dynamic_cast<LogP::RecvStartTask*>(task.get())) {
+  if (dynamic_cast<RecvStartTask*>(task.get())) {
     if (std::find(failed_nodes.begin(), failed_nodes.end(),
                   task->receiver()) != failed_nodes.end()) {
       if (Configuration::get().verbose) {

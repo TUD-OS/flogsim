@@ -153,9 +153,6 @@ public:
   }
 };
 
-namespace LogP
-{
-
 class RecvStartTask : public TaskCounted<RecvStartTask>
 {
 public:
@@ -265,5 +262,3 @@ public:
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
 };
-
-}

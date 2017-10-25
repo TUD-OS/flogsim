@@ -11,10 +11,10 @@ class BinaryBroadcast : public Collective
     for (int i = 1; i <= 2; i++) {
       int recv = 2 * sender + i;
       if (recv < nodes) {
-        tq.schedule(LogP::SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
+        tq.schedule(SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
       }
     }
-    tq.schedule(LogP::FinishTask::make_new(sender));
+    tq.schedule(FinishTask::make_new(sender));
   }
 public:
   BinaryBroadcast()
@@ -22,7 +22,7 @@ public:
   {
   }
 
-  virtual void accept(const LogP::RecvStartTask& task, TaskQueue& tq)
+  virtual void accept(const RecvStartTask& task, TaskQueue& tq)
   {
     post_sends(task.receiver(), tq);
   }
@@ -50,16 +50,16 @@ class CorrectedTreeBroadcast : public Collective
     for (int i = 1; i <= k; i++) {
       int recv = sender + i * std::pow(k, lvl);
       if (recv < nodes) {
-        tq.schedule(LogP::SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
+        tq.schedule(SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
       }
     }
 
     for (int i = 1; i <= k - 1; i++) {
       int recv = (sender + nodes - i) % nodes;
-      tq.schedule(LogP::SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
+      tq.schedule(SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
     }
 
-    tq.schedule(LogP::FinishTask::make_new(sender));
+    tq.schedule(FinishTask::make_new(sender));
     done[sender] = true;
   }
 
@@ -70,7 +70,7 @@ public:
       done(nodes)
   {}
 
-  virtual void accept(const LogP::RecvStartTask& task, TaskQueue& tq)
+  virtual void accept(const RecvStartTask& task, TaskQueue& tq)
   {
     post_sends(task.receiver(), tq);
   }
@@ -115,14 +115,14 @@ class CheckedCorrectedTreeBroadcast : public Collective
     for (int i = 1; i <= k; i++) {
       int recv = sender + i * std::pow(k, lvl);
       if (recv < nodes) {
-        tq.schedule(LogP::SendStartTask::make_new(tree_tag(), tq.now(), sender, recv));
+        tq.schedule(SendStartTask::make_new(tree_tag(), tq.now(), sender, recv));
       }
     }
 
     tree_done[sender] = true;
 
     if (left.done[sender] && right.done[sender]) {
-      tq.schedule(LogP::FinishTask::make_new(sender));
+      tq.schedule(FinishTask::make_new(sender));
     }
   }
 
@@ -159,7 +159,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
 
       // Send correction messages to the left
       int recv = (sender + left_shift + nodes) % nodes;
-      tq.schedule(LogP::SendStartTask::make_new(left_ring_tag(), tq.now(), sender, recv));
+      tq.schedule(SendStartTask::make_new(left_ring_tag(), tq.now(), sender, recv));
     }
 
     if (!right.done[sender]) {
@@ -173,11 +173,11 @@ class CheckedCorrectedTreeBroadcast : public Collective
       right.offs[sender] = right_shift;
 
       int recv = (sender + right_shift + nodes) % nodes;
-      tq.schedule(LogP::SendStartTask::make_new(right_ring_tag(), tq.now(), sender, recv));
+      tq.schedule(SendStartTask::make_new(right_ring_tag(), tq.now(), sender, recv));
     }
 
     if (left.done[sender] && right.done[sender]) {
-      tq.schedule(LogP::FinishTask::make_new(sender));
+      tq.schedule(FinishTask::make_new(sender));
     }
   }
 
@@ -190,12 +190,12 @@ public:
       right(nodes, +1)
   {}
 
-  virtual void accept(const LogP::SendGapEndTask& task, TaskQueue& tq)
+  virtual void accept(const SendGapEndTask& task, TaskQueue& tq)
   {
     post_ring_sends(task.sender(), tq);
   }
 
-  virtual void accept(const LogP::RecvEndTask& task, TaskQueue& tq)
+  virtual void accept(const RecvEndTask& task, TaskQueue& tq)
   {
     int me = task.receiver();
 
@@ -207,8 +207,8 @@ public:
       // Received correction from the left
       if (left.offs[me] == 0) {
         // Need to send a reply at least once
-        tq.schedule(LogP::SendStartTask::make_new(left_ring_tag(),
-                                                  tq.now(), me, task.sender()));
+        tq.schedule(SendStartTask::make_new(left_ring_tag(),
+                                            tq.now(), me, task.sender()));
       }
       if (left.offs[me] > 0) {
         left.done[me] = true;
@@ -218,8 +218,8 @@ public:
       if (right.offs[me] == 0) {
         // Need to send a reply at least once
         right.offs[me] ++;
-        tq.schedule(LogP::SendStartTask::make_new(right_ring_tag(),
-                                                  tq.now(), me, task.sender()));
+        tq.schedule(SendStartTask::make_new(right_ring_tag(),
+                                            tq.now(), me, task.sender()));
       }
       if (right.done[me] > 0) {
         right.done[me] = true;

@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
   std::cout << "FailedNodes," << failed << std::endl
             << "FinishedNodes," << finished << std::endl
             << "UnreachedNodes," << unreached << std::endl
-            << "MsgTask," << LogP::MsgTask::issued() << std::endl;
+            << "MsgTask," << MsgTask::issued() << std::endl;
 
   auto trace_filename = Configuration::get().log_prefix + ".trace.csv";
   std::ofstream trace_log(trace_filename);
