@@ -6,6 +6,7 @@
 #include <ostream>
 #include <iterator>
 
+#include "tag.hpp"
 #include "time.hpp"
 #include "sequence.hpp"
 
@@ -37,17 +38,25 @@ protected:
 
 struct CpuEvent : public Event
 {
+  Tag tag;
+
   CpuEvent() = default;
 
-  CpuEvent(Sequence seq, Time time) :
-    Event{seq, time}
+  CpuEvent(Sequence seq, Time time, Tag tag) :
+    Event{seq, time}, tag(tag)
   {}
 
   Time end() const override;
 
+  friend std::ostream& operator<<(std::ostream &os, const CpuEvent& e)
+  {
+    os << e.seq.id << '|' << e.time << "|" << e.tag;
+    return os;
+  }
+
   static std::string header()
   {
-    return "CpuEvent_Sequence|Time";
+    return "CpuEvent_Sequence|Time|Tag";
   }
 };
 

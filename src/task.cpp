@@ -17,7 +17,7 @@ bool LogP::RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   }
 
   RecvGap rg{seq(), start_time};
-  CpuEvent cpu_event{seq(), start_time};
+  CpuEvent cpu_event{seq(), start_time, tag()};
 
   cpu.recv_gaps.push_back(rg);
   cpu.cpu_events.push_back(cpu_event);
@@ -62,7 +62,7 @@ bool LogP::SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   }
 
   SendGap sg{seq(), start_time};
-  CpuEvent cpu_event{seq(), start_time};
+  CpuEvent cpu_event{seq(), start_time, tag()};
 
   cpu.send_gaps.push_back(sg);
   cpu.cpu_events.push_back(cpu_event);
