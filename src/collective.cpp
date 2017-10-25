@@ -96,6 +96,12 @@ class CheckedCorrectedTreeBroadcast : public Collective
     Ring(int nodes, int inc):
       done(nodes), offs(nodes), inc(inc)
     {}
+
+    void complete(int sender, TaskQueue &tq)
+    {
+      done[sender] = true;
+      tq.cancel_pending_sends(sender, Tag(3 + inc));
+    }
   };
 
   Ring left, right;
@@ -126,7 +132,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
     }
   }
 
-  bool check_done(int sender)
+  bool check_done(int sender, TaskQueue &tq)
   {
     int left_shift = left.offs[sender];
     int right_shift = right.offs[sender];
@@ -137,8 +143,8 @@ class CheckedCorrectedTreeBroadcast : public Collective
     }
 
     if ((left_shift + nodes) % nodes == (right_shift + nodes) % nodes) {
-      left.done[sender] = true;
-      right.done[sender] = true;
+      left.complete(sender, tq);
+      right.complete(sender, tq);
 
       return true;
     }
@@ -151,7 +157,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
     if (!left.done[sender]) {
       int left_shift = left.offs[sender] + left.inc;
 
-      if (check_done(sender)) {
+      if (check_done(sender, tq)) {
         return;
       }
 
@@ -166,7 +172,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
       // Send correction messages to the right
       int right_shift = right.offs[sender] + right.inc;
 
-      if (check_done(sender)) {
+      if (check_done(sender, tq)) {
         return;
       }
 
@@ -211,7 +217,7 @@ public:
                                             tq.now(), me, task.sender()));
       }
       if (left.offs[me] > 0) {
-        left.done[me] = true;
+        left.complete(me, tq);
       }
     } else if (task.tag() == left_ring_tag()) {
       // Received correction from the right
@@ -222,7 +228,7 @@ public:
                                             tq.now(), me, task.sender()));
       }
       if (right.done[me] > 0) {
-        right.done[me] = true;
+        right.complete(me, tq);
       }
     } else {
       assert(false);
