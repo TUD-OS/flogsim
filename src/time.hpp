@@ -30,7 +30,7 @@ struct Time : public Integer<Time>
 
   static Time max()
   {
-    return Time(UINT64_MAX);
+    return Time(UINT64_MAX - 1);
   }
 
   auto get() const { return time; }

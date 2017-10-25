@@ -1,4 +1,6 @@
 #include <cstdlib>
+#include <cstdint>
+
 #include <iostream>
 
 #include <boost/program_options.hpp>
@@ -39,6 +41,9 @@ void Configuration::parse_args(int argc, char *argv[])
     ("log",
      po::value<std::string>(&temp_conf.log_prefix)->default_value("log"),
      "Where to store the logs. Adds suffixes '.model.csv' and '.trace.csv' to the output files.")
+    ("time_limit",
+     po::value<uint64_t>(&temp_conf.limit)->default_value(UINT64_MAX),
+     "When to stop the simulation.")
     ("verbose,v",
      po::bool_switch(&temp_conf.verbose)->default_value(false),
      "Be verbose")

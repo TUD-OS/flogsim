@@ -21,8 +21,9 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
 {
   coll.populate(*this);
 
+  auto &conf = Configuration::get();
   while (!empty()) {
-    if (Configuration::get().verbose) {
+    if (conf.verbose) {
       std::cout << "Heap state:\n\t";
       std::copy(queue.ordered_begin(), queue.ordered_end(),
                 std::ostream_iterator<std::shared_ptr<Task>>(std::cout, "\n\t"));
@@ -31,18 +32,23 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
     std::shared_ptr<Task> task = pop();
 
     std::stringstream ss;
-    if (Configuration::get().verbose) {
+    if (conf.verbose) {
       ss << "NOW=" << now() << " " << *task;
     }
     if (task->execute(timeline, *this)) {
       task->notify(coll, *this);
-      if (Configuration::get().verbose) {
+      if (conf.verbose) {
         std::cout << ss.str() << std::endl;
       }
     } else {
-      if (Configuration::get().verbose) {
+      if (conf.verbose) {
         std::cout << ss.str() << " rescheduled" << std::endl;
       }
+    }
+
+    if (now() >= Time(conf.limit)) {
+      std::cout << "Time limit exceeded. Now stop." << std::endl;
+      break;
     }
   }
 }
