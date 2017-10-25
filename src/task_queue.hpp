@@ -25,8 +25,11 @@ class TaskQueue
       return second->operator<(*first);
     }
   };
-  boost::heap::fibonacci_heap<queue_item_t,
-                      boost::heap::compare<QueueItemCompare>> queue;
+
+  typedef boost::heap::compare<QueueItemCompare> queue_compare_t;
+  typedef boost::heap::fibonacci_heap<queue_item_t, queue_compare_t> queue_t;
+
+  queue_t queue;
 
   Time current_time;
 
