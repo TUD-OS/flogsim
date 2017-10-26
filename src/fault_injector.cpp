@@ -72,9 +72,5 @@ Fault UniformFaults::failure(std::shared_ptr<Task> task)
       return Fault::SKIP;
     }
   }
-  // if (std::find(failed_nodes.begin(), failed_nodes.end(),
-  //               task->sender()) != failed_nodes.end()) {
-  //   return true;
-  // }
   return Fault::OK;
 }
