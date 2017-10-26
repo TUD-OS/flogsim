@@ -49,7 +49,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
     tree_done[sender] = true;
 
     if (left.done[sender] && right.done[sender]) {
-      tq.schedule(FinishTask::make_new(sender));
+      tq.schedule(FinishTask::make_new(tq.now(), sender));
     }
   }
 
@@ -104,7 +104,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
     }
 
     if (left.done[sender] && right.done[sender]) {
-      tq.schedule(FinishTask::make_new(sender));
+      tq.schedule(FinishTask::make_new(tq.now(), sender));
     }
   }
 
@@ -141,7 +141,7 @@ public:
         left.complete(me, tq);
       }
       if (left.done[me] && right.done[me]) {
-        tq.schedule(FinishTask::make_new(me));
+        tq.schedule(FinishTask::make_new(tq.now(), me));
       }
     } else if (task.tag() == left_ring_tag()) {
       // Received correction from the right
@@ -155,7 +155,7 @@ public:
         right.complete(me, tq);
       }
       if (left.done[me] && right.done[me]) {
-        tq.schedule(FinishTask::make_new(me));
+        tq.schedule(FinishTask::make_new(tq.now(), me));
       }
     } else {
       assert(false);

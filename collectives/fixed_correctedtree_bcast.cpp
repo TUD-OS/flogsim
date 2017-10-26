@@ -28,7 +28,7 @@ class CorrectedTreeBroadcast : public Collective
       tq.schedule(SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
     }
 
-    tq.schedule(FinishTask::make_new(sender));
+    tq.schedule(FinishTask::make_new(tq.now(), sender));
     done[sender] = true;
   }
 

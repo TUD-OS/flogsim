@@ -35,8 +35,17 @@ public:
   }
 };
 
+enum class TaskPriority : int
+{
+  FINISH = 1,
+  RECEIVER = 3,
+  NORMAL = 4,
+  SENDER = 5,
+};
+
 class Task : public TaskData
 {
+  virtual TaskPriority task_priority() const { return TaskPriority::NORMAL; }
 public:
 
   Task(const Task &other) = default;
@@ -63,8 +72,19 @@ public:
 
   bool operator<(const Task &other) const
   {
-    return (time < other.time) ?
-      true : ((time == other.time) && (seq() < other.seq()));
+    if (time < other.time) {
+      return true;
+    } else if (time > other.time) {
+      return false;
+    }
+
+    if (task_priority() < other.task_priority()) {
+      return true;
+    } else if (task_priority() > other.task_priority()) {
+      return false;
+    }
+
+    return (seq() < other.seq());
   }
 
   bool operator>(const Task &other) const
@@ -154,6 +174,7 @@ public:
 
 class RecvStartTask : public TaskCounted<RecvStartTask>
 {
+  virtual TaskPriority task_priority() const { return TaskPriority::RECEIVER; }
 public:
   RecvStartTask(const RecvStartTask &other) = default;
 
@@ -166,6 +187,7 @@ public:
 
 class RecvEndTask : public TaskCounted<RecvEndTask>
 {
+  virtual TaskPriority task_priority() const { return TaskPriority::RECEIVER; }
 public:
   RecvEndTask(const RecvEndTask &other) = default;
 
@@ -178,6 +200,7 @@ public:
 
 class RecvGapEndTask : public TaskCounted<RecvGapEndTask>
 {
+  virtual TaskPriority task_priority() const { return TaskPriority::RECEIVER; }
 public:
   RecvGapEndTask(const RecvGapEndTask &other) = default;
 
@@ -201,6 +224,7 @@ public:
 
 class SendStartTask : public TaskCounted<SendStartTask>
 {
+  virtual TaskPriority task_priority() const { return TaskPriority::SENDER; }
 public:
   SendStartTask(const SendStartTask &other) = default;
 
@@ -214,6 +238,7 @@ public:
 
 class SendGapEndTask : public TaskCounted<SendGapEndTask>
 {
+  virtual TaskPriority task_priority() const { return TaskPriority::SENDER; }
 public:
   SendGapEndTask(const SendGapEndTask &other) = default;
 
@@ -227,6 +252,7 @@ public:
 
 class SendEndTask : public TaskCounted<SendEndTask>
 {
+  virtual TaskPriority task_priority() const { return TaskPriority::SENDER; }
 public:
   SendEndTask(const SendEndTask &other) = default;
 
@@ -240,10 +266,11 @@ public:
 
 class FinishTask : public TaskCounted<FinishTask>
 {
+  virtual TaskPriority task_priority() const { return TaskPriority::FINISH; }
 public:
 
-  FinishTask(Sequence seq, int sender) :
-    TaskCounted(TaskData{seq, Tag(0), Time::max(), sender, sender})
+  FinishTask(Sequence seq, Time time, int sender) :
+    TaskCounted(TaskData{seq, Tag(0), time, sender, sender})
   {
   }
 
