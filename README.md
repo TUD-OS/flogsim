@@ -46,3 +46,7 @@ Example usage
 
   - [ ] Add checked correction
   - [ ] If root node is dead, it still sends messages.
+  - [ ] Implement Idle event
+  - [ ] Implement nodeset
+  - [ ] Compute time for phased bcast properly
+  - [ ] Write tests
