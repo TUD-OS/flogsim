@@ -42,6 +42,11 @@ class TaskQueue
   std::unique_ptr<FaultInjector> fault_injector;
 public:
 
+  const FaultInjector &faults() const
+  {
+    return *fault_injector;
+  }
+
   TaskQueue(std::unique_ptr<FaultInjector> fault_injector) :
     queue(), fault_injector(std::move(fault_injector))
   {}
