@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <ctime>        // std::time
 #include <stdexcept>
+#include <iterator>
 
 #include "fault_injector.hpp"
 #include "task.hpp"
@@ -44,6 +45,12 @@ UniformFaults::UniformFaults(int F)
       std::cout << i;
     std::cout << std::endl;
   }
+}
+
+void UniformFaults::print(std::ostream &os) const
+{
+  std::copy(failed_nodes.begin(), failed_nodes.end(),
+            std::ostream_iterator<int>(os, " "));
 }
 
 bool UniformFaults::failure(std::shared_ptr<Task> task)
