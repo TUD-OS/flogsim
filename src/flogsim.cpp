@@ -21,9 +21,8 @@ int main(int argc, char *argv[])
 {
   Configuration::parse_args(argc, argv);
 
-  auto fault_injector = FaultInjector::create();
   auto coll = CollectiveRegistry::create(Configuration::get().collective);
-  TaskQueue tq{std::move(fault_injector)};
+  TaskQueue tq{FaultInjector::create()};
   Timeline timeline(Model::get().P);
 
   tq.run(*coll, timeline);
