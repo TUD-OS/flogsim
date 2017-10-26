@@ -53,20 +53,28 @@ void UniformFaults::print(std::ostream &os) const
             std::ostream_iterator<int>(os, " "));
 }
 
-bool UniformFaults::failure(std::shared_ptr<Task> task)
+Fault UniformFaults::failure(std::shared_ptr<Task> task)
 {
-  if (dynamic_cast<RecvStartTask*>(task.get())) {
+  if (dynamic_cast<RecvStartTask*>(task.get()) != nullptr) {
     if (std::find(failed_nodes.begin(), failed_nodes.end(),
                   task->receiver()) != failed_nodes.end()) {
       if (Configuration::get().verbose) {
-        std::cout << "Drop task " << *task << std::endl;
+        std::cout << "Drop receive task " << *task << std::endl;
       }
-      return true;
+      return Fault::FAILURE;
+    }
+  } else if (dynamic_cast<SendStartTask*>(task.get()) != nullptr) {
+    if (std::find(failed_nodes.begin(), failed_nodes.end(),
+                  task->sender()) != failed_nodes.end()) {
+      if (Configuration::get().verbose) {
+        std::cout << "Drop send task " << *task << std::endl;
+      }
+      return Fault::SKIP;
     }
   }
   // if (std::find(failed_nodes.begin(), failed_nodes.end(),
   //               task->sender()) != failed_nodes.end()) {
   //   return true;
   // }
-  return false;
+  return Fault::OK;
 }

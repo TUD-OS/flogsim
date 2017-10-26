@@ -9,13 +9,20 @@
 
 class Task;
 
+enum class Fault
+{
+  OK,
+  SKIP,
+  FAILURE
+};
+
 class FaultInjector
 {
 protected:
   virtual void print(std::ostream &os) const = 0;
 
 public:
-  virtual bool failure(std::shared_ptr<Task> task) = 0;
+  virtual Fault failure(std::shared_ptr<Task> task) = 0;
 
   // Factory method, which creates fault injector based on
   // configuration.
@@ -34,9 +41,9 @@ class NoFaults : public FaultInjector
   {}
 
 public:
-  bool failure(std::shared_ptr<Task>) override final
+  Fault failure(std::shared_ptr<Task>) override final
   {
-    return false;
+    return Fault::OK;
   }
 };
 
@@ -51,5 +58,5 @@ public:
 
   UniformFaults(int F);
 
-  bool failure(std::shared_ptr<Task>) override final;
+  Fault failure(std::shared_ptr<Task>) override final;
 };

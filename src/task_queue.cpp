@@ -4,9 +4,10 @@
 
 void TaskQueue::schedule(std::shared_ptr<Task> task)
 {
-  if (!fault_injector->failure(task)) {
+  auto result = fault_injector->failure(task);
+  if (result == Fault::OK) {
     queue.emplace(task);
-  } else {
+  } else if (result == Fault::FAILURE) {
     queue.emplace(FailureTask::make_from_task(task.get()));
   }
 }
