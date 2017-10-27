@@ -68,7 +68,15 @@ class PhasedCheckedCorrectedTreeBroadcast : public Collective
 
   Time tree_phase_end()
   {
-    return Time(14);
+    auto &conf = Configuration::get();
+    int o = conf.o;
+    int g = conf.g;
+    int P = conf.P;
+
+    int levels = int(std::floor(std::log(P) / std::log(k)));
+    auto send_time = Time(k * std::max(o, g));
+    auto recv_time = Time(std::min(o, g));
+    return (send_time + Time(conf.L) + recv_time) * levels;
   }
 
   void do_tree_phase(int node, TaskQueue &tq)
@@ -76,13 +84,6 @@ class PhasedCheckedCorrectedTreeBroadcast : public Collective
     // Got message from the parent, need to propagate tree
     // communication
     post_tree_sends(node, tq);
-    // Check if tree phase ended
-    if (tq.now() >= tree_phase_end()) {
-      for (int i = 0; i < nodes; i ++) {
-        // start ring phase
-        post_ring_sends(i, tq);
-      }
-    }
   }
 public:
   PhasedCheckedCorrectedTreeBroadcast()
@@ -95,6 +96,15 @@ public:
       right_offs(nodes),
       all_done(nodes)
   {}
+
+  virtual void accept(const TimerTask &task, TaskQueue &tq)
+  {
+    // Tree phase should end now
+    for (int i = 0; i < nodes; i ++) {
+      // start ring phase
+      post_ring_sends(i, tq);
+    }
+  }
 
   virtual void accept(const SendGapEndTask &task, TaskQueue &tq)
   {
@@ -114,9 +124,11 @@ public:
     } else if (task.tag() == left_ring_tag()) {
       right_done[me] = true;
       tq.cancel_pending_sends(me, right_ring_tag());
+      post_ring_sends(me, tq);
     } else if (task.tag() == right_ring_tag()) {
       left_done[me] = true;
       tq.cancel_pending_sends(me, left_ring_tag());
+      post_ring_sends(me, tq);
     } else {
       assert(false);
     }
@@ -131,6 +143,7 @@ public:
   {
     int root = 0;
     post_tree_sends(root, tq);
+    tq.schedule(TimerTask::make_new(tree_phase_end(), root));
   }
 };
 
