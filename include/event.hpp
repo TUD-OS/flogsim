@@ -44,9 +44,7 @@ struct CpuEvent : public Event
 
   CpuEvent(Sequence seq, Time time, Tag tag) :
     Event{seq, time}, tag(tag)
-  {
-    assert(tag == Tag(0) | time > Time(10));
-  }
+  {}
 
   Time end() const override;
 
