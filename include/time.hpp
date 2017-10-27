@@ -19,6 +19,10 @@ struct Time : public Integer<Time>
   {
   }
 
+  Time operator*(int a) const
+  {
+    return Time(a * time);
+  }
   Time operator+(const Time &other) const
   {
     return Time(time + other.time);
