@@ -96,6 +96,11 @@ bool FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
   return true;
 }
 
+bool TimerTask::execute(Timeline &timeline, TaskQueue &tq) const
+{
+  return true;
+}
+
 bool FailureTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[receiver()];

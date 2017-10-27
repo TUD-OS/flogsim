@@ -13,6 +13,7 @@ class RecvEndTask;
 class RecvGapEndTask;
 class MsgTask;
 class FinishTask;
+class TimerTask;
 class FailureTask;
 
 class TaskQueue;
@@ -51,6 +52,10 @@ public:
   }
 
   virtual void accept(const FinishTask&, TaskQueue&)
+  {
+  }
+
+  virtual void accept(const TimerTask&, TaskQueue&)
   {
   }
 
