@@ -7,10 +7,8 @@
 
 class SendStartTask;
 class SendEndTask;
-class SendGapEndTask;
 class RecvStartTask;
 class RecvEndTask;
-class RecvGapEndTask;
 class MsgTask;
 class FinishTask;
 class TimerTask;
@@ -31,19 +29,11 @@ public:
   {
   }
 
-  virtual void accept(const SendGapEndTask&, TaskQueue&)
-  {
-  }
-
   virtual void accept(const RecvStartTask&, TaskQueue&)
   {
   }
 
   virtual void accept(const RecvEndTask&, TaskQueue&)
-  {
-  }
-
-  virtual void accept(const RecvGapEndTask&, TaskQueue&)
   {
   }
 

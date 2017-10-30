@@ -106,7 +106,7 @@ public:
     }
   }
 
-  virtual void accept(const SendGapEndTask &task, TaskQueue &tq)
+  virtual void accept(const SendEndTask &task, TaskQueue &tq)
   {
     if (task.tag() == left_ring_tag()) {
       post_ring_sends(task.sender(), tq);

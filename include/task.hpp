@@ -198,19 +198,6 @@ public:
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
 };
 
-class RecvGapEndTask : public TaskCounted<RecvGapEndTask>
-{
-  virtual TaskPriority task_priority() const { return TaskPriority::RECEIVER; }
-public:
-  RecvGapEndTask(const RecvGapEndTask &other) = default;
-
-  RecvGapEndTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
-    TaskCounted(TaskData{seq, tag, time, sender, receiver})
-  {}
-
-  bool execute(Timeline &timeline, TaskQueue &tq) const override final;
-};
-
 class MsgTask : public TaskCounted<MsgTask>
 {
 public:
@@ -229,20 +216,6 @@ public:
   SendStartTask(const SendStartTask &other) = default;
 
   SendStartTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
-    TaskCounted(TaskData{seq, tag, time, sender, receiver})
-  {
-  }
-
-  bool execute(Timeline &timeline, TaskQueue &tq) const override final;
-};
-
-class SendGapEndTask : public TaskCounted<SendGapEndTask>
-{
-  virtual TaskPriority task_priority() const { return TaskPriority::SENDER; }
-public:
-  SendGapEndTask(const SendGapEndTask &other) = default;
-
-  SendGapEndTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
     TaskCounted(TaskData{seq, tag, time, sender, receiver})
   {
   }

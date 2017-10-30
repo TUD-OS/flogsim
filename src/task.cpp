@@ -22,17 +22,12 @@ bool RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   cpu.recv_gaps.push_back(rg);
   cpu.cpu_events.push_back(cpu_event);
 
-  tq.schedule(RecvEndTask::make_from_task(this, cpu_event.end(), sender(), receiver()));
-  tq.schedule(RecvGapEndTask::make_from_task(this, rg.end(), sender(), receiver()));
+  Time task_end = std::max(cpu_event.end(), rg.end());
+  tq.schedule(RecvEndTask::make_from_task(this, task_end, sender(), receiver()));
   return true;
 }
 
 bool RecvEndTask::execute(Timeline &timeline, TaskQueue &tq) const
-{
-  return true;
-}
-
-bool RecvGapEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   return true;
 }
@@ -67,19 +62,14 @@ bool SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   cpu.send_gaps.push_back(sg);
   cpu.cpu_events.push_back(cpu_event);
 
-  tq.schedule(SendEndTask::make_from_task(this, cpu_event.end(), sender(), receiver()));
-  tq.schedule(SendGapEndTask::make_from_task(this, sg.end(), sender(), receiver()));
+  Time task_end = std::max(cpu_event.end(), sg.end());
+  tq.schedule(SendEndTask::make_from_task(this, task_end, sender(), receiver()));
   return true;
 }
 
 bool SendEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   tq.schedule(MsgTask::make_from_task(this, tq.now(), sender(), receiver()));
-  return true;
-}
-
-bool SendGapEndTask::execute(Timeline &timeline, TaskQueue &tq) const
-{
   return true;
 }
 
