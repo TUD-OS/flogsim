@@ -50,3 +50,4 @@ Example usage
   - [ ] Implement nodeset
   - [ ] Compute time for phased bcast properly
   - [ ] Write tests
+  - [ ] SendGapEnd should take max(o, g)
