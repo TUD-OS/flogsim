@@ -1,19 +1,20 @@
 #include "event.hpp"
 #include "model.hpp"
+#include "globals.hpp"
 
 Time CpuEvent::end() const
 {
-  return start() + LogP::Model::get().o;
+  return start() + Globals::get().model().o;
 }
 
 Time SendGap::end() const
 {
-  return start() + LogP::Model::get().g;
+  return start() + Globals::get().model().g;
 }
 
 Time RecvGap::end() const
 {
-  return start() + LogP::Model::get().g;
+  return start() + Globals::get().model().g;
 }
 
 Time FinishEvent::end() const

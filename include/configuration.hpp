@@ -15,13 +15,7 @@ struct Configuration
   std::string fault_injector;
   int F;
 
-  static void parse_args(int argc, char *argv[]);
-
   // Collectives parameters
   std::string collective;
   int k;
-
-  static const Configuration &get();
-private:
-  bool initialized = false;
 };

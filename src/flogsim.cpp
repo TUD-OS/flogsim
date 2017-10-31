@@ -9,21 +9,24 @@
 #include "model.hpp"
 #include "task.hpp"
 #include "task_queue.hpp"
-#include "configuration.hpp"
 #include "fault_injector.hpp"
+#include "globals.hpp"
+
+#include "configuration_args.hpp"
 
 class TaskQueue;
 class Collective;
 
-using LogP::Model;
-
 int main(int argc, char *argv[])
 {
-  Configuration::parse_args(argc, argv);
+  ConfigurationArgs conf(argc, argv);
 
-  auto coll = CollectiveRegistry::create(Configuration::get().collective);
-  TaskQueue tq{FaultInjector::create()};
-  Timeline timeline(Model::get().P);
+  Model model(conf);
+  Globals::set({&conf, &model});
+
+  auto coll = CollectiveRegistry::create(conf);
+  TaskQueue tq{FaultInjector::create(conf)};
+  Timeline timeline(model.P);
 
   tq.run(*coll, timeline);
 
@@ -36,13 +39,13 @@ int main(int argc, char *argv[])
             << "MsgTask," << MsgTask::issued() << std::endl
             << "FailedNodeList," << tq.faults() <<std::endl;
 
-  auto trace_filename = Configuration::get().log_prefix + ".trace.csv";
+  auto trace_filename = conf.log_prefix + ".trace.csv";
   std::ofstream trace_log(trace_filename);
   trace_log << timeline;
 
-  auto model_filename = Configuration::get().log_prefix + ".model.csv";
+  auto model_filename = conf.log_prefix + ".model.csv";
   std::ofstream model_log(model_filename);
-  model_log << LogP::Model::get();
+  model_log << model;
 
   return 0;
 }

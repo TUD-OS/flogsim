@@ -5,22 +5,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "configuration.hpp"
-
-static Configuration &__get()
-{
-  static Configuration conf;
-  return conf;
-}
-
-const Configuration &Configuration::get()
-{
-  auto &conf = __get();
-  if (!conf.initialized) {
-    std::runtime_error("Initialize configuration first");
-  }
-  return conf;
-}
+#include "configuration_args.hpp"
 
 namespace po = boost::program_options;
 
@@ -31,37 +16,35 @@ show_help(const po::options_description& desc)
     exit( EXIT_SUCCESS );
 }
 
-void Configuration::parse_args(int argc, char *argv[])
+ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
 {
-  Configuration temp_conf;
-
   po::options_description desc("General options");
   desc.add_options()
     ("help", "Show help message")
     ("log",
-     po::value<std::string>(&temp_conf.log_prefix)->default_value("log"),
+     po::value<std::string>(&log_prefix)->default_value("log"),
      "Where to store the logs. Adds suffixes '.model.csv' and '.trace.csv' to the output files.")
     ("time_limit",
-     po::value<uint64_t>(&temp_conf.limit)->default_value(UINT64_MAX),
+     po::value<uint64_t>(&limit)->default_value(UINT64_MAX),
      "When to stop the simulation.")
     ("verbose,v",
-     po::bool_switch(&temp_conf.verbose)->default_value(false),
+     po::bool_switch(&verbose)->default_value(false),
      "Be verbose")
     ;
 
   po::options_description model("Model options");
   model.add_options()
     ("L",
-     po::value<int>(&temp_conf.L)->default_value(1),
+     po::value<int>(&L)->default_value(1),
      "Network latency")
     ("o",
-     po::value<int>(&temp_conf.o)->default_value(1),
+     po::value<int>(&o)->default_value(1),
      "CPU overhead")
     ("g",
-     po::value<int>(&temp_conf.g)->default_value(2),
+     po::value<int>(&g)->default_value(2),
      "Send/Recv gap")
     ("P",
-     po::value<int>(&temp_conf.P)->default_value(8),
+     po::value<int>(&P)->default_value(8),
      "Number of processors")
     ;
 
@@ -70,10 +53,10 @@ void Configuration::parse_args(int argc, char *argv[])
   po::options_description faults("Fault injector options");
   faults.add_options()
     ("faults",
-     po::value<std::string>(&temp_conf.fault_injector)->default_value("none"),
+     po::value<std::string>(&fault_injector)->default_value("none"),
      "Type of fault injector")
     ("F",
-     po::value<int>(&temp_conf.F)->default_value(1),
+     po::value<int>(&F)->default_value(1),
      "Number of faults")
     ;
 
@@ -82,10 +65,10 @@ void Configuration::parse_args(int argc, char *argv[])
   po::options_description collectives("Collectives options");
   collectives.add_options()
     ("coll",
-     po::value<std::string>(&temp_conf.collective)->default_value("binary_bcast"),
+     po::value<std::string>(&collective)->default_value("binary_bcast"),
      "Type of collective to model")
     ("k",
-     po::value<int>(&temp_conf.k)->default_value(2),
+     po::value<int>(&k)->default_value(2),
      "K-arity of the tree")
     ;
 
@@ -107,8 +90,4 @@ void Configuration::parse_args(int argc, char *argv[])
     show_help(desc);
     // no return
   }
-
-  auto &conf = __get();
-  conf = temp_conf;
-  conf.initialized = true;
 }

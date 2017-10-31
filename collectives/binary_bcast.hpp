@@ -15,8 +15,9 @@ class BinaryBroadcast : public Collective
     tq.schedule(FinishTask::make_new(tq.now(), sender));
   }
 public:
-  BinaryBroadcast()
-    : nodes(Configuration::get().P)
+  BinaryBroadcast(const Configuration &conf)
+    : Collective(conf),
+      nodes(conf.P)
   {
   }
 
@@ -31,5 +32,3 @@ public:
     post_sends(root, tq);
   }
 };
-
-static CollectiveRegistrator<BinaryBroadcast> reg("binary_bcast");

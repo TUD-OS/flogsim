@@ -19,14 +19,19 @@ enum class Fault
 class FaultInjector
 {
 protected:
+  const Configuration &conf;
   virtual void print(std::ostream &os) const = 0;
 
 public:
+  FaultInjector(const Configuration &conf)
+    : conf(conf)
+  {}
+
   virtual Fault failure(std::shared_ptr<Task> task) = 0;
 
   // Factory method, which creates fault injector based on
   // configuration.
-  static std::unique_ptr<FaultInjector> create();
+  static std::unique_ptr<FaultInjector> create(const Configuration &);
 
   friend std::ostream &operator<<(std::ostream &os, const FaultInjector &fi)
   {
@@ -41,6 +46,8 @@ class NoFaults : public FaultInjector
   {}
 
 public:
+  using FaultInjector::FaultInjector;
+
   Fault failure(std::shared_ptr<Task>) override final
   {
     return Fault::OK;
@@ -56,7 +63,7 @@ class UniformFaults : public FaultInjector
   virtual void print(std::ostream &os) const override final;
 public:
 
-  UniformFaults(int F);
+  UniformFaults(const Configuration &);
 
   Fault failure(std::shared_ptr<Task>) override final;
 };

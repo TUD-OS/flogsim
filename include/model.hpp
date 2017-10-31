@@ -3,9 +3,7 @@
 #include <ostream>
 
 #include "time.hpp"
-
-namespace LogP
-{
+#include "configuration.hpp"
 
 struct Model
 {
@@ -22,7 +20,10 @@ struct Model
     return os;
   }
 
-  static const Model &get();
+  Model(const Configuration &conf)
+    : L(Time(conf.L)),
+      o(Time(conf.o)),
+      g(Time(conf.g)),
+      P(conf.P)
+  {}
 };
-
-}

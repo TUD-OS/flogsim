@@ -1,5 +1,6 @@
 #include "task.hpp"
 #include "task_queue.hpp"
+#include "globals.hpp"
 
 bool RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
@@ -35,7 +36,7 @@ bool RecvEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 bool MsgTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   // Calculate time when receive task can be scheduled
-  auto recv_time = tq.now() + LogP::Model::get().L;
+  auto recv_time = tq.now() + Globals::get().model().L;
 
   tq.schedule(RecvStartTask::make_from_task(this, recv_time, sender(), receiver()));
   return true;

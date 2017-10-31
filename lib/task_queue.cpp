@@ -1,6 +1,7 @@
 #include "task_queue.hpp"
 #include "task.hpp"
 #include "configuration.hpp"
+#include "globals.hpp"
 
 void TaskQueue::schedule(std::shared_ptr<Task> task)
 {
@@ -22,7 +23,7 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
 {
   coll.populate(*this);
 
-  auto &conf = Configuration::get();
+  auto &conf = Globals::get().conf();
   while (!empty()) {
     if (conf.verbose) {
       std::cout << "Heap state:\n\t";

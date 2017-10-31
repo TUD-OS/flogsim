@@ -9,12 +9,20 @@ find_package(Boost 1.52 COMPONENTS program_options REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include)
 
 file(GLOB FLOGSIM_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB FLOGLIB_SRC ${PROJECT_SOURCE_DIR}/lib/*.cpp)
 file(GLOB COLLECTIVES_SRC ${PROJECT_SOURCE_DIR}/collectives/*.cpp)
 
+
+add_library(flog SHARED ${FLOGLIB_SRC})
+
 add_executable(flogsim ${FLOGSIM_SRC} ${COLLECTIVES_SRC})
-TARGET_LINK_LIBRARIES(flogsim ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(flogsim ${Boost_LIBRARIES} flog)
 
 install(DIRECTORY script DESTINATION ${PROJECT_BINARY_BIN}/bin
   FILES_MATCHING PATTERN "*.R")
 
 install(TARGETS flogsim RUNTIME DESTINATION ${PROJECT_BINARY_BIN}/bin)
+install(TARGETS flog DESTINATION ${PROJECT_BINARY_BIN}/lib)
+
+enable_testing()
+add_subdirectory(test)

@@ -33,9 +33,10 @@ class CorrectedTreeBroadcast : public Collective
   }
 
 public:
-  CorrectedTreeBroadcast()
-    : k(Configuration::get().k),
-      nodes(Configuration::get().P),
+  CorrectedTreeBroadcast(const Configuration &conf)
+    : Collective(conf),
+      k(conf.k),
+      nodes(conf.P),
       done(nodes)
   {}
 
@@ -50,5 +51,3 @@ public:
     post_sends(root, tq);
   }
 };
-
-static CollectiveRegistrator<CorrectedTreeBroadcast> reg("fixed_correctedtree_bcast");
