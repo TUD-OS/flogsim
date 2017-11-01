@@ -79,10 +79,10 @@ class CheckedCorrectedTreeBroadcast : public Collective
       post_ring_sends(node, tq);
   }
 public:
-  CheckedCorrectedTreeBroadcast(const Configuration &conf)
-    : Collective(conf),
-      k(conf.k),
-      nodes(conf.P),
+  CheckedCorrectedTreeBroadcast()
+    : Collective(),
+      k(Globals::get().conf().k),
+      nodes(Globals::get().model().P),
       tree_done(nodes),
       left_done(nodes),
       right_done(nodes),

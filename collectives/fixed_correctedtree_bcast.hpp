@@ -2,6 +2,7 @@
 
 #include "collective.hpp"
 #include "task_queue.hpp"
+#include "globals.hpp"
 
 class CorrectedTreeBroadcast : public Collective
 {
@@ -33,10 +34,10 @@ class CorrectedTreeBroadcast : public Collective
   }
 
 public:
-  CorrectedTreeBroadcast(const Configuration &conf)
-    : Collective(conf),
-      k(conf.k),
-      nodes(conf.P),
+  CorrectedTreeBroadcast()
+    : Collective(),
+      k(Globals::get().conf().k),
+      nodes(Globals::get().model().P),
       done(nodes)
   {}
 

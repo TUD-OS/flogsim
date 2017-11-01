@@ -15,15 +15,11 @@ class TimerTask;
 class FailureTask;
 
 class TaskQueue;
-class Configuration;
 
 class Collective
 {
-protected:
-  const Configuration &conf;
 public:
-  Collective(const Configuration &conf)
-    : conf(conf)
+  Collective()
   {}
 
   virtual void populate(TaskQueue &eq) = 0;
@@ -62,16 +58,16 @@ public:
 
   // Factory method, which creates collectives based on
   // configuration.
-  static std::unique_ptr<Collective> create(const Configuration &);
+  static std::unique_ptr<Collective> create();
 };
 
 class CollectiveRegistry
 {
 public:
-  typedef std::function<std::unique_ptr<Collective>(const Configuration &)> create_fun_t;
+  typedef std::function<std::unique_ptr<Collective>()> create_fun_t;
 
   static void declare(create_fun_t &create_fun, const std::string &name);
-  static std::unique_ptr<Collective> create(const Configuration&);
+  static std::unique_ptr<Collective> create();
 
 private:
   std::map<std::string, create_fun_t> data;
@@ -83,9 +79,9 @@ class CollectiveRegistrator
 {
 public:
 
-  static std::unique_ptr<T> create(const Configuration &conf)
+  static std::unique_ptr<T> create()
   {
-    return std::make_unique<T>(conf);
+    return std::make_unique<T>();
   }
 
   CollectiveRegistrator(const std::string &name)

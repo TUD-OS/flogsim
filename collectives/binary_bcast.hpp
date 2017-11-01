@@ -1,5 +1,6 @@
 #include "collective.hpp"
 #include "task_queue.hpp"
+#include "globals.hpp"
 
 class BinaryBroadcast : public Collective
 {
@@ -15,9 +16,9 @@ class BinaryBroadcast : public Collective
     tq.schedule(FinishTask::make_new(tq.now(), sender));
   }
 public:
-  BinaryBroadcast(const Configuration &conf)
-    : Collective(conf),
-      nodes(conf.P)
+  BinaryBroadcast()
+    : Collective(),
+      nodes(Globals::get().model().P)
   {
   }
 

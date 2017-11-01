@@ -1,6 +1,8 @@
 #pragma once
 
-class Configuration;
+#include "configuration.hpp"
+#include "model.hpp"
+
 class Model;
 
 class Globals

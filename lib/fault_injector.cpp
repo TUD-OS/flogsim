@@ -5,21 +5,25 @@
 
 #include "fault_injector.hpp"
 #include "task.hpp"
+#include "configuration.hpp"
+#include "globals.hpp"
 
-std::unique_ptr<FaultInjector> FaultInjector::create(const Configuration &conf)
+std::unique_ptr<FaultInjector> FaultInjector::create()
 {
+  auto &conf = Globals::get().conf();
   if (conf.fault_injector == "none") {
-    return std::make_unique<NoFaults>(conf);
+    return std::make_unique<NoFaults>();
   } else if (conf.fault_injector == "uniform") {
-    return std::make_unique<UniformFaults>(conf);
+    return std::make_unique<UniformFaults>();
   } else {
     throw std::invalid_argument("Fault injector does not exist:" +
                                 conf.fault_injector);
   }
 }
 
-UniformFaults::UniformFaults(const Configuration &conf)
-  : FaultInjector(conf), P(conf.P), F(conf.F)
+UniformFaults::UniformFaults()
+  : P(Globals::get().model().P),
+    F(Globals::get().conf().F)
 {
   std::srand(unsigned(std::time(0)));
 
@@ -37,7 +41,7 @@ UniformFaults::UniformFaults(const Configuration &conf)
 
   failed_nodes.resize(F);
 
-  if (conf.verbose) {
+  if (Globals::get().conf().verbose) {
     std::cout << "Failed nodes: ";
     for (auto i : failed_nodes)
       std::cout << i;
@@ -53,6 +57,7 @@ void UniformFaults::print(std::ostream &os) const
 
 Fault UniformFaults::failure(std::shared_ptr<Task> task)
 {
+  auto &conf = Globals::get().conf();
   if (dynamic_cast<RecvStartTask*>(task.get()) != nullptr) {
     if (std::find(failed_nodes.begin(), failed_nodes.end(),
                   task->receiver()) != failed_nodes.end()) {

@@ -24,9 +24,9 @@ int main(int argc, char *argv[])
   Model model(conf);
   Globals::set({&conf, &model});
 
-  auto coll = CollectiveRegistry::create(conf);
-  TaskQueue tq{FaultInjector::create(conf)};
-  Timeline timeline(model.P);
+  auto coll = CollectiveRegistry::create();
+  TaskQueue tq{FaultInjector::create()};
+  Timeline timeline;
 
   tq.run(*coll, timeline);
 

@@ -4,6 +4,7 @@
 
 #include "collective.hpp"
 #include "task_queue.hpp"
+#include "globals.hpp"
 
 class PhasedCheckedCorrectedTreeBroadcast : public Collective
 {
@@ -68,14 +69,15 @@ class PhasedCheckedCorrectedTreeBroadcast : public Collective
 
   Time tree_phase_end()
   {
-    int o = conf.o;
-    int g = conf.g;
-    int P = conf.P;
+    auto &model = Globals::get().model();
+    auto o = model.o;
+    auto g = model.g;
+    auto P = model.P;
 
     int levels = int(std::floor(std::log(P) / std::log(k)));
-    auto send_time = Time(k * std::max(o, g));
+    auto send_time = Time(std::max(o, g) * k);
     auto recv_time = Time(std::min(o, g));
-    return (send_time + Time(conf.L) + recv_time) * levels;
+    return (send_time + Time(model.L) + recv_time) * levels;
   }
 
   void do_tree_phase(int node, TaskQueue &tq)
@@ -85,10 +87,10 @@ class PhasedCheckedCorrectedTreeBroadcast : public Collective
     post_tree_sends(node, tq);
   }
 public:
-  PhasedCheckedCorrectedTreeBroadcast(const Configuration &conf)
-    : Collective(conf),
-      k(conf.k),
-      nodes(conf.P),
+  PhasedCheckedCorrectedTreeBroadcast()
+    : Collective(),
+      k(Globals::get().conf().k),
+      nodes(Globals::get().model().P),
       tree_done(nodes),
       left_done(nodes),
       right_done(nodes),

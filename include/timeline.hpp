@@ -7,6 +7,7 @@
 #include <tuple>
 
 #include "event.hpp"
+#include "globals.hpp"
 
 struct CpuTimeline
 {
@@ -46,8 +47,8 @@ class Timeline
 public:
   std::vector<CpuTimeline> per_cpu_time;
 
-  Timeline(int nodes) :
-    per_cpu_time(nodes)
+  Timeline() :
+    per_cpu_time(Globals::get().model().P)
   {}
 
   Time get_total_time() const { return total_time; }
