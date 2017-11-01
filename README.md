@@ -17,13 +17,6 @@ In Debian you would need to install following packages:
   - r-cran-tidyr
   - r-cran-reshape2
 
-Additionally you need to install `purrr`, which is not currently a
-debian package. Thus you will need to install it using R package
-system. Start R console and type `install.packages('purrr')`. Choose
-where to install (for example into your home dir) and from which
-server you would like to fetch packages. In principle you can replace
-purrr's map with apply. Patches are welcome.
-
 From a directory with the log run `Rscript ../script/plot_trace.R` it
 will generate graph plot.pdf.
 
