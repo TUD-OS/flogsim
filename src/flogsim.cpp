@@ -25,7 +25,8 @@ int main(int argc, char *argv[])
   Globals::set({&conf, &model});
 
   auto coll = CollectiveRegistry::create();
-  TaskQueue tq{FaultInjector::create()};
+  auto faults = FaultInjector::create();
+  TaskQueue tq{faults.get()};
   Timeline timeline;
 
   tq.run(*coll, timeline);

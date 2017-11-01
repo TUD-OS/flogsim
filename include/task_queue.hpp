@@ -39,7 +39,7 @@ class TaskQueue
     current_time = absolute;
   }
 
-  std::unique_ptr<FaultInjector> fault_injector;
+  FaultInjector *fault_injector;
 public:
 
   const FaultInjector &faults() const
@@ -47,7 +47,7 @@ public:
     return *fault_injector;
   }
 
-  TaskQueue(std::unique_ptr<FaultInjector> fault_injector) :
+  TaskQueue(FaultInjector *fault_injector) :
     queue(), fault_injector(std::move(fault_injector))
   {}
 
