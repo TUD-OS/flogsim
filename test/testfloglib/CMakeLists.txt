@@ -1,4 +1,4 @@
-include_directories(${GTEST_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/collectives)
 
 file(GLOB TEST_SRC *.cpp)
 add_executable(unit_test ${TEST_SRC})
