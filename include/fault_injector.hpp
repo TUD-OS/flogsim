@@ -61,6 +61,8 @@ class UniformFaults : public FaultInjector
 public:
 
   UniformFaults();
+  // Class to set up deterministic faults for testing
+  UniformFaults(const std::vector<int> &);
 
   Fault failure(std::shared_ptr<Task>) override final;
 };

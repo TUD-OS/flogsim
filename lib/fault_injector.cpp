@@ -49,6 +49,14 @@ UniformFaults::UniformFaults()
   }
 }
 
+UniformFaults::UniformFaults(const std::vector<int> &failed_nodes)
+  : P(Globals::get().model().P),
+    F(failed_nodes.size()),
+    failed_nodes(failed_nodes)
+{
+  assert(*std::max_element(failed_nodes.begin(), failed_nodes.end()) < P);
+}
+
 void UniformFaults::print(std::ostream &os) const
 {
   std::copy(failed_nodes.begin(), failed_nodes.end(),
