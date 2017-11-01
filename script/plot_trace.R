@@ -1,5 +1,4 @@
 suppressMessages(library(ggplot2))
-suppressMessages(library(purrr))
 suppressMessages(library(data.table))
 suppressMessages(library(tidyr))
 suppressMessages(library(reshape2))
@@ -14,7 +13,7 @@ event.cols <- names(trace.df)[-1]
 cpu.col <- names(trace.df)[1]
 
 ## Tidy the data table
-trace.df[, (event.cols) := map(.SD, ~strsplit(., " ")) ,.SDcols = event.cols]
+trace.df[, (event.cols) := lapply(.SD, function(x) strsplit(x, " ")) ,.SDcols = event.cols]
 trace.df <- melt(trace.df, id.vars=cpu.col)
 trace.df <- unnest(trace.df, value)
 
@@ -23,7 +22,7 @@ trace.df[, variable := as.character(variable)]
 trace.df[, c("variable", "field") := colsplit(trace.df$variable, "_", c("event", "field"))]
 
 cols <- c("value", "field")
-trace.df[, (cols) := map(.SD, ~strsplit(., "\\|")) ,.SDcols = cols]
+trace.df[, (cols) := lapply(.SD, function(x) strsplit(x, "\\|")) ,.SDcols = cols]
 trace.df[, id := 1:nrow(.SD)]
 trace.df <- unnest(trace.df, value, field)
 
