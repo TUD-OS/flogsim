@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cinttypes>
+#include <ostream>
 
 struct Configuration
 {
@@ -18,6 +19,19 @@ struct Configuration
   // Collectives parameters
   std::string collective;
   int k;
+
+  friend std::ostream &operator<<(std::ostream &os, const Configuration &conf)
+  {
+    os << "L = " << conf.L << ", "
+       << "o = " << conf.o << ", "
+       << "g = " << conf.g << ", "
+       << "P = " << conf.P << ", "
+       << "k = " << conf.k << ", "
+       << "limit = " << conf.limit << ", "
+       << "F = " << conf.F << ", "
+       << "fault_injector = " << conf.fault_injector;
+    return os;
+  }
 
   // Builder methods
   Configuration &LogP(int L, int o, int g, int P)
