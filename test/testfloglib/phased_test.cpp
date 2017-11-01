@@ -1,28 +1,61 @@
 #include "gtest/gtest.h"
 
-// #include "../collectives/phased_checked_correctedtree_bcast.hpp"
+#include "phased_checked_correctedtree_bcast.hpp"
+#include "globals.hpp"
 
 namespace
 {
 
-// static CollectiveRegistrator<PhasedCheckedCorrectedTreeBroadcast> pcctb("phased_checked_correctedtree_bcast");
-TEST(FactorialTest, Negative) {
-  // This test is named "Negative", and belongs to the "FactorialTest"
-  // test case.
-  EXPECT_EQ(1, -5);
+TEST(PhasedCheckedCorrectedTree, Functional)
+{
 
+  {
+    auto conf = Configuration(2, 100).LogP(1, 1, 1, 7).faults("none");
+    auto model = Model(conf);
+
+    Globals::set({&conf, &model});
+
+    PhasedCheckedCorrectedTreeBroadcast coll;
+
+    NoFaults faults;
+    TaskQueue tq{&faults};
+    Timeline timeline;
+
+    tq.run(coll, timeline);
+
+    EXPECT_EQ(timeline.get_total_time(), Time(12)) << conf;
+
+    auto [failed, finished, unreached] = timeline.node_stat();
+    EXPECT_EQ(failed, 0) << conf;
+    EXPECT_EQ(finished, 7) << conf;
+    EXPECT_EQ(unreached, 0) << conf;
+  }
+
+  {
+    auto conf = Configuration(2, 100).LogP(1, 1, 1, 7);
+    auto model = Model(conf);
+
+    Globals::set({&conf, &model});
+
+    PhasedCheckedCorrectedTreeBroadcast coll;
+
+    UniformFaults faults({4});
+    TaskQueue tq{&faults};
+    Timeline timeline;
+
+    tq.run(coll, timeline);
+
+    EXPECT_EQ(timeline.get_total_time(), Time(15)) << conf;
+
+    auto [failed, finished, unreached] = timeline.node_stat();
+    EXPECT_EQ(failed, 1) << conf;
+    EXPECT_EQ(finished, 6) << conf;
+    EXPECT_EQ(unreached, 0) << conf;
+  }
   // <TechnicalDetails>
   //
-  // EXPECT_EQ(expected, actual) is the same as
-  //
-  //   EXPECT_TRUE((expected) == (actual))
-  //
-  // except that it will print both the expected value and the actual
-  // value when the assertion fails.  This is very helpful for
-  // debugging.  Therefore in this case EXPECT_EQ is preferred.
-  //
-  // On the other hand, EXPECT_TRUE accepts any Boolean expression,
-  // and is thus more general.
+  // High level test which checks how the runtime and that all the
+  // nodes which should finish are finished.
   //
   // </TechnicalDetails>
 }
