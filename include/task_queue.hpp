@@ -68,4 +68,6 @@ public:
   void run(Collective &coll, Timeline &timeline);
 
   void cancel_pending_sends(int node, Tag tag);
+
+  bool now_empty(int node);
 };

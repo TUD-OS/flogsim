@@ -74,6 +74,30 @@ void TaskQueue::cancel_pending_sends(int node, Tag tag)
   }
 }
 
+bool TaskQueue::now_empty(int node)
+{
+  auto cur_time = now();
+  auto res = std::find_if(
+    queue.ordered_begin(), queue.ordered_end(),
+    [&](const auto &task)
+    {
+      if (dynamic_cast<SendStartTask*>(task.get()) == nullptr) {
+        return false;
+      }
+
+      if (task->sender() == node) {
+        return true;
+      }
+
+      if (task->start() != cur_time) {
+        return false;
+      }
+    });
+
+  return ((res == queue.ordered_end()) ||
+          ((*res)->start() != cur_time));
+}
+
 std::shared_ptr<Task> TaskQueue::pop()
 {
   auto item = queue.top();
