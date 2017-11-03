@@ -30,6 +30,7 @@ public:
       _sender(sender),
       _receiver(receiver)
   {
+    assert(time >= Time(0));
     assert(_sender >= 0);
     assert(_receiver >= 0);
   }

@@ -77,6 +77,7 @@ bool SendEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 bool FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[sender()];
+  assert(!cpu.cpu_events.empty() && "CPU done without ever doing anything");
 
   // Calculate time for CpuTime
   auto cpu_last =  cpu.cpu_events.back();
