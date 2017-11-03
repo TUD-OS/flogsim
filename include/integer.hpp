@@ -37,9 +37,12 @@ struct Integer
     return !(*static_cast<const T*>(this) < other);
   }
 
-  friend std::ostream& operator<<(std::ostream &os, const T& t)
+  friend std::ostream& operator<<(std::ostream &os, const Integer& t)
   {
-    os << t.get();
+    os << t._get();
     return os;
   }
+
+private:
+	auto _get() const { return (*static_cast<const T*>(this)).get(); }
 };

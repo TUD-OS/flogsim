@@ -39,6 +39,17 @@ struct Time : public Integer<Time>
 
   auto get() const { return time; }
 
+  friend std::ostream &operator<<(std::ostream &os, const Time &t)
+  {
+    if (t == Time::max()) {
+      os << "MAX";
+    } else {
+      os << t.get();
+    }
+
+    return os;
+  }
+
 private:
   uint64_t time;
 };

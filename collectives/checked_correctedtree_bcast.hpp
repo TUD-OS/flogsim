@@ -83,7 +83,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
     } else {
       assert(left_done[node] && right_done[node]);
 
-      tq.schedule(FinishTask::make_new(tq.now(), node));
+      tq.schedule(FinishTask::make_new(node));
       all_done[node] = true;
     }
   }
@@ -155,7 +155,7 @@ public:
     }
 
     if (left_done[node] && right_done[node]) {
-      tq.schedule(FinishTask::make_new(tq.now(), node));
+      tq.schedule(FinishTask::make_new(node));
       all_done[node] = true;
     }
   }
@@ -201,7 +201,7 @@ public:
     }
 
     if (left_done[node] && right_done[node]) {
-      tq.schedule(FinishTask::make_new(tq.now(), node));
+      tq.schedule(FinishTask::make_new(node));
       tq.cancel_pending_sends(node, left_ring_tag());
       tq.cancel_pending_sends(node, right_ring_tag());
       all_done[node] = true;

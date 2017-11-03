@@ -136,7 +136,7 @@ public:
     }
 
     if (left_done[me] && right_done[me] && !all_done[me]) {
-      tq.schedule(FinishTask::make_new(tq.now(), me));
+      tq.schedule(FinishTask::make_new(me));
       all_done[me] = true;
     }
   }

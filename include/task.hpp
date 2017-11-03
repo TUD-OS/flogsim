@@ -37,10 +37,10 @@ public:
 
 enum class TaskPriority : int
 {
-  FINISH = 1,
   RECEIVER = 3,
   NORMAL = 4,
   SENDER = 5,
+  FINISH = 6,
 };
 
 class Task : public TaskData
@@ -242,8 +242,8 @@ class FinishTask : public TaskCounted<FinishTask>
   virtual TaskPriority task_priority() const { return TaskPriority::FINISH; }
 public:
 
-  FinishTask(Sequence seq, Time time, int sender) :
-    TaskCounted(TaskData{seq, Tag(0), time, sender, sender})
+  FinishTask(Sequence seq, int receiver) :
+    TaskCounted(TaskData{seq, Tag(0), Time::max(), receiver, receiver})
   {
   }
 
