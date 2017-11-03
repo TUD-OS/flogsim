@@ -34,7 +34,7 @@ struct Time : public Integer<Time>
 
   static Time max()
   {
-    return Time(UINT64_MAX - 1);
+    return Time(INT64_MAX - 1);
   }
 
   auto get() const { return time; }
@@ -51,5 +51,5 @@ struct Time : public Integer<Time>
   }
 
 private:
-  uint64_t time;
+  int64_t time;
 };
