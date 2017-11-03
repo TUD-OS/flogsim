@@ -22,7 +22,7 @@ class TaskQueue
   {
     bool operator()(const queue_item_t &first, const queue_item_t &second) const
     {
-      return second->operator<(*first);
+      return (*second) < (*first);
     }
   };
 
@@ -35,7 +35,7 @@ class TaskQueue
 
   void progress(Time absolute)
   {
-    assert(!(absolute < current_time));
+    assert(!(absolute < current_time) && "Let's not do the timewarp again");
     current_time = absolute;
   }
 

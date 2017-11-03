@@ -108,7 +108,7 @@ public:
   friend std::ostream &operator<<(std::ostream &os, const Task &t)
   {
     os << "Task[@ " << t.time << "] "
-       << t.type() << " "
+       << t.type() << ": "
        << t.sender() << " -> " << t.receiver();
     return os;
   }
