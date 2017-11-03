@@ -74,14 +74,15 @@ void TaskQueue::cancel_pending_sends(int node, Tag tag)
   }
 }
 
-bool TaskQueue::now_empty(int node)
+bool TaskQueue::now_idle(int node)
 {
   auto cur_time = now();
   auto res = std::find_if(
     queue.ordered_begin(), queue.ordered_end(),
     [&](const auto &task)
     {
-      if (dynamic_cast<SendStartTask*>(task.get()) == nullptr) {
+      if ((dynamic_cast<SendStartTask*>(task.get()) == nullptr) &&
+          (dynamic_cast<RecvStartTask*>(task.get()) == nullptr)){
         return false;
       }
 

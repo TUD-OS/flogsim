@@ -69,5 +69,5 @@ public:
 
   void cancel_pending_sends(int node, Tag tag);
 
-  bool now_empty(int node);
+  bool now_idle(int node);
 };
