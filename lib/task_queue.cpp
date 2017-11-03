@@ -103,6 +103,9 @@ std::shared_ptr<Task> TaskQueue::pop()
 {
   auto item = queue.top();
   queue.pop();
-  progress(item->start());
+
+  if (dynamic_cast<FinishTask *>(item.get()) == nullptr) {
+    progress(item->start());
+  }
   return item;
 }
