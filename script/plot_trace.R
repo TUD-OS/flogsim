@@ -1,13 +1,50 @@
+#!/usr/bin/env Rscript
+
 suppressMessages(library(ggplot2))
 suppressMessages(library(data.table))
 suppressMessages(library(tidyr))
 suppressMessages(library(reshape2))
+suppressMessages(library(optparse))
 
-trace.filename <- 'log.trace.csv'
-model.filename <- 'log.model.csv'
+## Reading the options
 
-trace.df <- fread(trace.filename, colClasses = "character")
+option.list <- list(
+    make_option(c("-c", "--cpu-only"), action = "store_true", default = FALSE,
+                help  = "Show only events on the nodes, omit messages."),
+    make_option(c("--messages"), default = NULL, metavar = "LIST",
+                help = "Show messages only on selected nodes (e. g. '0,7')."),
+    make_option(c("-m", "--model"), metavar = "FILE",
+                help = "Path to the file with model description."),
+    make_option(c("-o", "--output"), default = "plot.pdf", metavar = "FILE",
+                help = "Output PDF file. [default: %default]"))
+
+opt.parser <- OptionParser(option_list = option.list,
+                           usage = "%prog -m MODEL [options] TRACE")
+opt <- parse_args2(opt.parser)
+
+trace.filename <- opt$args[1]
+if (file.access(trace.filename) == -1) {
+    stop(sprintf("Specified trace file (%s) does not exist", trace.filename))
+}
+
+model.filename <- opt$options$model
+if (file.access(trace.filename) == -1) {
+    stop(sprintf("Specified model file (%s) does not exist", trace.filename))
+}
+
+if (!is.null(opt$options$messages)) {
+    interesting.nodes <- as.integer(unlist(strsplit(opt$options$messages, ",")))
+} else {
+    interesting.nodes <- NULL
+}
+
+## Reading the model and the trace
+
 model.df <- fread(model.filename)
+trace.df <- fread(trace.filename, colClasses = "character")
+
+
+## Start visualisation
 
 event.cols <- names(trace.df)[-1]
 cpu.col <- names(trace.df)[1]
@@ -59,7 +96,7 @@ variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Fin
 major.breaks <- seq(0, model.df$P + 4, 5)
 minor.breaks <- seq(min(range(major.breaks)), max(range(major.breaks)))
 
-pdf("plot.pdf", width=20, height=model.df$P / 4)
+pdf(opt$options$output, width=20, height=model.df$P / 4)
 p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
             aes(ymin = as.double(Time), ymax = as.double(End), x = CPU, col = variable)) +
     geom_linerange(alpha = 0.3, size = 2) +
@@ -70,11 +107,17 @@ p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
     coord_flip() +
     scale_x_continuous(breaks = minor.breaks, labels = minor.breaks, limits = c(0, max(model.df$P)))
 
-print(p + geom_segment(data = messages,
-                 aes(x = From + 0.05, xend = To + 0.05, y = Start, yend = End, col = as.factor(Tag)),
-                 arrow = arrow(length = unit(0.01, "npc")), inherit.aes = FALSE))
-print(p + geom_segment(data = messages[From == 0 | To == 0],
-                 aes(x = From + 0.05, xend = To + 0.05, y = Start, yend = End, col = variable),
-                 arrow = arrow(length = unit(0.01, "npc")), inherit.aes = FALSE))
-print(p)
-dev.off()
+if (opt$options$cpu_only == TRUE) {
+    print(p)
+} else if (is.null(interesting.nodes)) {
+    print(p + geom_segment(data = messages,
+                           aes(x = From + 0.05, xend = To + 0.05, y = Start, yend = End, col = as.factor(Tag)),
+                           arrow = arrow(length = unit(0.01, "npc")), inherit.aes = FALSE))
+} else {
+    print(p + geom_segment(data = messages[From %in% interesting.nodes | To %in% interesting.nodes],
+                           aes(x = From + 0.05, xend = To + 0.05, y = Start, yend = End, col = as.factor(Tag)),
+                           arrow = arrow(length = unit(0.01, "npc")), inherit.aes = FALSE) +
+          ggtitle("Highlighted nodes:", subtitle = paste(interesting.nodes, collapse = ", ")))
+}
+
+res <- dev.off()

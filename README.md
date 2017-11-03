@@ -16,9 +16,7 @@ In Debian you would need to install following packages:
   - r-cran-ggplot2
   - r-cran-tidyr
   - r-cran-reshape2
-
-From a directory with the log run `Rscript ../script/plot_trace.R` it
-will generate graph plot.pdf.
+  - r-cran-optparse
 
 # Usage
 
@@ -34,6 +32,24 @@ Example usage
 ```bash
 ./flogsim --P 128 --o 1 --L 4 --faults uniform --F 4 --coll correctedtree_bcast --help
 ```
+
+# Visualisation
+
+You can use `../script/plot_trace.R` script to visualize generated
+traces. Run the script with `--help` to see all available options.
+
+The typical usage will be:
+
+```bash
+../script/plot_trace.R -m ./log.model.csv ./log.trace.csv
+```
+
+Will by default create file `plot.pdf` out of model `log.model.csv`
+and trace `log.trace.csv`.
+
+If you are overwelmed with number of messages, you can either disable
+them using `-c` flag, or only show specific nodes using `--messages`
+flag.
 
 # TODO
 
