@@ -54,9 +54,6 @@ class CheckedCorrectedTreeBroadcast : public Collective
     {
       // Don't send immediatelly, because we will get notification
       // later, when other sends finish
-      if (!force && !tq.now_idle(id)) {
-        return;
-      }
 
       int offs = ++left_offs;
       int recv = (2 * coll.nodes + id - offs) % coll.nodes;
@@ -67,9 +64,6 @@ class CheckedCorrectedTreeBroadcast : public Collective
     {
       // Don't send immediatelly, because we will get notification
       // later, when other sends finish
-      if (!force && !tq.now_idle(id)) {
-        return;
-      }
 
       int offs = ++right_offs;
       int recv = (2 * coll.nodes + id + offs) % coll.nodes;
@@ -204,19 +198,19 @@ public:
     }
   }
 
-  // virtual void accept(const TimerTask &task, TaskQueue &tq)
-  // {
-  //   Node &node = nodeset[task.sender()];
+  virtual void accept(const IdleTask &task, TaskQueue &tq)
+  {
+    Node &node = nodeset[task.sender()];
 
-  //   node.post_next_message(*this, tq);
-  // }
+    node.post_next_message(*this, tq);
+  }
 
   virtual void accept(const SendEndTask &task, TaskQueue &tq)
   {
     Node &node = nodeset[task.sender()];
 
     node.accept_send_end(*this, task);
-    node.post_next_message(*this, tq);
+    tq.schedule(IdleTask::make_new(tq.now(), node.id));
   }
 
   virtual void accept(const RecvEndTask& task, TaskQueue& tq)
@@ -224,7 +218,7 @@ public:
     Node &node = nodeset[task.receiver()];
 
     node.accept_receive(*this, task);
-    node.post_next_message(*this, tq);
+    tq.schedule(IdleTask::make_new(tq.now(), node.id));
   }
 
   void populate(TaskQueue &tq) override
