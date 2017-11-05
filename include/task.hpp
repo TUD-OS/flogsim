@@ -41,7 +41,8 @@ enum class TaskPriority : int
   RECEIVER = 3,
   NORMAL = 4,
   SENDER = 5,
-  FINISH = 6,
+  IDLE = 6,
+  FINISH = 7,
 };
 
 class Task : public TaskData
@@ -232,6 +233,24 @@ public:
 
   SendEndTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
     TaskCounted(TaskData{seq, tag, time, sender, receiver})
+  {
+  }
+
+  bool execute(Timeline &timeline, TaskQueue &tq) const override final;
+};
+
+class IdleTask : public TaskCounted<IdleTask>
+{
+  virtual TaskPriority task_priority() const { return TaskPriority::IDLE; }
+public:
+
+  IdleTask(Sequence seq, Tag tag, Time time, int receiver, int sender) :
+    TaskCounted(TaskData{seq, tag, time, receiver, sender})
+  {
+  }
+
+  IdleTask(Sequence seq, Time time, int receiver) :
+    TaskCounted(TaskData{seq, Tag(0), time, receiver, receiver})
   {
   }
 

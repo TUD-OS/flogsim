@@ -10,6 +10,7 @@ class SendEndTask;
 class RecvStartTask;
 class RecvEndTask;
 class MsgTask;
+class IdleTask;
 class FinishTask;
 class TimerTask;
 class FailureTask;
@@ -41,6 +42,10 @@ public:
   }
 
   virtual void accept(const MsgTask&, TaskQueue&)
+  {
+  }
+
+  virtual void accept(const IdleTask&, TaskQueue&)
   {
   }
 

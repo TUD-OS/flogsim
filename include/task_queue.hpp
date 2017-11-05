@@ -41,14 +41,17 @@ class TaskQueue
 
   FaultInjector *fault_injector;
 public:
+  std::vector<bool> has_idle;
 
   const FaultInjector &faults() const
   {
     return *fault_injector;
   }
 
-  TaskQueue(FaultInjector *fault_injector) :
-    queue(), fault_injector(std::move(fault_injector))
+  TaskQueue(FaultInjector *fault_injector)
+    : queue(),
+      fault_injector(std::move(fault_injector)),
+      has_idle(Globals::get().model().P)
   {}
 
   Time now() const

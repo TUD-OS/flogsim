@@ -9,6 +9,14 @@ void TaskQueue::schedule(std::shared_ptr<Task> task)
   if (result == Fault::OK) {
     queue.emplace(task);
   } else if (result == Fault::FAILURE) {
+    if (dynamic_cast<IdleTask *>(task.get()) != nullptr) {
+      // Ensure at most one Idle task per sender
+      if (!has_idle[task->sender()]) {
+        has_idle[task->sender()] = true;
+      } else {
+        return;
+      }
+    }
     queue.emplace(FailureTask::make_from_task(task.get()));
   }
 }

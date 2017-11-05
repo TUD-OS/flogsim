@@ -74,6 +74,24 @@ bool SendEndTask::execute(Timeline &timeline, TaskQueue &tq) const
   return true;
 }
 
+bool IdleTask::execute(Timeline &timeline, TaskQueue &tq) const
+{
+  auto &cpu = timeline.per_cpu_time[sender()];
+
+  Time cpu_last = cpu.cpu_events.get_last_or_zero();
+
+  // Check if the last cpu task has finished
+  if (cpu_last <= tq.now()) {
+    assert(tq.has_idle[sender()] == true && "The task had to post idle.");
+    tq.has_idle[sender()] = false;
+    return true;
+  }
+
+  // No, the last CPU task is still running
+  tq.schedule(make_task_attime(this, cpu_last));
+  return false;
+}
+
 bool FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
   auto &cpu = timeline.per_cpu_time[sender()];
