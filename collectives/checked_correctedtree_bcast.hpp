@@ -81,8 +81,6 @@ class CheckedCorrectedTreeBroadcast : public Collective
     {
       all_done = true;
       tq.schedule(FinishTask::make_new(id));
-      // tq.cancel_pending_sends(id, left_ring_tag());
-      // tq.cancel_pending_sends(id, right_ring_tag());
     }
 
     void post_timer_task(TaskQueue &tq)
