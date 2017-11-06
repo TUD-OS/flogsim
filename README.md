@@ -56,6 +56,5 @@ flag.
   - [ ] Add checked correction
   - [ ] If root node is dead, it still sends messages.
   - [ ] Implement nodeset
-  - [ ] Compute time for phased bcast properly
+  - [ ] Fix phased bcast
   - [ ] Write tests
-  - [ ] Add Idle task
