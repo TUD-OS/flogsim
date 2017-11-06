@@ -16,18 +16,14 @@ class FaultInjector;
 
 class TaskQueue
 {
-  typedef std::shared_ptr<Task> queue_item_t;
+  typedef std::unique_ptr<Task> queue_item_t;
 
-  struct QueueItemCompare
+  static bool queue_item_compare(const queue_item_t &first, const queue_item_t &second)
   {
-    bool operator()(const queue_item_t &first, const queue_item_t &second) const
-    {
-      return (*second) < (*first);
-    }
-  };
+    return (*second) < (*first);
+  }
 
-  typedef boost::heap::compare<QueueItemCompare> queue_compare_t;
-  typedef boost::heap::fibonacci_heap<queue_item_t, queue_compare_t> queue_t;
+  typedef std::vector<queue_item_t> queue_t;
 
   queue_t queue;
 
@@ -59,18 +55,14 @@ public:
     return current_time;
   }
 
-  std::shared_ptr<Task> pop();
+  std::unique_ptr<Task> pop();
 
   bool empty() const
   {
     return queue.empty();
   }
 
-  void schedule(std::shared_ptr<Task> task);
+  void schedule(std::unique_ptr<Task> task);
 
   void run(Collective &coll, Timeline &timeline);
-
-  void cancel_pending_sends(int node, Tag tag);
-
-  bool now_idle(int node);
 };

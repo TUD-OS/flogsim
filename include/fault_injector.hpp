@@ -24,7 +24,7 @@ public:
   FaultInjector()
   {}
 
-  virtual Fault failure(std::shared_ptr<Task> task) = 0;
+  virtual Fault failure(Task* task) = 0;
 
   // Factory method, which creates fault injector based on
   // configuration.
@@ -45,7 +45,7 @@ class NoFaults : public FaultInjector
 public:
   using FaultInjector::FaultInjector;
 
-  Fault failure(std::shared_ptr<Task>) override final
+  Fault failure(Task *task) override final
   {
     return Fault::OK;
   }
@@ -64,5 +64,5 @@ public:
   // Class to set up deterministic faults for testing
   UniformFaults(const std::vector<int> &);
 
-  Fault failure(std::shared_ptr<Task>) override final;
+  Fault failure(Task *task) override final;
 };

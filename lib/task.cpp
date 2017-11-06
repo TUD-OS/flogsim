@@ -88,6 +88,7 @@ bool IdleTask::execute(Timeline &timeline, TaskQueue &tq) const
   }
 
   // No, the last CPU task is still running
+  tq.has_idle[sender()] = false;
   tq.schedule(make_task_attime(this, cpu_last));
   return false;
 }

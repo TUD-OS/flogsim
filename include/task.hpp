@@ -134,28 +134,28 @@ public:
   {
     typedef typename std::remove_cv<
       typename std::remove_pointer<typeof(task)>::type>::type task_t;
-    return std::make_shared<task_t>(task->seq(), task->tag(), time,
+    return std::make_unique<task_t>(task->seq(), task->tag(), time,
                                     task->sender(), task->receiver());
   }
 
   template<class ...Args>
-  static std::shared_ptr<CHILD> make_from_task(const Task *task, Args... args)
+  static std::unique_ptr<CHILD> make_from_task(const Task *task, Args... args)
   {
     get_counter() ++;
-    return std::make_shared<CHILD>(task->seq(), task->tag(), args...);
+    return std::make_unique<CHILD>(task->seq(), task->tag(), args...);
   }
 
-  static std::shared_ptr<CHILD> make_from_task(const Task *task)
+  static std::unique_ptr<CHILD> make_from_task(Task *task)
   {
     get_counter() ++;
-    return std::make_shared<CHILD>(task);
+    return std::make_unique<CHILD>(task);
   }
 
   template<class ...Args>
   static auto make_new(Args... args)
   {
     get_counter() ++;
-    return std::make_shared<CHILD>(Sequence::next(), args...);
+    return std::make_unique<CHILD>(Sequence::next(), args...);
   }
 
   void notify(Collective &coll, TaskQueue &tq) override final

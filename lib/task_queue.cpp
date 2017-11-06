@@ -3,21 +3,24 @@
 #include "configuration.hpp"
 #include "globals.hpp"
 
-void TaskQueue::schedule(std::shared_ptr<Task> task)
+void TaskQueue::schedule(std::unique_ptr<Task> task)
 {
-  auto result = fault_injector->failure(task);
-  if (result == Fault::OK) {
-    queue.emplace(task);
-  } else if (result == Fault::FAILURE) {
-    if (dynamic_cast<IdleTask *>(task.get()) != nullptr) {
-      // Ensure at most one Idle task per sender
-      if (!has_idle[task->sender()]) {
-        has_idle[task->sender()] = true;
-      } else {
-        return;
-      }
+  if (dynamic_cast<IdleTask *>(task.get()) != nullptr) {
+    // Ensure at most one Idle task per sender
+    if (!has_idle[task->sender()]) {
+      has_idle[task->sender()] = true;
+    } else {
+      return;
     }
-    queue.emplace(FailureTask::make_from_task(task.get()));
+  }
+
+  auto result = fault_injector->failure(task.get());
+  if (result == Fault::OK) {
+    queue.emplace_back(std::move(task));
+    std::push_heap(queue.begin(), queue.end(), queue_item_compare);
+  } else if (result == Fault::FAILURE) {
+    queue.emplace_back(FailureTask::make_from_task(task.get()));
+    std::push_heap(queue.begin(), queue.end(), queue_item_compare);
   }
 }
 
@@ -35,11 +38,14 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
   while (!empty()) {
     if (conf.verbose) {
       std::cout << "Heap state:\n\t";
-      std::copy(queue.ordered_begin(), queue.ordered_end(),
-                std::ostream_iterator<std::shared_ptr<Task>>(std::cout, "\n\t"));
+      // std::sort_heap(queue.begin(), queue.end(), queue_item_compare);
+      for (auto &task : queue) {
+        std::cout << *task << "\n\t";
+      }
+      // std::make_heap(queue.begin(), queue.end(), queue_item_compare);
       std::cout << std::endl;
     }
-    std::shared_ptr<Task> task = pop();
+    std::unique_ptr<Task> task = pop();
 
     std::stringstream ss;
     if (conf.verbose) {
@@ -63,57 +69,14 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
   }
 }
 
-void TaskQueue::cancel_pending_sends(int node, Tag tag)
+std::unique_ptr<Task> TaskQueue::pop()
 {
-  std::deque<queue_t::handle_type> handles;
-  for (auto it = queue.begin(); it != queue.end(); it++) {
-    SendStartTask *task = dynamic_cast<SendStartTask *>(it->get());
-    if (task == nullptr) {
-      continue;
-    }
-
-    if ((task->tag() == tag) && (task->sender() == node)) {
-      handles.push_back(queue_t::s_handle_from_iterator(it));
-    }
-  }
-
-  for (auto &h : handles) {
-    queue.erase(h);
-  }
-}
-
-bool TaskQueue::now_idle(int node)
-{
-  auto cur_time = now();
-  auto res = std::find_if(
-    queue.ordered_begin(), queue.ordered_end(),
-    [&](const auto &task)
-    {
-      if ((dynamic_cast<SendStartTask*>(task.get()) == nullptr) &&
-          (dynamic_cast<RecvStartTask*>(task.get()) == nullptr)){
-        return false;
-      }
-
-      if (task->sender() == node) {
-        return true;
-      }
-
-      if (task->start() != cur_time) {
-        return false;
-      }
-    });
-
-  return ((res == queue.ordered_end()) ||
-          ((*res)->start() != cur_time));
-}
-
-std::shared_ptr<Task> TaskQueue::pop()
-{
-  auto item = queue.top();
-  queue.pop();
+  std::pop_heap(queue.begin(), queue.end(), queue_item_compare);
+  std::unique_ptr<Task> item = std::move(queue.back());
+  queue.pop_back();
 
   if (dynamic_cast<FinishTask *>(item.get()) == nullptr) {
     progress(item->start());
   }
-  return item;
+  return std::move(item);
 }
