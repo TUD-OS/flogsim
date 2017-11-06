@@ -10,7 +10,7 @@ for L in 1 2
 do
     for COLL in binary_bcast checked_correctedtree_bcast phased_checked_correctedtree_bcast fixed_correctedtree_bcast
     do
-        for P in 15 31 63 127 255 511 1023 2047 4095 8191
+        for P in 15 31 63 127 255 511 1023 2047 4095 8191 16383
         do
             OUT="$(./flogsim --P $P --o 1 --g 1 --L $L --faults none --coll $COLL)"
             OUT="P,$P"$'\n'"Collective,$COLL"$'\n'"L,$L"$'\n'"$OUT"
