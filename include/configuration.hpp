@@ -53,7 +53,8 @@ struct Configuration
   }
 
   Configuration(int k, int64_t limit)
-    : log_prefix(), verbose(false), limit(limit), collective(), k(k)
+    : log_prefix(), verbose(false), limit(limit), collective(), k(k), L(1),
+      o(1), g(1), P(1), F(0)
   {}
 
   Configuration()
