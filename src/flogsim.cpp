@@ -38,7 +38,12 @@ int main(int argc, char *argv[])
             << "FinishedNodes," << finished << std::endl
             << "UnreachedNodes," << unreached << std::endl
             << "MsgTask," << MsgTask::issued() << std::endl
-            << "FailedNodeList," << tq.faults() <<std::endl;
+            << "FailedNodeList," << tq.faults() << std::endl
+            << "ReschRecvStartTask," << RecvStartTask::reschedules() << std::endl
+            << "ReschRecvEndTask," << RecvEndTask::reschedules() << std::endl
+            << "ReschSendStartTask," << SendStartTask::reschedules() << std::endl
+            << "ReschSendEndTask," << SendEndTask::reschedules() << std::endl
+            << "ReschIdleTask," << IdleTask::reschedules() << std::endl;
 
   auto trace_filename = conf.log_prefix + ".trace.csv";
   std::ofstream trace_log(trace_filename);

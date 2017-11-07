@@ -125,6 +125,12 @@ protected:
     return counter;
   }
 
+  static int &get_rescheduled()
+  {
+    static int rescheduled;
+    return rescheduled;
+  }
+
 public:
   TaskCounted(const TaskData &task) :
     Task(task)
@@ -132,6 +138,7 @@ public:
 
   static auto make_task_attime(auto *task, Time time)
   {
+    get_rescheduled()++;
     typedef typename std::remove_cv<
       typename std::remove_pointer<typeof(task)>::type>::type task_t;
     return std::make_unique<task_t>(task->seq(), task->tag(), time,
@@ -171,6 +178,11 @@ public:
   static int issued()
   {
     return get_counter();
+  }
+
+  static int reschedules()
+  {
+    return get_rescheduled();
   }
 };
 
