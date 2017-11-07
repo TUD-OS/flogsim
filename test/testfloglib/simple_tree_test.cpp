@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "phased_checked_correctedtree_bcast.hpp"
+#include "simple_tree_bcast.hpp"
 #include "globals.hpp"
 
 namespace
@@ -12,12 +12,12 @@ TEST(SimpleTree, Functional)
   { //                  arity \   / time limit
     //                        |   |        L  o  g  P
     //                        |   |        |  |  |  |
-    auto conf = Configuration(3, 100).LogP(1, 1, 1, 12).faults("none");
+    auto conf = Configuration(3, 100).LogP(1, 1, 1, 13).faults("none");
     auto model = Model(conf);
 
     Globals::set({&conf, &model});
 
-    PhasedCheckedCorrectedTreeBroadcast coll;
+    SimpleTreeBroadcast coll;
 
     UniformFaults faults({});
     TaskQueue tq{&faults};
