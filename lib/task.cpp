@@ -23,6 +23,8 @@ bool RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   cpu.recv_gaps.push_back(rg);
   cpu.cpu_events.push_back(cpu_event);
 
+  tq.mark_nonidle(receiver());
+
   Time task_end = std::max(cpu_event.end(), rg.end());
   tq.schedule(RecvEndTask::make_from_task(this, task_end, sender(), receiver()));
   return true;
@@ -63,6 +65,8 @@ bool SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   cpu.send_gaps.push_back(sg);
   cpu.cpu_events.push_back(cpu_event);
 
+  tq.mark_nonidle(sender());
+
   Time task_end = std::max(cpu_event.end(), sg.end());
   tq.schedule(SendEndTask::make_from_task(this, task_end, sender(), receiver()));
   return true;
@@ -76,21 +80,7 @@ bool SendEndTask::execute(Timeline &timeline, TaskQueue &tq) const
 
 bool IdleTask::execute(Timeline &timeline, TaskQueue &tq) const
 {
-  auto &cpu = timeline.per_cpu_time[sender()];
-
-  Time cpu_last = cpu.cpu_events.get_last_or_zero();
-
-  // Check if the last cpu task has finished
-  if (cpu_last <= tq.now()) {
-    assert(tq.has_idle[sender()] == true && "The task had to post idle.");
-    tq.has_idle[sender()] = false;
-    return true;
-  }
-
-  // No, the last CPU task is still running
-  tq.has_idle[sender()] = false;
-  tq.schedule(make_task_attime(this, cpu_last));
-  return false;
+  return true;
 }
 
 bool FinishTask::execute(Timeline &timeline, TaskQueue &tq) const

@@ -56,6 +56,10 @@ class TaskQueue
       return os;
     }
 
+    const auto &top() const
+    {
+      return *items.front().get();
+    }
   private:
     item_t items;
   };
@@ -63,15 +67,69 @@ class TaskQueue
 
   Time current_time;
 
+  bool is_next_timestamp(Time time) const
+  {
+    if (queue.empty()) {
+      return true;
+    }
+    return time != queue.top().start();
+  }
+
+  struct IdleTracker
+  {
+    // The idea of this class is to be proxy for IdleTasks. The
+    // problem with putting IdleTasks on the queue as they are is huge
+    // number of rescheduling events they generate. This slows down
+    // overall progress a lot.
+    //
+    // So we created a proxy class which tracks requests for IdleTask
+    // creation and puts them onto the queue exactly before the
+    // progress would move forward in time.
+    void deliver_tasks(TaskQueue &);
+    void prepare_next_timestamp();
+
+
+    bool is_pending()
+    {
+      return count > 0;
+    }
+    void mark_nonidle(int node)
+    {
+      was_idle[node] = false;
+    }
+
+    // Worked in current timestamp
+    bool delivered;
+    int count;
+    std::vector<bool> was_idle;
+    // Pending idle task
+    std::vector<bool> pending;
+
+    IdleTracker(int P)
+      : delivered(false),
+        count(0),
+        was_idle(P, true),
+        pending(P)
+    {}
+  };
+
+  IdleTracker idle;
+
   void progress(Time absolute)
   {
     assert(!(absolute < current_time) && "Let's not do the timewarp again");
+    if (absolute != current_time) {
+      idle.prepare_next_timestamp();
+    }
     current_time = absolute;
   }
 
   FaultInjector *fault_injector;
 public:
-  std::vector<bool> has_idle;
+  void mark_nonidle(int node)
+  {
+    idle.mark_nonidle(node);
+  }
 
   const FaultInjector &faults() const
   {
@@ -81,7 +139,7 @@ public:
   TaskQueue(FaultInjector *fault_injector)
     : queue(),
       fault_injector(std::move(fault_injector)),
-      has_idle(Globals::get().model().P)
+      idle(Globals::get().model().P)
   {}
 
   Time now() const
