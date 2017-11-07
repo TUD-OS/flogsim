@@ -45,7 +45,7 @@ TEST(PhasedCheckedCorrectedTree, Functional)
 
     tq.run(coll, timeline);
 
-    EXPECT_EQ(timeline.get_total_time(), Time(15)) << conf;
+    EXPECT_EQ(timeline.get_total_time(), Time(16)) << conf;
 
     auto [failed, finished, unreached] = timeline.node_stat();
     EXPECT_EQ(failed, 1) << conf;
