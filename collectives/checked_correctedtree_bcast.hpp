@@ -208,7 +208,7 @@ public:
     Node &node = nodeset[task.sender()];
 
     node.accept_send_end(*this, task);
-    tq.schedule(IdleTask::make_new(tq.now(), node.id));
+    tq.schedule(IdleTask::make_new(node.id));
   }
 
   virtual void accept(const RecvEndTask& task, TaskQueue& tq)
@@ -216,7 +216,7 @@ public:
     Node &node = nodeset[task.receiver()];
 
     node.accept_receive(*this, task);
-    tq.schedule(IdleTask::make_new(tq.now(), node.id));
+    tq.schedule(IdleTask::make_new(node.id));
   }
 
   void populate(TaskQueue &tq) override

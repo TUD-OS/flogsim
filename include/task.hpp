@@ -262,7 +262,12 @@ public:
   }
 
   IdleTask(Sequence seq, Time time, int receiver) :
-    TaskCounted(TaskData{seq, Tag(0), time, receiver, receiver})
+    IdleTask(seq, Tag(0), time, receiver, receiver)
+  {
+  }
+
+  IdleTask(Sequence seq, int receiver) :
+    IdleTask(seq, Time(0), receiver)
   {
   }
 
