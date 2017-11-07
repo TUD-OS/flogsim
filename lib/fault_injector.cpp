@@ -66,19 +66,18 @@ void UniformFaults::print(std::ostream &os) const
 Fault UniformFaults::failure(Task *task)
 {
   auto &conf = Globals::get().conf();
-  if (dynamic_cast<RecvStartTask*>(task) != nullptr) {
-    if (std::find(failed_nodes.begin(), failed_nodes.end(),
-                  task->receiver()) != failed_nodes.end()) {
+
+  if (std::find(failed_nodes.begin(), failed_nodes.end(),
+                task->sender()) != failed_nodes.end()) {
+    if (dynamic_cast<RecvStartTask*>(task) != nullptr) {
       if (conf.verbose) {
         std::cout << "Drop receive task " << *task << std::endl;
       }
       return Fault::FAILURE;
     }
-  } else if (dynamic_cast<SendStartTask*>(task) != nullptr) {
-    if (std::find(failed_nodes.begin(), failed_nodes.end(),
-                  task->sender()) != failed_nodes.end()) {
+    else {
       if (conf.verbose) {
-        std::cout << "Drop send task " << *task << std::endl;
+        std::cout << "Drop " << task->type() << *task << std::endl;
       }
       return Fault::SKIP;
     }
