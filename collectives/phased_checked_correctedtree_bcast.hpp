@@ -107,7 +107,7 @@ class PhasedCheckedCorrectedTreeBroadcast : public Collective
       }
 
       // First message we ever post is always tree message
-      if (!tree_sent) {
+      if (tree_recv && !tree_sent) {
         post_tree_sends(coll, tq);
       }
 
