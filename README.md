@@ -56,5 +56,6 @@ flag.
   - [ ] Add checked correction
   - [ ] If root node is dead, it still sends messages.
   - [ ] Implement nodeset
-  - [ ] Fix phased bcast
   - [ ] Write tests
+  - [ ] Add list of failed nodes to the command line interface
+  - [ ] Add various finishing events: All done, All received, etc.
