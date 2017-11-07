@@ -17,10 +17,8 @@ void TaskQueue::schedule(std::unique_ptr<Task> task)
   auto result = fault_injector->failure(task.get());
   if (result == Fault::OK) {
     queue.emplace_back(std::move(task));
-    std::push_heap(queue.begin(), queue.end(), queue_item_compare);
   } else if (result == Fault::FAILURE) {
     queue.emplace_back(FailureTask::make_from_task(task.get()));
-    std::push_heap(queue.begin(), queue.end(), queue_item_compare);
   }
 }
 
@@ -38,12 +36,7 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
   while (!empty()) {
     if (conf.verbose) {
       std::cout << "Heap state:\n\t";
-      // std::sort_heap(queue.begin(), queue.end(), queue_item_compare);
-      for (auto &task : queue) {
-        std::cout << *task << "\n\t";
-      }
-      // std::make_heap(queue.begin(), queue.end(), queue_item_compare);
-      std::cout << std::endl;
+      std::cout << queue << std::endl;
     }
     std::unique_ptr<Task> task = pop();
 
@@ -71,9 +64,7 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
 
 std::unique_ptr<Task> TaskQueue::pop()
 {
-  std::pop_heap(queue.begin(), queue.end(), queue_item_compare);
-  std::unique_ptr<Task> item = std::move(queue.back());
-  queue.pop_back();
+  auto item = queue.pop();
 
   if (dynamic_cast<FinishTask *>(item.get()) == nullptr) {
     progress(item->start());

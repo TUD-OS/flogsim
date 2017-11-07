@@ -16,16 +16,50 @@ class FaultInjector;
 
 class TaskQueue
 {
-  typedef std::unique_ptr<Task> queue_item_t;
-
-  static bool queue_item_compare(const queue_item_t &first, const queue_item_t &second)
+  struct Queue
   {
-    return (*second) < (*first);
-  }
+    typedef std::unique_ptr<Task> queue_item_t;
+    typedef std::vector<queue_item_t> item_t;
 
-  typedef std::vector<queue_item_t> queue_t;
+    static bool queue_item_compare(const queue_item_t &first, const queue_item_t &second)
+    {
+      return (*second) < (*first);
+    }
 
-  queue_t queue;
+    bool empty() const
+    {
+      return items.empty();
+    }
+
+    template<class... Args>
+    void emplace_back(Args&&... args)
+    {
+      items.emplace_back(std::forward<Args>(args)...);
+      std::push_heap(items.begin(), items.end(), queue_item_compare);
+    }
+
+    auto pop()
+    {
+      std::pop_heap(items.begin(), items.end(), queue_item_compare);
+      std::unique_ptr<Task> item = std::move(items.back());
+      items.pop_back();
+      return std::move(item);
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const Queue &q)
+    {
+      // This is slow, but verbose is supposed to be used only for
+      // small sizes anyway
+      for (auto &task : q.items) {
+        os << *task << "\n\t";
+      }
+      return os;
+    }
+
+  private:
+    item_t items;
+  };
+  Queue queue;
 
   Time current_time;
 
