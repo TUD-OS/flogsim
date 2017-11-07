@@ -88,7 +88,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
       tq.schedule(TimerTask::make_new(tq.now(), id));
     }
   public:
-    void post_next_message(coll_t coll, TaskQueue &tq)
+    void post_next_message(coll_t &coll, TaskQueue &tq)
     {
       // Check if we are absolutely done
       if (all_done) {
