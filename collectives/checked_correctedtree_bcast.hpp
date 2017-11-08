@@ -57,6 +57,12 @@ class CheckedCorrectedTreeBroadcast : public Collective
 
       int offs = ++left_offs;
       int recv = (2 * coll.nodes + id - offs) % coll.nodes;
+
+      if (recv == coll.nodes - 1) {
+        left_done = true;
+        return;
+      }
+
       tq.schedule(SendStartTask::make_new(left_ring_tag(), tq.now(), id, recv));
     }
 
@@ -67,6 +73,12 @@ class CheckedCorrectedTreeBroadcast : public Collective
 
       int offs = ++right_offs;
       int recv = (2 * coll.nodes + id + offs) % coll.nodes;
+
+      if (recv == 0) {
+        right_done = true;
+        return;
+      }
+
       tq.schedule(SendStartTask::make_new(right_ring_tag(), tq.now(), id, recv));
     }
 
