@@ -96,7 +96,7 @@ variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Fin
 major.breaks <- seq(0, model.df$P + 4, 5)
 minor.breaks <- seq(min(range(major.breaks)), max(range(major.breaks)))
 
-pdf(opt$options$output, width=20, height=model.df$P / 4)
+pdf(opt$options$output, width=20, height=max(4, model.df$P / 6))
 p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
             aes(ymin = as.double(Time), ymax = as.double(End), x = CPU, col = variable)) +
     geom_linerange(alpha = 0.3, size = 2) +
