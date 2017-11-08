@@ -134,7 +134,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
       // Here we do correction
       if (!left_done && !right_done) {
         // If both are not done, choose the one, where we advanced less
-        if (left_offs <= right_offs) {
+        if (left_offs < right_offs) {
           post_left_ring_messages(coll, tq);
         } else {
           post_right_ring_messages(coll, tq);
