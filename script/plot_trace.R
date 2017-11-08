@@ -50,7 +50,7 @@ event.cols <- names(trace.df)[-1]
 cpu.col <- names(trace.df)[1]
 
 ## Tidy the data table
-trace.df[, (event.cols) := lapply(.SD, function(x) strsplit(x, " ")) ,.SDcols = event.cols]
+trace.df[, (event.cols) := lapply(.SD, function(x) strsplit(gsub("\\s+", " ", x), " ")) ,.SDcols = event.cols]
 trace.df <- melt(trace.df, id.vars=cpu.col)
 trace.df <- unnest(trace.df, value)
 
