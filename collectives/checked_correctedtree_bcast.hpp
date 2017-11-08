@@ -32,6 +32,8 @@ class CheckedCorrectedTreeBroadcast : public Collective
     int left_min_recv; // closest sender from left with "right" tag
     int id;
 
+    int pending_sends;
+
   private:
     void post_tree_sends(coll_t &coll, TaskQueue &tq)
     {
@@ -42,6 +44,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
       for (int i = 1; i <= coll.k; i++) {
         int recv = id + i * std::pow(coll.k, lvl);
         if (recv < coll.nodes) {
+          pending_sends ++;
           tq.schedule(SendStartTask::make_new(tree_tag(), tq.now(), id, recv));
           sent = true;
         }
@@ -63,6 +66,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
         return;
       }
 
+      pending_sends ++;
       tq.schedule(SendStartTask::make_new(left_ring_tag(), tq.now(), id, recv));
     }
 
@@ -79,6 +83,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
         return;
       }
 
+      pending_sends ++;
       tq.schedule(SendStartTask::make_new(right_ring_tag(), tq.now(), id, recv));
     }
 
@@ -212,13 +217,16 @@ public:
   {
     Node &node = nodeset[task.sender()];
 
-    node.post_next_message(*this, tq);
+    if (!node.pending_sends) {
+      node.post_next_message(*this, tq);
+    }
   }
 
   virtual void accept(const SendEndTask &task, TaskQueue &tq)
   {
     Node &node = nodeset[task.sender()];
 
+    node.pending_sends--;
     node.accept_send_end(*this, task);
     tq.schedule(IdleTask::make_new(node.id));
   }
