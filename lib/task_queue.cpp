@@ -101,6 +101,6 @@ void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq)
 
 void TaskQueue::IdleTracker::prepare_next_timestamp()
 {
-  std::fill(was_idle.begin(), was_idle.end(), true);
+  std::fill(was_idle.begin(), was_idle.end(), threads);
   delivered = false;
 }

@@ -5,6 +5,8 @@
 #include <deque>
 #include <ostream>
 #include <iterator>
+#include <vector>
+#include <algorithm>
 
 #include "tag.hpp"
 #include "time.hpp"
@@ -129,39 +131,130 @@ struct FailureEvent : public Event
 template<class T>
 struct EventQueue
 {
-  std::deque<T> items;
+  // EventQueue is a wrapper around "event queue", which constists of
+  // several "event threads". Each line contains a chronologically
+  // ordered deque of events. Threads can have concurrently running
+  // events.
+private:
+  struct EventThread
+  {
+    std::deque<T> events;
 
+    friend std::ostream &operator<<(std::ostream &os, const EventThread &ef)
+    {
+      std::copy(ef.events.begin(), ef.events.end(),
+                std::ostream_iterator<T>(os, " "));
+      return os;
+    }
+
+    auto size() const
+    {
+      return events.size();
+    }
+
+    bool empty() const
+    {
+      return size() == 0;
+    }
+
+    void push_back(T item)
+    {
+      events.push_back(item);
+    }
+
+    Time get_last_or_zero() const
+    {
+      if (events.empty()) {
+        return Time(0);
+      }
+      return events.back().end();
+    }
+
+    EventThread()
+      : events()
+    {}
+
+    static bool compare_ends(const EventThread &a, const EventThread &b)
+    {
+      return a.get_last_or_zero() < b.get_last_or_zero();
+    }
+  };
+
+  std::vector<EventThread> queue;
+
+  // Returns index of the thread, which allows earliest time
+  auto which_earlist_start_time() const
+  {
+    return std::min_element(queue.begin(), queue.end(),
+                            EventThread::compare_ends);
+  }
+
+  auto which_latest_start_time() const
+  {
+    return std::max_element(queue.begin(), queue.end(),
+                            EventThread::compare_ends);
+  }
+public:
   friend std::ostream &operator<<(std::ostream &os, const EventQueue &eq)
   {
-    std::copy(eq.items.begin(), eq.items.end(),
-              std::ostream_iterator<T>(os, " "));
+    std::copy(eq.queue.begin(), eq.queue.end(),
+              std::ostream_iterator<EventThread>(os, " "));
     return os;
   }
 
   bool empty() const
   {
-    return items.size() == 0;
+    return std::all_of(queue.begin(), queue.end(),
+                       [](const auto &thread) {
+                         return thread.size() == 0;
+                       });
   }
 
-  void push_back(T item)
+  // Push an event onto a thread. The algorithm choses a thread with
+  // the least slack.
+  void append(T item)
   {
-    items.push_back(item);
+    assert(item.start() >= earliest_start_time() && "Event start time should"
+           " be not less than time returned by EventQueue.");
+
+    int best_fit = -1;
+    for (int i = 0; i < queue.size(); i++) {
+      Time cur_end = queue[i].get_last_or_zero();
+      if (cur_end > item.start()) {
+        continue;
+      }
+
+      if (best_fit == -1) {
+        best_fit = i;
+      } else if (cur_end > queue[best_fit].get_last_or_zero()) {
+        best_fit = i;
+      }
+    }
+
+    assert(best_fit != -1 && "Why previous assert did not trigger?!");
+
+    queue[best_fit].push_back(item);
   }
 
-  auto back()
+  // Time when last thread ends its latest event
+  Time end() const
   {
-    return items.back();
+    return which_latest_start_time()->get_last_or_zero();
   }
 
-  Time get_last_or_zero() const
+  // Earliest time when at least some thread becomes idle and can
+  // accept another event.
+  Time earliest_start_time() const
   {
-    if (items.empty())
-      return Time(0);
-    return items.back().end();
+    return which_earlist_start_time()->get_last_or_zero();
   }
 
   static std::string header()
   {
     return T::header();
   }
+
+  EventQueue(int width = 1)
+    : queue(width)
+  {}
 };

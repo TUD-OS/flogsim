@@ -17,7 +17,13 @@ struct CpuTimeline
   EventQueue<FinishEvent> finish;
   EventQueue<FailureEvent> failure;
 
-  CpuTimeline() = default;
+  CpuTimeline()
+    : cpu_events(Globals::get().model().parallelism),
+      send_gaps(),
+      recv_gaps(),
+      finish(),
+      failure()
+  {}
 
   friend std::ostream &operator<<(std::ostream &os, const CpuTimeline &ctl)
   {

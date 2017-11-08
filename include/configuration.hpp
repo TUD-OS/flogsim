@@ -19,6 +19,7 @@ struct Configuration
   // Collectives parameters
   std::string collective;
   int k;
+  int parallelism;
 
   friend std::ostream &operator<<(std::ostream &os, const Configuration &conf)
   {
@@ -29,6 +30,7 @@ struct Configuration
        << "k = " << conf.k << ", "
        << "limit = " << conf.limit << ", "
        << "F = " << conf.F << ", "
+       << "Parallelism = " << conf.parallelism << ", "
        << "fault_injector = " << conf.fault_injector;
     return os;
   }
@@ -52,8 +54,12 @@ struct Configuration
     return *this;
   }
 
-  Configuration(int k, int64_t limit)
+  Configuration(int k, int parallelism, int64_t limit)
     : log_prefix(), verbose(false), limit(limit), collective(), k(k)
+  {}
+
+  Configuration(int k, int64_t limit)
+    : Configuration(k, 1, limit)
   {}
 
   Configuration()

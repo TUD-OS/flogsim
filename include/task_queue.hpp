@@ -95,20 +95,23 @@ class TaskQueue
     }
     void mark_nonidle(int node)
     {
-      was_idle[node] = false;
+      was_idle[node]--;
     }
 
     // Worked in current timestamp
     bool delivered;
+    int threads;
     int count;
-    std::vector<bool> was_idle;
+    // Count how many threads were actually idling
+    std::vector<int> was_idle;
     // Pending idle task
     std::vector<bool> pending;
 
-    IdleTracker(int P)
+    IdleTracker(int P, int threads)
       : delivered(false),
+        threads(threads),
         count(0),
-        was_idle(P, true),
+        was_idle(P, threads),
         pending(P)
     {}
   };
@@ -139,7 +142,7 @@ public:
   TaskQueue(FaultInjector *fault_injector)
     : queue(),
       fault_injector(std::move(fault_injector)),
-      idle(Globals::get().model().P)
+      idle(Globals::get().model().P, Globals::get().model().parallelism)
   {}
 
   Time now() const

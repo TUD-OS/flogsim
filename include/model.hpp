@@ -9,6 +9,7 @@ struct Model
 {
   Time L, o, g;
   int P;
+  int parallelism;
 
   friend std::ostream &operator<<(std::ostream& os, const Model& m)
   {
@@ -24,6 +25,7 @@ struct Model
     : L(Time(conf.L)),
       o(Time(conf.o)),
       g(Time(conf.g)),
-      P(conf.P)
+      P(conf.P),
+      parallelism(conf.parallelism)
   {}
 };

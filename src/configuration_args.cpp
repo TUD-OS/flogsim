@@ -46,6 +46,11 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     ("P",
      po::value<int>(&P)->default_value(8),
      "Number of processors")
+    ("parallelism",
+     po::value<int>(&parallelism)->default_value(1),
+     "Parallelism level per node."
+     " Level 2 allows simulteneous sending and receiving."
+     " By LogP should be capped by ceil(L/g), but not in our case.")
     ;
 
   desc.add(model);

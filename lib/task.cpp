@@ -7,8 +7,8 @@ bool RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   auto &cpu = timeline.per_cpu_time[receiver()];
 
   // Calculate time for CpuTime
-  Time cpu_last = cpu.cpu_events.get_last_or_zero();
-  Time recv_last = cpu.recv_gaps.get_last_or_zero();
+  Time cpu_last = cpu.cpu_events.earliest_start_time();
+  Time recv_last = cpu.recv_gaps.earliest_start_time();
 
   auto start_time = std::max({cpu_last, recv_last, tq.now()});
 
@@ -20,8 +20,8 @@ bool RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   RecvGap rg{seq(), start_time};
   CpuEvent cpu_event{seq(), start_time, tag()};
 
-  cpu.recv_gaps.push_back(rg);
-  cpu.cpu_events.push_back(cpu_event);
+  cpu.recv_gaps.append(rg);
+  cpu.cpu_events.append(cpu_event);
 
   tq.mark_nonidle(receiver());
 
@@ -49,8 +49,8 @@ bool SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   auto &cpu = timeline.per_cpu_time[sender()];
 
   // Calculate time for CpuTime
-  Time cpu_last = cpu.cpu_events.get_last_or_zero();
-  Time send_last = cpu.send_gaps.get_last_or_zero();
+  Time cpu_last = cpu.cpu_events.earliest_start_time();
+  Time send_last = cpu.send_gaps.earliest_start_time();
 
   auto start_time = std::max({cpu_last, send_last, tq.now()});
 
@@ -62,8 +62,8 @@ bool SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   SendGap sg{seq(), start_time};
   CpuEvent cpu_event{seq(), start_time, tag()};
 
-  cpu.send_gaps.push_back(sg);
-  cpu.cpu_events.push_back(cpu_event);
+  cpu.send_gaps.append(sg);
+  cpu.cpu_events.append(cpu_event);
 
   tq.mark_nonidle(sender());
 
@@ -88,11 +88,9 @@ bool FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
   auto &cpu = timeline.per_cpu_time[sender()];
   assert(!cpu.cpu_events.empty() && "CPU done without ever doing anything");
 
-  auto cpu_last =  cpu.cpu_events.back();
+  cpu.finish.append(FinishEvent(seq(), cpu.cpu_events.end()));
 
-  cpu.finish.push_back(FinishEvent(seq(), cpu_last.end()));
-
-  timeline.update_total_time(cpu.finish.back().end());
+  timeline.update_total_time(cpu.finish.end());
   return true;
 }
 
@@ -106,8 +104,8 @@ bool FailureTask::execute(Timeline &timeline, TaskQueue &tq) const
   auto &cpu = timeline.per_cpu_time[receiver()];
 
   // Calculate time for CpuTime
-  cpu.failure.push_back(FailureEvent(seq(), start()));
+  cpu.failure.append(FailureEvent(seq(), start()));
 
-  timeline.update_total_time(cpu.failure.back().end());
+  timeline.update_total_time(cpu.failure.end());
   return true;
 }
