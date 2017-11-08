@@ -28,7 +28,7 @@ output.pdf <- opt$options$output
 
 log.df <- fread(log.filename)
 
-node.list <- 2^c(1:15)
+node.list <- 2^c(1:17)
 labels <- c("Binary Broadcast",
             "Checked Corrected Tree Broadcast",
             "Opportunistic Corrected Tree Broadcast",
