@@ -46,7 +46,7 @@ public:
     post_sends(task.receiver(), tq);
   }
 
-  void populate(TaskQueue &tq) override
+  virtual void accept(const InitTask &task, TaskQueue &tq)
   {
     int root = 0;
     post_sends(root, tq);

@@ -13,6 +13,7 @@ class MsgTask;
 class IdleTask;
 class FinishTask;
 class TimerTask;
+class InitTask;
 class FailureTask;
 
 class TaskQueue;
@@ -22,8 +23,6 @@ class Collective
 public:
   Collective()
   {}
-
-  virtual void populate(TaskQueue &eq) = 0;
 
   virtual void accept(const SendStartTask&, TaskQueue&)
   {
@@ -54,6 +53,10 @@ public:
   }
 
   virtual void accept(const TimerTask&, TaskQueue&)
+  {
+  }
+
+  virtual void accept(const InitTask&, TaskQueue&)
   {
   }
 

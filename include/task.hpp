@@ -299,6 +299,18 @@ public:
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
 };
 
+class InitTask : public TaskCounted<InitTask>
+{
+public:
+
+  InitTask(Sequence seq) :
+    TaskCounted(TaskData{seq, Tag(0), Time(0), 0, 0})
+  {
+  }
+
+  bool execute(Timeline &timeline, TaskQueue &tq) const override final;
+};
+
 class FailureTask : public TaskCounted<FailureTask>
 {
 public:

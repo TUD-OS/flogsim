@@ -239,7 +239,7 @@ public:
     tq.schedule(IdleTask::make_new(node.id));
   }
 
-  void populate(TaskQueue &tq) override
+  virtual void accept(const InitTask &task, TaskQueue &tq)
   {
     Node &root = nodeset[0];
     root.tree_recv = true;
