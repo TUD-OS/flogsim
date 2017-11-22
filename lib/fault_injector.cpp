@@ -74,11 +74,12 @@ Fault UniformFaults::failure(Task *task)
       }
       return Fault::FAILURE;
     }
-  } else if (dynamic_cast<SendStartTask*>(task) != nullptr) {
+  } else if ((dynamic_cast<SendStartTask*>(task) != nullptr) ||
+             (dynamic_cast<FinishTask*>(task) != nullptr)) {
     if (std::find(failed_nodes.begin(), failed_nodes.end(),
                   task->sender()) != failed_nodes.end()) {
       if (conf.verbose) {
-        std::cout << "Drop send task " << *task << std::endl;
+        std::cout << "Drop " << task->type() << *task << std::endl;
       }
       return Fault::SKIP;
     }

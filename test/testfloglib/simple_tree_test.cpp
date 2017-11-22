@@ -3,42 +3,23 @@
 #include "simple_tree_bcast.hpp"
 #include "globals.hpp"
 
+
+#define ALGORITHM SimpleTreeBroadcast
+#include "Wrappers.hpp"
+
 namespace
 {
 
-TEST(SimpleTree, Functional)
+TEST(ALGORITHM, Functional)
 {
 
-  { //                  arity \   / time limit
-    //                        |   |        L  o  g  P
-    //                        |   |        |  |  |  |
-    auto conf = Configuration(3, 100).LogP(1, 1, 1, 13).faults("none");
-    auto model = Model(conf);
+	MAKE_NOFAULT_TESTCASE(1,1,1, 4, 3, 5)
+	MAKE_NOFAULT_TESTCASE(1,1,1,13, 3,10)
+	MAKE_NOFAULT_TESTCASE(1,1,1, 5, 4, 6)
 
-    Globals::set({&conf, &model});
+	MAKE_UNIFORMFAULT_TESTCASE(1,1,1,4,3,{0}, 0,3)
+	MAKE_UNIFORMFAULT_TESTCASE(1,1,1,4,3,{1}, 5,0)
 
-    SimpleTreeBroadcast coll;
-
-    UniformFaults faults({});
-    TaskQueue tq{&faults};
-    Timeline timeline;
-
-    tq.run(coll, timeline);
-
-    EXPECT_EQ(timeline.get_total_time(), Time(10)) << conf;
-
-    auto [failed, finished, unreached] = timeline.node_stat();
-    EXPECT_EQ(failed, Globals::get().conf().F) << conf;
-    EXPECT_EQ(finished, Globals::get().conf().P) << conf;
-    EXPECT_EQ(unreached, 0) << conf;
-  }
-
-  // <TechnicalDetails>
-  //
-  // High level test which checks how the runtime and that all the
-  // nodes which should finish are finished.
-  //
-  // </TechnicalDetails>
 }
 
 }
