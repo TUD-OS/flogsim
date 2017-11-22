@@ -53,8 +53,6 @@ flag.
 
 # TODO
 
-  - [ ] Add checked correction
-  - [ ] If root node is dead, it still sends messages.
   - [ ] Implement nodeset
   - [ ] Write tests
   - [ ] Add list of failed nodes to the command line interface
