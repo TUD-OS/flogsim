@@ -85,7 +85,7 @@ class TaskQueue
     // So we created a proxy class which tracks requests for IdleTask
     // creation and puts them onto the queue exactly before the
     // progress would move forward in time.
-    void deliver_tasks(TaskQueue &);
+    void deliver_tasks(TaskQueue &, Timeline &);
     void prepare_next_timestamp();
 
 

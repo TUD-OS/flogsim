@@ -41,7 +41,7 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
 
     auto remember_now = now();
     if (is_next_timestamp(remember_now)) {
-      idle.deliver_tasks(*this);
+      idle.deliver_tasks(*this, timeline);
     }
 
     std::unique_ptr<Task> task = pop();
@@ -79,7 +79,7 @@ std::unique_ptr<Task> TaskQueue::pop()
   return std::move(item);
 }
 
-void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq)
+void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq, Timeline &tl)
 {
   if (delivered) {
     return;
@@ -87,6 +87,12 @@ void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq)
   for (int node = 0; node < pending.size(); node++) {
     if (!was_idle[node] || !pending[node]) {
       // In this timestamp the core wasn't idling
+      continue;
+    }
+
+    Time est = tl.per_cpu_time[node].cpu_events.earliest_start_time();
+    if (est > tq.current_time) {
+      // Something is running right now
       continue;
     }
 
