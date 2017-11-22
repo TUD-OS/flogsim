@@ -24,7 +24,7 @@ class PhasedCheckedCorrectedTreeBroadcast : public Collective
 
     int levels = int(std::floor(std::log(P) / std::log(k)));
     auto send_time = Time(std::max(o, g) * k);
-    auto recv_time = Time(std::min(o, g));
+    auto recv_time = o;
     return (send_time + Time(model.L) + recv_time) * levels;
   }
 
