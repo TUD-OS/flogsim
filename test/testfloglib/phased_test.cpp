@@ -1,20 +1,21 @@
-#include "gtest/gtest.h"
-
 #include "phased_checked_correctedtree_bcast.hpp"
 #include "globals.hpp"
 
-#define ALGORITHM PhasedCheckedCorrectedTreeBroadcast
-#include "Wrappers.hpp"
+#include "test_wrappers.hpp"
 
+#define ALGORITHM PhasedCheckedCorrectedTreeBroadcast
 namespace
 {
 
 TEST(ALGORITHM, Functional)
 {
 
-  MAKE_NOFAULT_TESTCASE(1,1,1,7,2, 12)
+  NoFaultTest<ALGORITHM>().LogP(1, 1, 1, 7).k(2).runtime(12)();
 
-  MAKE_UNIFORMFAULT_TESTCASE(1,1,1,7,2,{4}, 16,0)
+  UniformFaultTest<ALGORITHM>().LogP(1, 1, 1, 7).k(2).
+    failed({4}).runtime(16)();
+  UniformFaultTest<ALGORITHM>().LogP(2, 1, 1, 15).k(2).
+    failed({5, 12}).runtime(26)();
 
   // <TechnicalDetails>
   //
