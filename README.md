@@ -58,3 +58,8 @@ flag.
   - [ ] Add list of failed nodes to the command line interface
   - [ ] Add various finishing events: All done, All received, etc.
   - [ ] Add ceil(L/g) network capacity limit
+
+# Dropscon
+
+  - [ ] Exponential backoff
+  - [ ] Send tree message after receiving correction
