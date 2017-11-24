@@ -63,3 +63,27 @@ flag.
 
   - [ ] Exponential backoff
   - [ ] Send tree message after receiving correction
+
+# Code style
+
+## Constructors
+
+Write constructors with initialization lists as:
+
+```C++
+class A
+{
+  int c, d;
+public:
+  A()
+    : c(0),
+      d(0)
+  {}
+};
+```
+
+Mind the colon!
+
+## Whitespace
+
+ - Put space after coma
