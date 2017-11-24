@@ -126,15 +126,15 @@ class PhasedCheckedCorrectedTreeBroadcast : public Collective
         return;
       }
 
-
       // Check if we done, and need to state that we are done
-      if (tree_sent && left_done && right_done) {
+      if (left_done && right_done) {
         post_finish_message(tq);
       }
 
-      // We don't do full checked correction, if we didn't receive
-      // tree message
+      // We didn't get tree message on time, so we do not participate
+      // in correction.
       if (!tree_recv) {
+        post_finish_message(tq);
         return;
       }
 
