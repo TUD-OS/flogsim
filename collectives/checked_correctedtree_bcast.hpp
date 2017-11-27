@@ -100,10 +100,6 @@ class CheckedCorrectedTreeBroadcast : public Collective
       tq.schedule(FinishTask::make_new(id));
     }
 
-    void post_timer_task(TaskQueue &tq)
-    {
-      tq.schedule(TimerTask::make_new(tq.now(), id));
-    }
   public:
     void post_next_message(coll_t &coll, TaskQueue &tq)
     {
