@@ -51,6 +51,32 @@ If you are overwelmed with number of messages, you can either disable
 them using `-c` flag, or only show specific nodes using `--messages`
 flag.
 
+# Fault injection experiments
+
+Simulating fault injection experiments (FIE) requires significant
+computation resources. That is why the way to do them is to run
+experiments on taurus.
+
+FIE requires a long running MySQL/MariaDB server running. I do not
+describe the way to install the MySQL database. I just assume that you
+have one installed.
+
+The whole fault injection can be done by running script
+`fault_tests.sh`.
+
+Here is what it does.
+
+  1. Sets BASE directory
+  2. Starts the server (`faults_server.sh`)
+  4. Queries the server name
+  3. Optionally resets the database (`faults_create_plan.sh`)
+  5. Start the tests (`faults_run.sh`)
+
+Look onto exported variables in `fault_tests.sh` to configure FIE
+parameters.
+
+Be aware that the scripts were written with SLURM in mind.
+
 # TODO
 
   - [ ] Implement nodeset
