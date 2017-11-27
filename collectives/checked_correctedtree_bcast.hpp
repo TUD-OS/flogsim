@@ -44,7 +44,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
       for (int i = 1; i <= coll.k; i++) {
         int recv = id + i * std::pow(coll.k, lvl);
         if (recv < coll.nodes) {
-          pending_sends ++;
+          pending_sends++;
           tq.schedule(SendStartTask::make_new(tree_tag(), tq.now(), id, recv));
           sent = true;
         }
@@ -66,7 +66,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
         return;
       }
 
-      pending_sends ++;
+      pending_sends++;
       tq.schedule(SendStartTask::make_new(left_ring_tag(), tq.now(), id, recv));
     }
 
@@ -83,7 +83,7 @@ class CheckedCorrectedTreeBroadcast : public Collective
         return;
       }
 
-      pending_sends ++;
+      pending_sends++;
       tq.schedule(SendStartTask::make_new(right_ring_tag(), tq.now(), id, recv));
     }
 
@@ -115,7 +115,6 @@ class CheckedCorrectedTreeBroadcast : public Collective
       // First message we ever post is always tree message
       if (tree_recv && !tree_sent) {
         post_tree_sends(coll, tq);
-        // return;
       }
 
       // We always sent at least one round of ring messages
@@ -123,7 +122,6 @@ class CheckedCorrectedTreeBroadcast : public Collective
         post_first_ring_messages(coll, tq);
         return;
       }
-
 
       // Check if we done, and need to state that we are done
       if (tree_sent && left_done && right_done) {
