@@ -4,7 +4,7 @@
 #include "task_queue.hpp"
 #include "globals.hpp"
 
-class CorrectedTreeBroadcast : public Collective
+class FixedCorrectedTreeBroadcast : public Collective
 {
   int k;
   int nodes;
@@ -34,7 +34,7 @@ class CorrectedTreeBroadcast : public Collective
   }
 
 public:
-  CorrectedTreeBroadcast()
+  FixedCorrectedTreeBroadcast()
     : Collective(),
       k(Globals::get().conf().k),
       nodes(Globals::get().model().P),
