@@ -40,6 +40,14 @@ public:
     }
   }
 
+  virtual void accept(const TimerTask &task, TaskQueue &tq)
+  {
+    // Tree phase should end now
+    for (int i = 0; i < nodes; i ++) {
+      nodeset[i].post_next_message(*this, tq);
+    }
+  }
+
   virtual void accept(const IdleTask &task, TaskQueue &tq)
   {
     node_t &node = nodeset[task.sender()];
@@ -71,5 +79,6 @@ public:
     node_t &root = nodeset[0];
     root.tree_recv = true;
     root.post_next_message(*this, tq);
+    tq.schedule(TimerTask::make_new(correction_phase_start(k), 0));
   }
 };

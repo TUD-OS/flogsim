@@ -23,19 +23,4 @@ class PhasedCheckedCorrectedTreeBroadcast
     auto recv_time = o;
     return (send_time + Time(model.L) + recv_time) * levels;
   }
-
-public:
-  virtual void accept(const TimerTask &task, TaskQueue &tq)
-  {
-    // Tree phase should end now
-    for (int i = 0; i < nodes; i ++) {
-      nodeset[i].post_next_message(*this, tq);
-    }
-  }
-
-  virtual void accept(const InitTask &task, TaskQueue &tq)
-  {
-    CorrectedTreeBroadcast<true>::accept(task, tq);
-    tq.schedule(TimerTask::make_new(correction_phase_start(k), 0));
-  }
 };
