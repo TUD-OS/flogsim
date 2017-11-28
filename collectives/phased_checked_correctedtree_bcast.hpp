@@ -11,6 +11,9 @@
 class PhasedCheckedCorrectedTreeBroadcast
   : public CorrectedTreeBroadcast<true>
 {
+  // This method ensures that the correction phase starts when tree
+  // phase ends. It need to compute right moment of time, when
+  // correction may start.
   virtual Time correction_phase_start(int k) override
   {
     auto &model = Globals::get().model();
