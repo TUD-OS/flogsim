@@ -81,6 +81,7 @@ struct CTBNode
 
     void dispatch_send(CTBNode&, COLL_T&, const Task&)
     {
+      // XXX: I think this line is not required but I'd linke to have tests first
       check_done();
     }
 
@@ -164,6 +165,7 @@ public:
     }
 
     // We always sent at least one round of ring messages
+    // XXX: This look also unnecessary
     if (tree.recv && !first_ring) {
       post_first_ring_messages(coll, tq);
       return;
