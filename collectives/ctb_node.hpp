@@ -61,6 +61,29 @@ struct CTBNode
     int min_recv;  // closest sender from where we are sending to
     bool done;
 
+    void check_done()
+    {
+      if (offs >= min_recv) {
+        // We sent at least one message and we also sent to an alive
+        // node on the right, meaning, we don't have to send to the
+        // right anymore
+        done = true;
+      }
+    }
+
+    void dispatch_receive(CTBNode &node, COLL_T &coll, const Task &task)
+    {
+      int dist = std::min((coll.nodes + node.id - task.sender()) % coll.nodes,
+                          (coll.nodes + task.sender() - node.id) % coll.nodes);
+      min_recv = std::min(min_recv, dist);
+      check_done();
+    }
+
+    void dispatch_send(CTBNode&, COLL_T&, const Task&)
+    {
+      check_done();
+    }
+
     void post_sends(CTBNode &node, COLL_T &coll, TaskQueue &tq)
     {
       // Don't send immediatelly, because we will get notification
@@ -174,34 +197,16 @@ public:
 
   }
 
-  std::tuple<RingPropagation&,RingPropagation&> dispatch_rings(Tag tag)
-  {
-    assert(tag == left_ring_tag() || tag == right_ring_tag());
-
-    if (tag == left_ring_tag()) {
-      return std::tie(left, right);
-    } else {
-      return std::tie(right, left);
-    }
-  }
-
   void accept_receive(COLL_T &coll, const Task &task)
   {
     if (task.tag() == tree_tag()) {
       tree.dispatch_receive(coll, task);
-      return;
-    }
-
-    auto [dir, counter] = dispatch_rings(task.tag());
-
-    int dist = std::min((coll.nodes + id - task.sender()) % coll.nodes,
-                        (coll.nodes + task.sender() - id) % coll.nodes);
-    dir.min_recv = std::min(dir.min_recv, dist);
-    if (counter.offs >= dir.min_recv) {
-      // We sent at least one message and we also sent to an alive
-      // node on the right, meaning, we don't have to send to the
-      // right anymore
-      counter.done = true;
+    } else if (task.tag() == left_ring_tag()) {
+      right.dispatch_receive(*this, coll, task);
+    } else if (task.tag() == right_ring_tag()) {
+      left.dispatch_receive(*this, coll, task);
+    } else {
+      assert(0 && "Unknown tag");
     }
   }
 
@@ -211,16 +216,12 @@ public:
 
     if (task.tag() == tree_tag()) {
       tree.dispatch_send(coll, task);
-      return;
-    }
-
-    auto [dir, counter] = dispatch_rings(task.tag());
-
-    if (dir.offs >= counter.min_recv) {
-      // We sent at least one message and we also sent to an alive
-      // node on the right, meaning, we don't have to send to the
-      // right anymore
-      dir.done = true;
+    } else if (task.tag() == left_ring_tag()) {
+      left.dispatch_send(*this, coll, task);
+    } else if (task.tag() == right_ring_tag()) {
+      right.dispatch_send(*this, coll, task);
+    } else {
+      assert(0 && "Unknown tag");
     }
   }
 };
