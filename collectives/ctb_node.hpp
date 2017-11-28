@@ -8,8 +8,43 @@ template<class COLL_T, bool send_over_root>
 struct CTBNode
 {
   bool all_done : 1;
-  bool tree_recv : 1;
-  bool tree_sent : 1;
+
+  struct TreePropagation
+  {
+    bool recv : 1;
+    bool sent : 1;
+
+    void dispatch_receive(COLL_T &coll, const Task &task)
+    {
+      recv = true;
+    }
+
+    void dispatch_send(COLL_T &coll, const Task &task)
+    {
+      // recv = true;
+    }
+
+    void post_sends(CTBNode &node, COLL_T &coll, TaskQueue &tq)
+    {
+      // Should not send if we did not received a message on the tree
+      if (!recv || sent) {
+        return;
+      }
+      assert(sent == false);
+
+      int lvl = int(std::log(node.id + 1) / std::log(coll.k));
+      for (int i = 1; i <= coll.k; i++) {
+        int receiver = node.id + i * std::pow(coll.k, lvl);
+        if (receiver < coll.nodes) {
+          node.send(tq, tree_tag(), receiver);
+        }
+      }
+
+      sent = true;
+    }
+  };
+
+  TreePropagation tree;
 
   bool left_done : 1;
 
@@ -24,22 +59,11 @@ struct CTBNode
   int pending_sends;
 
 private:
-  void post_tree_sends(COLL_T &coll, TaskQueue &tq)
+
+  void send(TaskQueue &tq, Tag tag, int receiver)
   {
-    assert(tree_sent == false);
-
-    bool sent = false;
-    int lvl = int(std::log(id + 1) / std::log(coll.k));
-    for (int i = 1; i <= coll.k; i++) {
-      int recv = id + i * std::pow(coll.k, lvl);
-      if (recv < coll.nodes) {
-        pending_sends++;
-        tq.schedule(SendStartTask::make_new(tree_tag(), tq.now(), id, recv));
-        sent = true;
-      }
-    }
-
-    tree_sent = true;
+    pending_sends++;
+    tq.schedule(SendStartTask::make_new(tag, tq.now(), id, receiver));
   }
 
   void post_left_ring_messages(COLL_T &coll, TaskQueue &tq, bool force = false)
@@ -55,8 +79,7 @@ private:
       return;
     }
 
-    pending_sends++;
-    tq.schedule(SendStartTask::make_new(left_ring_tag(), tq.now(), id, recv));
+    send(tq, left_ring_tag(), recv);
   }
 
   void post_right_ring_messages(COLL_T &coll, TaskQueue &tq, bool force = false)
@@ -72,8 +95,7 @@ private:
       return;
     }
 
-    pending_sends++;
-    tq.schedule(SendStartTask::make_new(right_ring_tag(), tq.now(), id, recv));
+    send(tq, right_ring_tag(), recv);
   }
 
   void post_first_ring_messages(COLL_T &coll, TaskQueue &tq)
@@ -98,16 +120,14 @@ public:
     }
 
     // First message we ever post is always tree message
-    if (tree_recv && !tree_sent) {
-      post_tree_sends(coll, tq);
-    }
+    tree.post_sends(*this, coll, tq);
 
     if (!(tq.now() >= coll.correction_phase_start(coll.k))) {
       return;
     }
 
     // We always sent at least one round of ring messages
-    if (tree_recv && !first_ring) {
+    if (tree.recv && !first_ring) {
       post_first_ring_messages(coll, tq);
       return;
     }
@@ -119,7 +139,7 @@ public:
 
     // We don't do full checked correction, if we didn't receive
     // tree message
-    if (!tree_recv) {
+    if (!tree.recv) {
       post_finish_message(tq);
       return;
     }
@@ -143,7 +163,7 @@ public:
   void accept_receive(COLL_T &coll, const Task &task)
   {
     if (task.tag() == tree_tag()) {
-      tree_recv = true;
+      tree.dispatch_receive(coll, task);
     } else if (task.tag() == left_ring_tag()) {
       int dist = std::min((coll.nodes + id - task.sender()) % coll.nodes,
                           (coll.nodes + task.sender() - id) % coll.nodes);
@@ -167,8 +187,10 @@ public:
 
   void accept_send_end(COLL_T &coll, const Task &task)
   {
+    pending_sends--;
+
     if (task.tag() == tree_tag()) {
-      tree_recv = true;
+      tree.dispatch_send(coll, task);
     } else if (task.tag() == left_ring_tag()) {
       if (left_offs >= right_min_recv) {
         // See comment below about the right ring

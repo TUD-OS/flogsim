@@ -61,7 +61,6 @@ public:
   {
     node_t &node = nodeset[task.sender()];
 
-    node.pending_sends--;
     node.accept_send_end(*this, task);
     tq.schedule(IdleTask::make_new(node.id));
   }
@@ -77,7 +76,7 @@ public:
   virtual void accept(const InitTask &task, TaskQueue &tq)
   {
     node_t &root = nodeset[0];
-    root.tree_recv = true;
+    root.tree.recv = true;
     root.post_next_message(*this, tq);
     tq.schedule(TimerTask::make_new(correction_phase_start(k), 0));
   }
