@@ -2,13 +2,13 @@
 
 #include <tuple>
 
-static Tag tree_tag() { return Tag(0); }
-static Tag left_ring_tag() { return Tag(2); }
-static Tag right_ring_tag() { return Tag(4); }
-
 template<class COLL_T, bool send_over_root>
 struct CTBNode
 {
+  constexpr static Tag tree_tag{0};
+  constexpr static Tag left_ring_tag{2};
+  constexpr static Tag right_ring_tag{4};
+
   struct TreePropagation
   {
     bool recv : 1;
@@ -36,7 +36,7 @@ struct CTBNode
       for (int i = 1; i <= coll.k; i++) {
         int receiver = node.id + i * std::pow(coll.k, lvl);
         if (receiver < coll.nodes) {
-          node.send(tq, tree_tag(), receiver);
+          node.send(tq, tree_tag, receiver);
         }
       }
 
@@ -110,9 +110,9 @@ struct CTBNode
       }
 
       if (direction == Direction::LEFT) {
-        node.send(tq, left_ring_tag(), recv);
+        node.send(tq, left_ring_tag, recv);
       } else {
-        node.send(tq, right_ring_tag(), recv);
+        node.send(tq, right_ring_tag, recv);
       }
     }
   };
@@ -201,14 +201,18 @@ public:
 
   void accept_receive(COLL_T &coll, const Task &task)
   {
-    if (task.tag() == tree_tag()) {
-      tree.dispatch_receive(coll, task);
-    } else if (task.tag() == left_ring_tag()) {
-      right.dispatch_receive(*this, coll, task);
-    } else if (task.tag() == right_ring_tag()) {
-      left.dispatch_receive(*this, coll, task);
-    } else {
-      assert(0 && "Unknown tag");
+    switch (task.tag().get()) {
+      case tree_tag.get():
+        tree.dispatch_receive(coll, task);
+        break;
+      case left_ring_tag.get():
+        right.dispatch_receive(*this, coll, task);
+        break;
+      case right_ring_tag.get():
+        left.dispatch_receive(*this, coll, task);
+        break;
+      default:
+        assert(0 && "Unknown tag");
     }
   }
 
@@ -216,14 +220,18 @@ public:
   {
     pending_sends--;
 
-    if (task.tag() == tree_tag()) {
-      tree.dispatch_send(coll, task);
-    } else if (task.tag() == left_ring_tag()) {
-      left.dispatch_send(*this, coll, task);
-    } else if (task.tag() == right_ring_tag()) {
-      right.dispatch_send(*this, coll, task);
-    } else {
-      assert(0 && "Unknown tag");
+    switch (task.tag().get()) {
+      case tree_tag.get():
+        tree.dispatch_send(coll, task);
+        break;
+      case left_ring_tag.get():
+        left.dispatch_send(*this, coll, task);
+        break;
+      case right_ring_tag.get():
+        right.dispatch_send(*this, coll, task);
+        break;
+      default:
+        assert(0 && "Unknown tag");
     }
   }
 };
