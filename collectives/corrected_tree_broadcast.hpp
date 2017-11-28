@@ -35,8 +35,8 @@ public:
   {
     for (int i = 0; i < nodes; i++) {
       nodeset[i].id = i;
-      nodeset[i].right_min_recv = nodes;
-      nodeset[i].left_min_recv = nodes;
+      nodeset[i].right.min_recv = nodes;
+      nodeset[i].left.min_recv = nodes;
     }
   }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 static Tag tree_tag() { return Tag(0); }
 static Tag left_ring_tag() { return Tag(2); }
 static Tag right_ring_tag() { return Tag(4); }
@@ -7,8 +9,6 @@ static Tag right_ring_tag() { return Tag(4); }
 template<class COLL_T, bool send_over_root>
 struct CTBNode
 {
-  bool all_done : 1;
-
   struct TreePropagation
   {
     bool recv : 1;
@@ -44,16 +44,62 @@ struct CTBNode
     }
   };
 
+  enum class Direction
+  {
+    LEFT = -1,
+    RIGHT = 1,
+  };
+
+  struct RingPropagation
+  {
+    RingPropagation()
+      : offs(0), min_recv(0), done(false)
+    {}
+    RingPropagation(const RingPropagation&) = delete;
+
+    int offs;
+    int min_recv;  // closest sender from where we are sending to
+    bool done;
+
+    void post_sends(CTBNode &node, COLL_T &coll, TaskQueue &tq)
+    {
+      // Don't send immediatelly, because we will get notification
+      // later, when other sends finish
+
+      Direction direction;
+      if (&node.left == this) {
+        direction = Direction::LEFT;
+      } else {
+        direction = Direction::RIGHT;
+      }
+
+      int cur_offs = (++offs) * static_cast<int>(direction);
+
+      int recv = (2 * coll.nodes + node.id + cur_offs) % coll.nodes;
+
+      if (!send_over_root) {
+        if ((direction == Direction::LEFT && recv == coll.nodes - 1) ||
+            (direction == Direction::RIGHT && recv == 0)) {
+          done = true;
+          return;
+        }
+      }
+
+      if (direction == Direction::LEFT) {
+        node.send(tq, left_ring_tag(), recv);
+      } else {
+        node.send(tq, right_ring_tag(), recv);
+      }
+    }
+  };
+
   TreePropagation tree;
+  RingPropagation left;
+  RingPropagation right;
 
-  bool left_done : 1;
-
-  bool right_done : 1;
+  bool all_done : 1;
   bool first_ring : 1;
 
-  int left_offs, right_offs;
-  int right_min_recv; // closest sender from right with "left" tag
-  int left_min_recv; // closest sender from left with "right" tag
   int id;
 
   int pending_sends;
@@ -66,43 +112,11 @@ private:
     tq.schedule(SendStartTask::make_new(tag, tq.now(), id, receiver));
   }
 
-  void post_left_ring_messages(COLL_T &coll, TaskQueue &tq, bool force = false)
-  {
-    // Don't send immediatelly, because we will get notification
-    // later, when other sends finish
-
-    int offs = ++left_offs;
-    int recv = (2 * coll.nodes + id - offs) % coll.nodes;
-
-    if (!send_over_root && recv == coll.nodes - 1) {
-      left_done = true;
-      return;
-    }
-
-    send(tq, left_ring_tag(), recv);
-  }
-
-  void post_right_ring_messages(COLL_T &coll, TaskQueue &tq, bool force = false)
-  {
-    // Don't send immediatelly, because we will get notification
-    // later, when other sends finish
-
-    int offs = ++right_offs;
-    int recv = (2 * coll.nodes + id + offs) % coll.nodes;
-
-    if (!send_over_root && recv == 0) {
-      right_done = true;
-      return;
-    }
-
-    send(tq, right_ring_tag(), recv);
-  }
-
   void post_first_ring_messages(COLL_T &coll, TaskQueue &tq)
   {
     first_ring = true;
-    post_left_ring_messages(coll, tq, true);
-    post_right_ring_messages(coll, tq, true);
+    left.post_sends(*this, coll, tq);
+    right.post_sends(*this, coll, tq);
   }
 
   void post_finish_message(TaskQueue &tq)
@@ -133,7 +147,7 @@ public:
     }
 
     // Check if we done, and need to state that we are done
-    if (left_done && right_done) {
+    if (left.done && right.done) {
       post_finish_message(tq);
     }
 
@@ -145,43 +159,49 @@ public:
     }
 
     // Here we do correction
-    if (!left_done && !right_done) {
+    if (!left.done && !right.done) {
       // If both are not done, choose the one, where we advanced less
-      if (left_offs <= right_offs) {
-        post_left_ring_messages(coll, tq);
+      if (left.offs <= right.offs) {
+        left.post_sends(*this, coll, tq);
       } else {
-        post_right_ring_messages(coll, tq);
+        right.post_sends(*this, coll, tq);
       }
-    } else if (!left_done) {
-      post_left_ring_messages(coll, tq);
-    } else if (!right_done) {
-      post_right_ring_messages(coll, tq);
+    } else if (!left.done) {
+      left.post_sends(*this, coll, tq);
+    } else if (!right.done) {
+      right.post_sends(*this, coll, tq);
     }
 
+  }
+
+  std::tuple<RingPropagation&,RingPropagation&> dispatch_rings(Tag tag)
+  {
+    assert(tag == left_ring_tag() || tag == right_ring_tag());
+
+    if (tag == left_ring_tag()) {
+      return std::tie(left, right);
+    } else {
+      return std::tie(right, left);
+    }
   }
 
   void accept_receive(COLL_T &coll, const Task &task)
   {
     if (task.tag() == tree_tag()) {
       tree.dispatch_receive(coll, task);
-    } else if (task.tag() == left_ring_tag()) {
-      int dist = std::min((coll.nodes + id - task.sender()) % coll.nodes,
-                          (coll.nodes + task.sender() - id) % coll.nodes);
-      left_min_recv = std::min(left_min_recv, dist);
-      if (right_offs >= left_min_recv) {
-        // We sent at least one message and we also sent to an alive
-        // node on the right, meaning, we don't have to send to the
-        // right anymore
-        right_done = true;
-      }
-    } else if (task.tag() == right_ring_tag()) {
-      int dist = std::min((coll.nodes + id - task.sender()) % coll.nodes,
-                          (coll.nodes + task.sender() - id) % coll.nodes);
-      right_min_recv = std::min(right_min_recv, dist);
-      if (left_offs >= right_min_recv) {
-        // See comment above, but the same about the left
-        left_done = true;
-      }
+      return;
+    }
+
+    auto [dir, counter] = dispatch_rings(task.tag());
+
+    int dist = std::min((coll.nodes + id - task.sender()) % coll.nodes,
+                        (coll.nodes + task.sender() - id) % coll.nodes);
+    dir.min_recv = std::min(dir.min_recv, dist);
+    if (counter.offs >= dir.min_recv) {
+      // We sent at least one message and we also sent to an alive
+      // node on the right, meaning, we don't have to send to the
+      // right anymore
+      counter.done = true;
     }
   }
 
@@ -191,18 +211,16 @@ public:
 
     if (task.tag() == tree_tag()) {
       tree.dispatch_send(coll, task);
-    } else if (task.tag() == left_ring_tag()) {
-      if (left_offs >= right_min_recv) {
-        // See comment below about the right ring
-        left_done = true;
-      }
-    } else if (task.tag() == right_ring_tag()) {
-      if (right_offs >= left_min_recv) {
-        // We sent at least one message and we also sent to an alive
-        // node on the right, meaning, we don't have to send to the
-        // right anymore
-        right_done = true;
-      }
+      return;
+    }
+
+    auto [dir, counter] = dispatch_rings(task.tag());
+
+    if (dir.offs >= counter.min_recv) {
+      // We sent at least one message and we also sent to an alive
+      // node on the right, meaning, we don't have to send to the
+      // right anymore
+      dir.done = true;
     }
   }
 };
