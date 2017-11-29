@@ -28,8 +28,8 @@ if (file.access(trace.filename) == -1) {
 }
 
 model.filename <- opt$options$model
-if (file.access(trace.filename) == -1) {
-    stop(sprintf("Specified model file (%s) does not exist", trace.filename))
+if (file.access(model.filename) == -1) {
+    stop(sprintf("Specified model file (%s) does not exist", model.filename))
 }
 
 if (!is.null(opt$options$messages)) {
