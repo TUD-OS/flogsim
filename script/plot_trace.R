@@ -77,6 +77,10 @@ trace.df[variable=="RecvGap", End := Time + model.df$g]
 trace.df[variable=="Finish", End := Time + 0.1]
 trace.df[variable=="Failure", End := Time + 0.1]
 
+# Convert tags to something more readable
+trace.df$Tag <- factor(trace.df$Tag)
+levels(trace.df$Tag) <- c("Tree", "Left", "Right")
+
 ## End of CpuEvent is start of latency
 msg.start <- trace.df[, .SD[variable %in% c("CpuEvent"),
                             .(From = CPU, Start = End, Tag = Tag)],
@@ -88,8 +92,10 @@ messages <- msg.start[msg.end, on = "Sequence"]
 
 full.stop <- trace.df[variable=="Finish", max(Time)]
 
-variables <- c("CpuEvent" = 2, "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Finish" = 1,
-               "0" = 1, "2" = 2, "4" = 3)
+variables <- c("CpuEvent" = 'yellow', "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Finish" = 1,
+               "Tree" = 'black', "Left" = 'red', "Right" = '#9da045')
+breaks <- c("Tree", "Left", "Right", "CpuEvent", "RecvGap", "SendGap",  "Failure", "Finish")
+labels <- c("Tree", "Ring left", "Ring right", "CPU (o)", "Receive gap (g)", "Send gap (g)",  "Failure", "Finish")
 
 ## Model specific part ended
 
@@ -98,25 +104,30 @@ minor.breaks <- seq(min(range(major.breaks)), max(range(major.breaks)))
 
 pdf(opt$options$output, width=20, height=max(4, model.df$P / 6))
 p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
-            aes(ymin = as.double(Time), ymax = as.double(End), x = CPU, col = variable)) +
-    geom_linerange(alpha = 0.3, size = 2) +
-    geom_linerange(data = trace.df[variable %in% c("CpuEvent", "Finish", "Failure")],
-                   size = 1, aes(x = CPU + 0.2)) +
-    geom_hline(yintercept = full.stop, size = 1) +
-    scale_colour_manual(name = "Event type", values = variables) +
-    coord_flip() +
-    scale_x_continuous(breaks = minor.breaks, labels = minor.breaks, limits = c(0, max(model.df$P)))
+            aes(xmin = as.double(Time), xmax = as.double(End), ymin = CPU, ymax = CPU + 0.5, fill = variable)) +
+    geom_rect(alpha = 0.8, size = 0.1, col = 'black') +
+    geom_rect(data = trace.df[variable %in% c("CpuEvent")],
+                 size = 0.1, aes(ymin = CPU + 0.5, ymax = CPU + 0.7), col = 'black') +
+    geom_rect(data = trace.df[variable %in% c("Finish", "Failure")],
+                 size = 0.1, aes(ymin = CPU + 0.0, ymax = CPU + 0.7), col = 'black') +
+    geom_vline(xintercept = full.stop, size = 1) +
+    scale_colour_manual(name = "Message type", breaks=breaks, labels=labels, values = variables) +
+    scale_fill_brewer(name = "Event type", breaks=breaks, labels=labels, type='qual', palette=1) +
+    scale_y_continuous(breaks = minor.breaks, labels = minor.breaks, limits = c(0, max(model.df$P))) +
+    xlab("Time") + ylab("CPU") + theme_linedraw() + theme(panel.grid.minor = element_blank(),
+                                                          panel.grid.major = element_line(colour='gray'))
 
+arrow.type <- arrow(type = 'closed', angle = 15, length = unit(0.03, "npc"))
 if (opt$options$cpu_only == TRUE) {
     print(p)
 } else if (is.null(interesting.nodes)) {
     print(p + geom_segment(data = messages,
-                           aes(x = From + 0.05, xend = To + 0.05, y = Start, yend = End, col = as.factor(Tag)),
-                           arrow = arrow(length = unit(0.01, "npc")), inherit.aes = FALSE))
+                           aes(y = From + 0.25, yend = To + 0.25, x = Start, xend = End, col = Tag),
+                           arrow = arrow.type, inherit.aes = FALSE))
 } else {
     print(p + geom_segment(data = messages[From %in% interesting.nodes | To %in% interesting.nodes],
-                           aes(x = From + 0.05, xend = To + 0.05, y = Start, yend = End, col = as.factor(Tag)),
-                           arrow = arrow(length = unit(0.01, "npc")), inherit.aes = FALSE) +
+                           aes(x = From + 0.05, yend = To + 0.05, x = Start, xend = End, col = Tag),
+                           arrow = arrow.type, inherit.aes = FALSE) +
           ggtitle("Highlighted nodes:", subtitle = paste(interesting.nodes, collapse = ", ")))
 }
 
