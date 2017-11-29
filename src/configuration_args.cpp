@@ -61,7 +61,7 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
      po::value<std::string>(&fault_injector)->default_value("none"),
      "Type of fault injector")
     ("F",
-     po::value<int>(&F)->default_value(1),
+     po::value<int>(&F)->default_value(0),
      "Number of faults")
     ;
 
