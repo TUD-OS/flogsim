@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <random>
+#include <chrono>
 #include <ctime>        // std::time
 #include <stdexcept>
 #include <iterator>
@@ -104,8 +106,6 @@ Fault ListFaults::failure(Task *task)
 
 UniformFaults::UniformFaults()
 {
-  std::srand(unsigned(std::time(0)));
-
   F = Globals::get().conf().F;
   // Probably not the most efficient way, but the easiest way to
   // achive uniformity
@@ -114,10 +114,10 @@ UniformFaults::UniformFaults()
     failed_nodes.push_back(i);
   }
 
-  std::random_shuffle(failed_nodes.begin(), failed_nodes.end(),
-                      [&] (int i) {
-                        return std::rand() % i;
-                      });
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+
+  std::shuffle(failed_nodes.begin(), failed_nodes.end(),
+               std::default_random_engine(seed));
 
   failed_nodes.resize(F);
 
