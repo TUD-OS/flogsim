@@ -2,54 +2,66 @@
 #include <ctime>        // std::time
 #include <stdexcept>
 #include <iterator>
+#include <regex>
+#include <sstream>
 
 #include "fault_injector.hpp"
 #include "task.hpp"
 #include "configuration.hpp"
 #include "globals.hpp"
 
+// FaultInjector
+
 std::unique_ptr<FaultInjector> FaultInjector::create()
 {
   auto &conf = Globals::get().conf();
-  if (conf.fault_injector == "none") {
+  if (NoFaults::match(conf.fault_injector)) {
     return std::make_unique<NoFaults>();
-  } else if (conf.fault_injector == "uniform") {
+  } else if (UniformFaults::match(conf.fault_injector)) {
     return std::make_unique<UniformFaults>();
+  } else if (ExplicitListFaults::match(conf.fault_injector)) {
+    return std::make_unique<ExplicitListFaults>();
   } else {
     throw std::invalid_argument("Fault injector does not exist:" +
                                 conf.fault_injector);
   }
 }
 
-UniformFaults::UniformFaults()
-  : P(Globals::get().model().P),
-    F(Globals::get().conf().F)
+// ExplicitListFaults
+
+ExplicitListFaults::ExplicitListFaults()
 {
-  std::srand(unsigned(std::time(0)));
-
-  // Probably not the most efficient way, but the easiest way to
-  // achive uniformity
-  failed_nodes.reserve(P);
-  for (int i = 0; i < P; i++) {
-    failed_nodes.push_back(i);
+  if (Globals::get().conf().F) {
+    throw std::invalid_argument("Don't provide F in case of explicit"
+                                " list of faulty nodes.");
   }
 
-  std::random_shuffle(failed_nodes.begin(), failed_nodes.end(),
-                      [&] (int i) {
-                        return std::rand() % i;
-                      });
+  auto &conf = Globals::get().conf();
 
-  failed_nodes.resize(F);
+  std::stringstream ss(conf.fault_injector);
 
-  if (Globals::get().conf().verbose) {
-    std::cout << "Failed nodes: ";
-    for (auto i : failed_nodes)
-      std::cout << i;
-    std::cout << std::endl;
+  int node_id;
+  while (ss >> node_id) {
+    char ch;
+    ss >> ch;
+    failed_nodes.push_back(node_id);
   }
+  F = failed_nodes.size();
 }
 
-UniformFaults::UniformFaults(const std::vector<int> &failed_nodes)
+bool ExplicitListFaults::match(const std::string &fault_injector)
+{
+  std::regex list_regex("^\\d+(,\\d+)*$");
+  return std::regex_match(fault_injector, list_regex);
+}
+
+// ListFaults
+
+ListFaults::ListFaults()
+  : P(Globals::get().model().P)
+{}
+
+ListFaults::ListFaults(const std::vector<int> &failed_nodes)
   : P(Globals::get().model().P),
     F(failed_nodes.size()),
     failed_nodes(failed_nodes)
@@ -57,13 +69,13 @@ UniformFaults::UniformFaults(const std::vector<int> &failed_nodes)
   assert(*std::max_element(failed_nodes.begin(), failed_nodes.end()) < P);
 }
 
-void UniformFaults::print(std::ostream &os) const
+void ListFaults::print(std::ostream &os) const
 {
   std::copy(failed_nodes.begin(), failed_nodes.end(),
             std::ostream_iterator<int>(os, " "));
 }
 
-Fault UniformFaults::failure(Task *task)
+Fault ListFaults::failure(Task *task)
 {
   auto &conf = Globals::get().conf();
   if ((dynamic_cast<RecvStartTask*>(task) != nullptr) ||
@@ -86,4 +98,33 @@ Fault UniformFaults::failure(Task *task)
     }
   }
   return Fault::OK;
+}
+
+// UniformFaults
+
+UniformFaults::UniformFaults()
+{
+  std::srand(unsigned(std::time(0)));
+
+  F = Globals::get().conf().F;
+  // Probably not the most efficient way, but the easiest way to
+  // achive uniformity
+  failed_nodes.reserve(P);
+  for (int i = 0; i < P; i++) {
+    failed_nodes.push_back(i);
+  }
+
+  std::random_shuffle(failed_nodes.begin(), failed_nodes.end(),
+                      [&] (int i) {
+                        return std::rand() % i;
+                      });
+
+  failed_nodes.resize(F);
+
+  if (Globals::get().conf().verbose) {
+    std::cout << "Failed nodes: ";
+    for (auto i : failed_nodes)
+      std::cout << i;
+    std::cout << std::endl;
+  }
 }

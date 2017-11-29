@@ -25,6 +25,7 @@ public:
   {}
 
   virtual Fault failure(Task* task) = 0;
+  virtual int fault_count() { return 0; }
 
   // Factory method, which creates fault injector based on
   // configuration.
@@ -49,20 +50,46 @@ public:
   {
     return Fault::OK;
   }
+
+  static bool match(const std::string &fault_injector)
+  {
+    return fault_injector == "none";
+  }
 };
 
-class UniformFaults : public FaultInjector
+class ListFaults : public FaultInjector
 {
+protected:
   int P; // Number of nodes
   int F; // Number of offline failures
   std::vector<int> failed_nodes;
 
-  virtual void print(std::ostream &os) const override final;
+  void print(std::ostream &os) const override;
 public:
-
-  UniformFaults();
+  ListFaults();
   // Class to set up deterministic faults for testing
-  UniformFaults(const std::vector<int> &);
+  ListFaults(const std::vector<int> &);
 
   Fault failure(Task *task) override final;
+  virtual int fault_count() { return F; }
 };
+
+class ExplicitListFaults : public ListFaults
+{
+public:
+  ExplicitListFaults();
+
+  static bool match(const std::string &fault_injector);
+};
+
+class UniformFaults : public ListFaults
+{
+public:
+  UniformFaults();
+
+  static bool match(const std::string &fault_injector)
+  {
+    return fault_injector == "uniform";
+  }
+};
+

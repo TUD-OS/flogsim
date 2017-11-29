@@ -12,9 +12,9 @@ TEST(ALGORITHM, Functional)
 
   NoFaultTest<ALGORITHM>().LogP(1, 1, 1, 7).k(2).runtime(12)();
 
-  UniformFaultTest<ALGORITHM>().LogP(1, 1, 1, 7).k(2).
+  FaultTest<ALGORITHM>().LogP(1, 1, 1, 7).k(2).
     failed({4}).runtime(16)();
-  UniformFaultTest<ALGORITHM>().LogP(2, 1, 1, 15).k(2).
+  FaultTest<ALGORITHM>().LogP(2, 1, 1, 15).k(2).
     failed({5, 12}).runtime(26)();
 
   // <TechnicalDetails>

@@ -46,11 +46,9 @@ struct Configuration
     return *this;
   }
 
-  Configuration &faults(const std::string &fault_injector, int F = 0)
+  Configuration &faults(const std::string &faults)
   {
-    this->fault_injector = fault_injector;
-    this->F = F;
-
+    this->fault_injector = faults;
     return *this;
   }
 

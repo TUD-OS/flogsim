@@ -109,12 +109,12 @@ public:
 };
 
 template<class ALG>
-class UniformFaultTest : public Test<UniformFaultTest<ALG>>
+class FaultTest : public Test<FaultTest<ALG>>
 {
   // List of failed nodes
   std::vector<int> param_failed;
 public:
-  UniformFaultTest &failed(std::initializer_list<int> failed)
+  FaultTest &failed(std::initializer_list<int> failed)
   {
     param_failed = std::vector<int>(failed);
     return *this;
@@ -127,15 +127,14 @@ public:
       LogP(this->param_L,
            this->param_o,
            this->param_g,
-           this->param_P).
-      faults("uniform", param_failed.size());
+           this->param_P);
     auto model = Model(conf);
 
     Globals::set({&conf, &model});
 
     ALG coll;
 
-    UniformFaults fi(param_failed);
+    ListFaults fi(param_failed);
     TaskQueue tq(&fi);
     Timeline timeline;
 
@@ -145,8 +144,9 @@ public:
               Time(this->expect_runtime)) << conf;
 
     auto [failed, finished, unreached] = timeline.node_stat();
-    auto expect_finished = this->param_P - conf.F - this->expect_unreach;
-    EXPECT_EQ(failed, conf.F) << conf;
+    auto expect_finished = (this->param_P - fi.fault_count() -
+                            this->expect_unreach);
+    EXPECT_EQ(failed, fi.fault_count()) << conf;
     EXPECT_EQ(finished, expect_finished) << conf;
     EXPECT_EQ(unreached, this->expect_unreach) << conf;
   }
