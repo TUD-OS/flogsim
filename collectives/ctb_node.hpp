@@ -164,6 +164,10 @@ public:
       return;
     }
 
+    if (!tree.recv && !(left.min_recv < coll.nodes) && !(right.min_recv < coll.nodes)) {
+      return;
+    }
+
     // We always sent at least one round of ring messages
     // XXX: This look also unnecessary
     if (tree.recv && !first_ring) {
