@@ -96,11 +96,6 @@ public:
 
   CollectiveRegistrator()
   {
-    static_assert(std::is_same<decltype(T::name),
-                  const std::string_view>::value,
-                  "Collective is expected to have field name."
-                  " And it should have type const std::string_view.");
-
     auto create_fun = static_cast<CollectiveRegistry::create_fun_t>(&create);
     CollectiveRegistry::declare(create_fun, T::name);
   }

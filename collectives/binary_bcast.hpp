@@ -34,5 +34,5 @@ public:
   }
 
 public:
-  static constexpr std::string_view name = "binary_bcast";
+  static constexpr char name[] = "binary_bcast";
 };

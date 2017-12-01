@@ -11,5 +11,5 @@ class CheckedCorrectedTreeBroadcast
   : public CorrectedTreeBroadcast<false>
 {
 public:
-  static constexpr std::string_view name = "checked_correctedtree_bcast";
+  static constexpr char name[] = "checked_correctedtree_bcast";
 };
