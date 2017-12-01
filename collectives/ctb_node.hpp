@@ -61,6 +61,15 @@ struct CTBNode
     int min_recv;  // closest sender from where we are sending to
     bool done;
 
+    Direction get_direction(const CTBNode &node) const
+    {
+      if (&node.left == this) {
+        return Direction::LEFT;
+      } else {
+        return Direction::RIGHT;
+      }
+    }
+
     void check_done()
     {
       if (offs >= min_recv) {
@@ -90,12 +99,7 @@ struct CTBNode
       // Don't send immediatelly, because we will get notification
       // later, when other sends finish
 
-      Direction direction;
-      if (&node.left == this) {
-        direction = Direction::LEFT;
-      } else {
-        direction = Direction::RIGHT;
-      }
+      Direction direction = get_direction(node);
 
       int cur_offs = (++offs) * static_cast<int>(direction);
 
