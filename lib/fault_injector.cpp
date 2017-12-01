@@ -73,8 +73,11 @@ ListFaults::ListFaults(const std::vector<int> &failed_nodes)
 
 void ListFaults::print(std::ostream &os) const
 {
-  std::copy(failed_nodes.begin(), failed_nodes.end(),
-            std::ostream_iterator<int>(os, " "));
+  for (unsigned i = 0; i < failed_nodes.size() - 1; i++) {
+    os << failed_nodes[i] << ",";
+  }
+
+  os << failed_nodes[failed_nodes.size() - 1];
 }
 
 Fault ListFaults::failure(Task *task)
