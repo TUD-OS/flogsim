@@ -27,7 +27,7 @@ struct CTBNode
     void post_sends(CTBNode &node, COLL_T &coll, TaskQueue &tq)
     {
       // Should not send if we did not received a message on the tree
-      if (!recv || sent) {
+      if (sent) {
         return;
       }
       assert(sent == false);
@@ -131,6 +131,7 @@ struct CTBNode
 
   bool all_done : 1;
   bool first_ring : 1;
+  bool any_recv : 1;
 
   int id;
 
@@ -162,6 +163,11 @@ public:
   {
     // Check if we are absolutely done
     if (all_done) {
+      return;
+    }
+
+    // We have nothing to send
+    if (!any_recv) {
       return;
     }
 
@@ -213,6 +219,7 @@ public:
 
   void accept_receive(COLL_T &coll, const Task &task)
   {
+    any_recv = true;
     switch (task.tag().get()) {
       case tree_tag.get():
         tree.dispatch_receive(coll, task);

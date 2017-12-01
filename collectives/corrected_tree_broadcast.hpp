@@ -77,6 +77,7 @@ public:
   {
     node_t &root = nodeset[0];
     root.tree.recv = true;
+    root.any_recv = true;
     root.post_next_message(*this, tq);
     tq.schedule(TimerTask::make_new(correction_phase_start(k), 0));
   }
