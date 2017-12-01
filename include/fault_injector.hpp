@@ -64,7 +64,7 @@ protected:
   int F; // Number of offline failures
   std::vector<int> failed_nodes;
 
-  void print(std::ostream &os) const override;
+  virtual void print(std::ostream &os) const override final;
 public:
   ListFaults();
   // Class to set up deterministic faults for testing
