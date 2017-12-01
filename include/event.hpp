@@ -218,7 +218,7 @@ public:
            " be not less than time returned by EventQueue.");
 
     int best_fit = -1;
-    for (int i = 0; i < queue.size(); i++) {
+    for (unsigned i = 0; i < queue.size(); i++) {
       Time cur_end = queue[i].get_last_or_zero();
       if (cur_end > item.start()) {
         continue;

@@ -83,7 +83,7 @@ public:
   friend std::ostream &operator<<(std::ostream &os, const Timeline &tl)
   {
     os << "CPU," << CpuTimeline::header() << '\n';
-    for(int i = 0; i < tl.per_cpu_time.size(); i++) {
+    for(unsigned i = 0; i < tl.per_cpu_time.size(); i++) {
       auto const &cpu = tl.per_cpu_time[i];
       os << i << ',' << cpu << '\n';
     }

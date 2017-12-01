@@ -40,13 +40,13 @@ public:
 
 class NoFaults : public FaultInjector
 {
-  virtual void print(std::ostream &os) const override final
+  virtual void print(std::ostream &) const override final
   {}
 
 public:
   using FaultInjector::FaultInjector;
 
-  Fault failure(Task *task) override final
+  Fault failure(Task *) override final
   {
     return Fault::OK;
   }

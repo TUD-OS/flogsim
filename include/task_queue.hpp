@@ -141,8 +141,8 @@ public:
 
   TaskQueue(FaultInjector *fault_injector)
     : queue(),
-      fault_injector(std::move(fault_injector)),
-      idle(Globals::get().model().P, Globals::get().model().parallelism)
+      idle(Globals::get().model().P, Globals::get().model().parallelism),
+      fault_injector(std::move(fault_injector))
   {}
 
   Time now() const

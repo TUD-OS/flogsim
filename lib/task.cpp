@@ -30,12 +30,12 @@ bool RecvStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   return true;
 }
 
-bool RecvEndTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool RecvEndTask::execute(Timeline&, TaskQueue&) const
 {
   return true;
 }
 
-bool MsgTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool MsgTask::execute(Timeline&, TaskQueue &tq) const
 {
   // Calculate time when receive task can be scheduled
   auto recv_time = tq.now() + Globals::get().model().L;
@@ -72,18 +72,18 @@ bool SendStartTask::execute(Timeline &timeline, TaskQueue &tq) const
   return true;
 }
 
-bool SendEndTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool SendEndTask::execute(Timeline&, TaskQueue &tq) const
 {
   tq.schedule(MsgTask::make_from_task(this, tq.now(), sender(), receiver()));
   return true;
 }
 
-bool IdleTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool IdleTask::execute(Timeline&, TaskQueue&) const
 {
   return true;
 }
 
-bool FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool FinishTask::execute(Timeline &timeline, TaskQueue&) const
 {
   auto &cpu = timeline.per_cpu_time[sender()];
   assert(!cpu.cpu_events.empty() && "CPU done without ever doing anything");
@@ -94,17 +94,17 @@ bool FinishTask::execute(Timeline &timeline, TaskQueue &tq) const
   return true;
 }
 
-bool TimerTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool TimerTask::execute(Timeline&, TaskQueue&) const
 {
   return true;
 }
 
-bool InitTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool InitTask::execute(Timeline&, TaskQueue&) const
 {
   return true;
 }
 
-bool FailureTask::execute(Timeline &timeline, TaskQueue &tq) const
+bool FailureTask::execute(Timeline &timeline, TaskQueue&) const
 {
   auto &cpu = timeline.per_cpu_time[receiver()];
 

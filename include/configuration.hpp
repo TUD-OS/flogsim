@@ -53,9 +53,11 @@ struct Configuration
   }
 
   Configuration(int k, int parallelism, int64_t limit)
-    : log_prefix(), verbose(false), limit(limit), collective(), k(k),
+    : log_prefix(), verbose(false), limit(limit),
       L(1), o(1), g(1), P(1),
-      F(0), parallelism(parallelism)
+      F(0),
+      collective(), k(k),
+      parallelism(parallelism)
   {}
 
   Configuration(int k, int64_t limit)

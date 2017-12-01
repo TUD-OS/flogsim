@@ -84,7 +84,7 @@ void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq, Timeline &tl)
   if (delivered) {
     return;
   }
-  for (int node = 0; node < pending.size(); node++) {
+  for (unsigned node = 0; node < pending.size(); node++) {
     if (!was_idle[node] || !pending[node]) {
       // In this timestamp the core wasn't idling
       continue;
