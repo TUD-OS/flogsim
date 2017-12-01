@@ -10,14 +10,14 @@ namespace
 TEST(ALGORITHM, Functional)
 {
 
-  NoFaultTest<ALGORITHM>().LogP(1, 1, 1, 4 ).k(3).runtime(5)();
-  NoFaultTest<ALGORITHM>().LogP(1, 1, 1, 13).k(3).runtime(10)();
-  NoFaultTest<ALGORITHM>().LogP(1, 1, 1, 5 ).k(4).runtime(6)();
+  CALL(NoFaultTest<ALGORITHM>().LogP(1, 1, 1, 4 ).k(3).runtime(5));
+  CALL(NoFaultTest<ALGORITHM>().LogP(1, 1, 1, 13).k(3).runtime(10));
+  CALL(NoFaultTest<ALGORITHM>().LogP(1, 1, 1, 5 ).k(4).runtime(6));
 
-  FaultTest<ALGORITHM>().LogP(1, 1, 1, 4).k(3).
-    failed({0}).runtime(0).unreach(3)();
-  FaultTest<ALGORITHM>().LogP(1, 1, 1, 4).k(3).
-    failed({1}).runtime(5)();
+  CALL(FaultTest<ALGORITHM>().LogP(1, 1, 1, 4).k(3).
+       failed({0}).runtime(0).unreach(3));
+  CALL(FaultTest<ALGORITHM>().LogP(1, 1, 1, 4).k(3).
+       failed({1}).runtime(5));
 
 }
 
