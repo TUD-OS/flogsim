@@ -82,8 +82,12 @@ struct CTBNode
 
     void dispatch_receive(CTBNode &node, COLL_T &coll, const Task &task)
     {
-      int dist = std::min((coll.nodes + node.id - task.sender()) % coll.nodes,
-                          (coll.nodes + task.sender() - node.id) % coll.nodes);
+      int dist;
+      if (get_direction(node) == Direction::LEFT) {
+        dist = (coll.nodes + node.id - task.sender()) % coll.nodes;
+      } else {
+        dist = (coll.nodes + task.sender() - node.id) % coll.nodes;
+      }
       min_recv = std::min(min_recv, dist);
       check_done();
     }
