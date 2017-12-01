@@ -27,7 +27,7 @@ public:
     post_sends(task.receiver(), tq);
   }
 
-  virtual void accept(const InitTask &task, TaskQueue &tq)
+  virtual void accept(const InitTask &, TaskQueue &tq)
   {
     int root = 0;
     post_sends(root, tq);

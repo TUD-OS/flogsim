@@ -14,12 +14,12 @@ struct CTBNode
     bool recv : 1;
     bool sent : 1;
 
-    void dispatch_receive(COLL_T &coll, const Task &task)
+    void dispatch_receive(COLL_T&, const Task&)
     {
       recv = true;
     }
 
-    void dispatch_send(COLL_T &coll, const Task &task)
+    void dispatch_send(COLL_T&, const Task&)
     {
       // recv = true;
     }

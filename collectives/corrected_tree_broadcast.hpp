@@ -21,7 +21,7 @@ protected:
 
   std::vector<node_t> nodeset;
 
-  virtual Time correction_phase_start(int k)
+  virtual Time correction_phase_start(int)
   {
     return Time(0);
   }
@@ -40,7 +40,7 @@ public:
     }
   }
 
-  virtual void accept(const TimerTask &task, TaskQueue &tq)
+  virtual void accept(const TimerTask&, TaskQueue &tq)
   {
     // Tree phase should end now
     for (int i = 0; i < nodes; i ++) {
@@ -73,7 +73,7 @@ public:
     tq.schedule(IdleTask::make_new(node.id));
   }
 
-  virtual void accept(const InitTask &task, TaskQueue &tq)
+  virtual void accept(const InitTask &, TaskQueue &tq)
   {
     node_t &root = nodeset[0];
     root.tree.recv = true;
