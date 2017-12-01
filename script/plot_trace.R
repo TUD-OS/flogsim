@@ -92,8 +92,8 @@ messages <- msg.start[msg.end, on = "Sequence"]
 
 full.stop <- trace.df[variable=="Finish", max(Time)]
 
-variables <- c("CpuEvent" = 'yellow', "SendGap" = 3, "RecvGap" = 4, "Failure" = 5, "Finish" = 1,
-               "Tree" = 'black', "Left" = 'red', "Right" = '#9da045')
+message.variables <- c("Tree" = 'black', "Left" = '#cfcf33', "Right" = '#a65628')
+event.variables <- c("CpuEvent" = '#fc8d62', "SendGap" = '#66c2a5', "RecvGap" = '#8da0cb', "Failure" = '#984ea3', "Finish" = 'black')
 breaks <- c("Tree", "Left", "Right", "CpuEvent", "RecvGap", "SendGap",  "Failure", "Finish")
 labels <- c("Tree", "Ring left", "Ring right", "CPU (o)", "Receive gap (g)", "Send gap (g)",  "Failure", "Finish")
 
@@ -111,8 +111,8 @@ p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
     geom_rect(data = trace.df[variable %in% c("Finish", "Failure")],
                  size = 0.1, aes(ymin = CPU + 0.0, ymax = CPU + 0.7), col = 'black') +
     geom_vline(xintercept = full.stop, size = 1) +
-    scale_colour_manual(name = "Message type", breaks=breaks, labels=labels, values = variables) +
-    scale_fill_brewer(name = "Event type", breaks=breaks, labels=labels, type='qual', palette=1) +
+    scale_colour_manual(name = "Message type", breaks=breaks, labels=labels, values = message.variables) +
+    scale_fill_manual(name = "Event type", breaks=breaks, labels=labels, values = event.variables) +
     scale_y_continuous(breaks = minor.breaks, labels = minor.breaks, limits = c(0, max(model.df$P))) +
     xlab("Time") + ylab("CPU") + theme_linedraw() + theme(panel.grid.minor = element_blank(),
                                                           panel.grid.major = element_line(colour='gray'))
