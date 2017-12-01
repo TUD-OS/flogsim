@@ -51,4 +51,6 @@ public:
     int root = 0;
     post_sends(root, tq);
   }
+
+  static constexpr std::string_view name = "fixed_correctedtree_bcast";
 };

@@ -4,6 +4,8 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <type_traits>
+#include <assert.h>
 
 class SendStartTask;
 class SendEndTask;
@@ -74,11 +76,11 @@ class CollectiveRegistry
 public:
   typedef std::function<std::unique_ptr<Collective>()> create_fun_t;
 
-  static void declare(create_fun_t &create_fun, const std::string &name);
+  static void declare(create_fun_t &create_fun, const std::string_view &name);
   static std::unique_ptr<Collective> create();
 
 private:
-  std::map<std::string, create_fun_t> data;
+  std::map<std::string_view, create_fun_t> data;
   static CollectiveRegistry &get();
 };
 
@@ -92,9 +94,14 @@ public:
     return std::make_unique<T>();
   }
 
-  CollectiveRegistrator(const std::string &name)
+  CollectiveRegistrator()
   {
+    static_assert(std::is_same<decltype(T::name),
+                  const std::string_view>::value,
+                  "Collective is expected to have field name."
+                  " And it should have type const std::string_view.");
+
     auto create_fun = static_cast<CollectiveRegistry::create_fun_t>(&create);
-    CollectiveRegistry::declare(create_fun, name);
+    CollectiveRegistry::declare(create_fun, T::name);
   }
 };

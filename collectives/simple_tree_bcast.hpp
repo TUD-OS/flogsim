@@ -33,4 +33,6 @@ public:
     int root = 0;
     post_sends(root, tq);
   }
+
+  static constexpr std::string_view name = "simple_tree_bcast";
 };

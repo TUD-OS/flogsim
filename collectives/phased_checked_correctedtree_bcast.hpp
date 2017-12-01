@@ -26,4 +26,6 @@ class PhasedCheckedCorrectedTreeBroadcast
     auto recv_time = o;
     return (send_time + Time(model.L) + recv_time) * levels;
   }
+public:
+  static constexpr std::string_view name = "phased_checked_correctedtree_bcast";
 };

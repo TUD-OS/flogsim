@@ -12,7 +12,7 @@ CollectiveRegistry &CollectiveRegistry::get()
 }
 
 void CollectiveRegistry::declare(CollectiveRegistry::create_fun_t &create_fun,
-                                 const std::string &name)
+                                 const std::string_view &name)
 {
   get().data[name] = create_fun;
 }
