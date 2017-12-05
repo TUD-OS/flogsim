@@ -40,8 +40,10 @@ public:
 
 class NoFaults : public FaultInjector
 {
-  virtual void print(std::ostream &) const override final
-  {}
+  virtual void print(std::ostream &os) const override final
+  {
+    os << "none";
+  }
 
 public:
   using FaultInjector::FaultInjector;

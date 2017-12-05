@@ -118,7 +118,7 @@ public:
 
     auto cmd = this->make_command(conf, faults);
     std::stringstream info;
-    info << conf << faults << std::endl
+    info << conf << std::endl
          << "Test case from line: " << linenum << std::endl
          << "Suggested command:" << std::endl
          << cmd;
@@ -130,7 +130,7 @@ public:
     auto [failed, finished, unreached] = timeline.node_stat();
     EXPECT_EQ(failed, 0) << info_str;
     EXPECT_EQ(finished, this->param_P) << info_str;
-    EXPECT_EQ(unreached, 0) << conf  << info_str;
+    EXPECT_EQ(unreached, 0) << info_str;
   }
 };
 
