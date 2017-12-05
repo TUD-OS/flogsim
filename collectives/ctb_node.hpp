@@ -2,13 +2,11 @@
 
 #include <tuple>
 
+#include "tag.hpp"
+
 template<class COLL_T, bool send_over_root>
 struct CTBNode
 {
-  constexpr static Tag tree_tag{0};
-  constexpr static Tag left_ring_tag{2};
-  constexpr static Tag right_ring_tag{4};
-
   struct TreePropagation
   {
     bool recv : 1;
@@ -36,7 +34,7 @@ struct CTBNode
       for (int i = 1; i <= coll.k; i++) {
         int receiver = node.id + i * std::pow(coll.k, lvl);
         if (receiver < coll.nodes) {
-          node.send(tq, tree_tag, receiver);
+          node.send(tq, Tag::TREE, receiver);
         }
       }
 
@@ -118,9 +116,9 @@ struct CTBNode
       }
 
       if (direction == Direction::LEFT) {
-        node.send(tq, left_ring_tag, recv);
+        node.send(tq, Tag::RING_LEFT, recv);
       } else {
-        node.send(tq, right_ring_tag, recv);
+        node.send(tq, Tag::RING_RIGHT, recv);
       }
     }
   };
@@ -220,18 +218,18 @@ public:
   void accept_receive(COLL_T &coll, const Task &task)
   {
     any_recv = true;
-    switch (task.tag().get()) {
-      case tree_tag.get():
+    switch (task.tag()) {
+      case Tag::TREE:
         tree.dispatch_receive(coll, task);
         break;
-      case left_ring_tag.get():
+      case Tag::RING_LEFT:
         right.dispatch_receive(*this, coll, task);
         break;
-      case right_ring_tag.get():
+      case Tag::RING_RIGHT:
         left.dispatch_receive(*this, coll, task);
         break;
       default:
-        assert(0 && "Unknown tag");
+        assert(0 && "Unsupported tag");
     }
   }
 
@@ -239,18 +237,18 @@ public:
   {
     pending_sends--;
 
-    switch (task.tag().get()) {
-      case tree_tag.get():
+    switch (task.tag()) {
+      case Tag::TREE:
         tree.dispatch_send(coll, task);
         break;
-      case left_ring_tag.get():
+      case Tag::RING_LEFT:
         left.dispatch_send(*this, coll, task);
         break;
-      case right_ring_tag.get():
+      case Tag::RING_RIGHT:
         right.dispatch_send(*this, coll, task);
         break;
       default:
-        assert(0 && "Unknown tag");
+        assert(0 && "Unsupported tag");
     }
   }
 };
