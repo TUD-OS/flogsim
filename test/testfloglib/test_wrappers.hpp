@@ -99,7 +99,7 @@ public:
   void operator()(int linenum) override final
   {
     auto conf = Configuration(this->param_k,
-                              this->expect_runtime + 1).
+                              this->expect_runtime + 10).
       LogP(this->param_L,
            this->param_o,
            this->param_g,
