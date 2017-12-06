@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 #include <type_traits>
-#include <assert.h>
 
 class SendStartTask;
 class SendEndTask;
@@ -23,8 +22,7 @@ class TaskQueue;
 class Collective
 {
 public:
-  Collective()
-  {}
+  Collective() = default;
 
   virtual void accept(const SendStartTask&, TaskQueue&)
   {
