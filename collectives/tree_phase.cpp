@@ -13,9 +13,9 @@ void
 SimpleTreePhase<false>::post_sends(const int sender, TaskQueue &tq) const
 {
   for (int cc = 1; cc <= arity; ++cc) {
-    int const recv = arity * sender + cc;
-    if (recv < num_nodes) {
-      tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, recv));
+    int receiver = arity * sender + cc;
+    if (receiver < num_nodes) {
+      tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
     }
   }
 }
@@ -24,16 +24,13 @@ template <>
 void
 SimpleTreePhase<true>::post_sends(const int sender, TaskQueue &tq) const
 {
-
-      int lvl = int(std::log(node.id + 1) / std::log(coll.k));
-      for (int i = 1; i <= coll.k; i++) {
-        int receiver = node.id + i * std::pow(coll.k, lvl);
-        if (receiver < coll.nodes) {
-          node.send(tq, Tag::TREE, receiver);
-        }
-      }
-
-
+  const int lvl = static_cast<int>(std::log(sender + 1) / std::log(arity));
+  for (int i = 1; i <= arity; i++) {
+    int receiver = sender + i * std::pow(arity, lvl);
+    if (receiver < num_nodes) {
+      tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
+    }
+  }
 }
 
 template <bool interleave>
