@@ -5,28 +5,23 @@
 #include "tree_phase.hpp"
 
 
-namespace {
-}
-
-template <>
-void
-SimpleTreePhase<false>::post_sends(const int sender, TaskQueue &tq) const
+TreePhase::TreePhase(ReachedPtr reached_nodes)
+  : Phase(reached_nodes),
+    arity(Globals::get().conf().k)
 {
-  for (int cc = 1; cc <= arity; ++cc) {
-    int receiver = arity * sender + cc;
-    if (receiver < num_nodes) {
-      tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
-    }
-  }
+  assert(reached_nodes && (*reached_nodes)[0] && "Root unreached in tree");
 }
 
-template <>
+template <bool interleave>
 void
-SimpleTreePhase<true>::post_sends(const int sender, TaskQueue &tq) const
+RegularTreePhase<interleave>::post_sends(const int sender, TaskQueue &tq) const
 {
   const int lvl = static_cast<int>(std::log(sender + 1) / std::log(arity));
-  for (int i = 1; i <= arity; i++) {
-    int receiver = sender + i * std::pow(arity, lvl);
+
+  for (int cc = 1; cc <= arity; cc++) {
+    int receiver = interleave ? (sender + cc * std::pow(arity, lvl))
+                              : (arity * sender + cc);
+
     if (receiver < num_nodes) {
       tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
     }
@@ -35,7 +30,7 @@ SimpleTreePhase<true>::post_sends(const int sender, TaskQueue &tq) const
 
 template <bool interleave>
 Phase::Result
-SimpleTreePhase<interleave>::do_phase(const InitTask &, TaskQueue &tq, int node_id)
+RegularTreePhase<interleave>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   const int root = 0;
   assert(node_id == root && "SimpleTreePhase init on non-root node");
@@ -46,7 +41,7 @@ SimpleTreePhase<interleave>::do_phase(const InitTask &, TaskQueue &tq, int node_
 
 template <bool interleave>
 Phase::Result
-SimpleTreePhase<interleave>::do_phase(const RecvEndTask &, TaskQueue &tq, int node_id)
+RegularTreePhase<interleave>::dispatch(const RecvEndTask &, TaskQueue &tq, int node_id)
 {
   post_sends(node_id, tq);
   return Result::DONE_PHASE;
@@ -54,5 +49,5 @@ SimpleTreePhase<interleave>::do_phase(const RecvEndTask &, TaskQueue &tq, int no
 
 
 // explicit instantiation
-template class SimpleTreePhase<true>;
-template class SimpleTreePhase<false>;
+template class RegularTreePhase<true>;
+template class RegularTreePhase<false>;

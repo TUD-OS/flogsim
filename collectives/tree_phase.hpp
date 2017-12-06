@@ -9,18 +9,20 @@ protected:
   const int arity;
 
 public:
-  TreePhase()
-    : arity(Globals::get().conf().k)
-  {
-  }
+  TreePhase(ReachedPtr reached_nodes);
 };
 
 
 template <bool interleave>
-class SimpleTreePhase : public TreePhase
+class RegularTreePhase : public TreePhase
 {
   void post_sends(const int sender, TaskQueue &tq) const;
 public:
-  virtual Result do_phase(const InitTask &t, TaskQueue &tq, int node_id) override;
-  virtual Result do_phase(const RecvEndTask& t, TaskQueue &tq, int node_id) override;
+  RegularTreePhase(ReachedPtr reached_nodes)
+    : TreePhase(reached_nodes)
+  {
+  }
+
+  virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
+  virtual Result dispatch(const RecvEndTask& t, TaskQueue &tq, int node_id) override;
 };

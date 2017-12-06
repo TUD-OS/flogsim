@@ -13,7 +13,7 @@ class NodeDemux : public Collective {
   template <class Task>
   void forward(const Task &t, TaskQueue &tq, const int node_id)
   {
-    Phase::Result res = phase->do_phase(t, tq, node_id);
+    Phase::Result res = phase->dispatch(t, tq, node_id);
 
     if (res == Phase::Result::DONE_PHASE || res == Phase::Result::DONE_COLL) {
       tq.schedule(FinishTask::make_new(node_id));

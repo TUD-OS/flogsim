@@ -11,6 +11,8 @@
 #include "task.hpp"
 #include "task_queue.hpp"
 #include "fault_injector.hpp"
+#include "tree_phase.hpp"
+#include "node_demux.hpp"
 #include "globals.hpp"
 
 #include "configuration_args.hpp"
@@ -26,7 +28,8 @@ int main(int argc, char *argv[])
     Model model(conf);
     Globals::set({&conf, &model});
 
-    auto coll = CollectiveRegistry::create();
+    auto reached = std::make_shared<Phase::ReachedVec>(model.P);
+	 Collective *coll = new NodeDemux(std::make_unique<RegularTreePhase<true>>(reached)); //CollectiveRegistry::create();
     auto faults = FaultInjector::create();
     TaskQueue tq{faults.get()};
     Timeline timeline;
