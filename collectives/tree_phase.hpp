@@ -43,3 +43,14 @@ public:
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const RecvEndTask& t, TaskQueue &tq, int node_id) override;
 };
+
+class OptimalTreePhase : public TreePhase
+{
+  std::vector<std::vector<int>> send_to;
+  Result post_sends(const int sender, TaskQueue &tq) const;
+public:
+  OptimalTreePhase(ReachedPtr reached_nodes);
+
+  virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
+  virtual Result dispatch(const RecvEndTask& t, TaskQueue &tq, int node_id) override;
+};
