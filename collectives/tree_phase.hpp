@@ -30,3 +30,16 @@ public:
 
   virtual Time deadline(const int L, const int o, const int g) const override;
 };
+
+class BinomialTreePhase : public TreePhase
+{
+  Result post_sends(const int sender, TaskQueue &tq) const;
+public:
+  BinomialTreePhase(ReachedPtr reached_nodes)
+    : TreePhase(reached_nodes)
+  {
+  }
+
+  virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
+  virtual Result dispatch(const RecvEndTask& t, TaskQueue &tq, int node_id) override;
+};
