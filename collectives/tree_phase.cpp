@@ -32,11 +32,27 @@ namespace {
   }
 } // end anon namespace
 
+namespace
+{
+int get_lvl(int sender, int arity)
+{
+  int n_at_lvl = 1;
+  int lvl = 0;
+
+  while (sender >= n_at_lvl) {
+    sender -= n_at_lvl;
+    n_at_lvl *= arity;
+    lvl ++;
+  }
+  return lvl;
+}
+}
+
 template <bool interleave>
 void
 KAryTreePhase<interleave>::post_sends(const int sender, TaskQueue &tq) const
 {
-  const int lvl = static_cast<int>(std::log(sender + 1) / std::log(arity));
+  const int lvl = get_lvl(sender, arity);
 
   for (size_t child = 1; child <= arity; ++child) {
     int receiver = interleave ? (sender + child * std::pow(arity, lvl))
