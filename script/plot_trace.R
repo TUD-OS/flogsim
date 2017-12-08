@@ -63,14 +63,16 @@ trace.df[, (cols) := lapply(.SD, function(x) strsplit(x, "\\|")) ,.SDcols = cols
 trace.df[, id := 1:nrow(.SD)]
 trace.df <- unnest(trace.df, value, field)
 
-trace.df[, value := as.double(value)]
 trace.df[, CPU := as.integer(CPU)]
 
 trace.df <- spread(trace.df, field, value)
 
+trace.df[, Time := as.double(Time)]
+trace.df[, Sequence := as.integer(Sequence)]
+
 # Enforce order
 
-trace.df$End = 0
+trace.df$End = 0.
 trace.df[variable=="CpuEvent", End := Time + model.df$o]
 trace.df[variable=="SendGap", End := Time + model.df$g]
 trace.df[variable=="RecvGap", End := Time + model.df$g]
