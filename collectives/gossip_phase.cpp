@@ -21,7 +21,7 @@ GossipPhase::GossipPhase(ReachedPtr reached_nodes)
   assert(reached_nodes && (*reached_nodes)[0] && "Root unreached in tree");
 }
 
-void GossipPhase::post_sends(const int sender, TaskQueue &tq)
+Phase::Result GossipPhase::post_sends(const int sender, TaskQueue &tq)
 {
   if (tq.now() >= gossip_time) {
     return Result::DONE_PHASE;

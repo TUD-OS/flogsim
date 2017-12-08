@@ -11,7 +11,7 @@ private:
   std::default_random_engine generator;
   const Time gossip_time;
 
-  void post_sends(const int sender, TaskQueue &tq);
+  Result post_sends(const int sender, TaskQueue &tq);
 public:
   GossipPhase(ReachedPtr reached_nodes);
 
