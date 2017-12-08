@@ -46,10 +46,11 @@ Phase::Result GossipPhase::post_sends(const int sender, TaskQueue &tq)
 Phase::Result
 GossipPhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
-  const int root = 0;
+  const int root [[maybe_unused]] = 0;
   assert(node_id == root && "GossipPhase init on non-root node");
+  assert(is_reached(root) && "Root unreached in tree");
 
-  return post_sends(root, tq);
+  return post_sends(node_id, tq);
 }
 
 Phase::Result
