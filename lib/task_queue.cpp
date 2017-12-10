@@ -30,7 +30,7 @@ std::ostream &operator<<(std::ostream &os, std::shared_ptr<Task> t)
 
 void TaskQueue::run(Collective &coll, Timeline &timeline)
 {
-  schedule(InitTask::make_new());
+  schedule(InitTask::make_new(Time(0), 0));
 
   auto &conf = Globals::get().conf();
   while (!empty() || idle.is_pending()) {

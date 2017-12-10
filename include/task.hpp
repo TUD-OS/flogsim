@@ -31,8 +31,8 @@ public:
       _receiver(receiver)
   {
     assert(time >= Time(0));
-    assert(_sender >= 0);
-    assert(_receiver >= 0);
+    assert(_sender   >= 0 && _sender < Globals::get().conf().P);
+    assert(_receiver >= 0 && _sender < Globals::get().conf().P);
   }
 };
 
@@ -41,7 +41,7 @@ enum class TaskPriority : int
   RECEIVER = 3,
   NORMAL = 4,
   SENDER = 5,
-  IDLE = 6,
+  IDLE   = 6,
   FINISH = 7,
 };
 
@@ -159,7 +159,7 @@ public:
   }
 
   template<class ...Args>
-  static auto make_new(Args... args)
+  static std::unique_ptr<CHILD> make_new(Args... args)
   {
     get_counter() ++;
     return std::make_unique<CHILD>(Sequence::next(), args...);
@@ -303,8 +303,8 @@ class InitTask : public TaskCounted<InitTask>
 {
 public:
 
-  InitTask(Sequence seq) :
-    TaskCounted(TaskData{seq, Tag(0), Time(0), 0, 0})
+  InitTask(Sequence seq, Time time, int sender) :
+    TaskCounted(TaskData{seq, Tag(0), time, sender, sender})
   {
   }
 
