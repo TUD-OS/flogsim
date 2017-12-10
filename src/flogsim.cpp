@@ -29,7 +29,8 @@ int main(int argc, char *argv[])
     Globals::set({&conf, &model});
 
     auto reached = std::make_shared<Phase::ReachedVec>(model.P);
-	 Collective *coll = new NodeDemux(std::make_unique<RegularTreePhase<true>>(reached)); //CollectiveRegistry::create();
+    (*reached)[0] = true;
+    Collective *coll = new NodeDemux(std::make_unique<KAryTreePhase<true>>(reached, conf.k)); //CollectiveRegistry::create();
     auto faults = FaultInjector::create();
     TaskQueue tq{faults.get()};
     Timeline timeline;

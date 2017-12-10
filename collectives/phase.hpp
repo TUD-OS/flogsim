@@ -5,6 +5,7 @@
 
 #include "globals.hpp"
 
+class Time;
 class TaskQueue;
 class InitTask;
 class IdleTask;
@@ -23,22 +24,11 @@ public:
   using ReachedPtr = std::shared_ptr<ReachedVec>;
 
 protected:
-  const int num_nodes;
-  ReachedPtr reached_nodes;
+  const int num_nodes;      // number of participating nodes (P in LogP)
+  ReachedPtr reached_nodes; // which nodes were reached already
 
-  bool is_reached(int node_id) // TODO: templatise with mix-ins (r,w,rw)
-  {
-    if (reached_nodes) {
-      return (*reached_nodes)[node_id];
-    }
-  }
-
-  void reached(int node_id)
-  {
-    if (reached_nodes) {
-      (*reached_nodes)[node_id] = true;
-    }
-  }
+  bool is_reached(int node_id);
+  void mark_reached(int node_id);
 
 public:
   enum class Result
@@ -48,31 +38,14 @@ public:
     DONE_COLL  = 3,
   };
 
-  Phase() = delete;
+  Phase(ReachedPtr reached_nodes);
 
-  Phase(ReachedPtr reached_nodes)
-    : num_nodes(Globals::get().model().P),
-      reached_nodes(reached_nodes)
-  {
-  }
+  // process various possible events
+  virtual Result dispatch(const InitTask &, TaskQueue &, int) = 0;
+  virtual Result dispatch(const IdleTask &, TaskQueue &, int);
+  virtual Result dispatch(const TimerTask &, TaskQueue &, int);
+  virtual Result dispatch(const RecvEndTask &, TaskQueue &, int);
 
-  virtual Result dispatch(const InitTask &, TaskQueue &, int)
-  {
-    return Result::ONGOING;
-  }
-
-  virtual Result dispatch(const IdleTask &, TaskQueue &, int)
-  {
-    return Result::ONGOING;
-  }
-
-  virtual Result dispatch(const TimerTask &, TaskQueue &, int)
-  {
-    return Result::ONGOING;
-  }
-
-  virtual Result dispatch(const RecvEndTask &, TaskQueue &, int)
-  {
-    return Result::ONGOING;
-  }
+  // maximum time after which the phase will finish, i.e. report 'DONE_*'
+  virtual Time deadline(const int L, const int o, const int g) const;
 };

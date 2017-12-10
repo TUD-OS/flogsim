@@ -1,4 +1,6 @@
+#include <assert.h>
 #include <algorithm>
+#include <cmath>
 
 #include "correction_phase.hpp"
 #include "task_queue.hpp"
@@ -10,8 +12,18 @@ CorrectionPhase<send_over_root>::CorrectionPhase(ReachedPtr reached_nodes)
 {
   assert(reached_nodes && std::any_of(reached_nodes->begin(),
                                       reached_nodes->end(),
-                                      [](bool reached) {return reached;})
+                                      [] (bool reached) {return reached;})
                        && "No reached node");
+}
+
+
+template<bool send_over_root>
+OpportunisticCorrectionPhase<send_over_root>::OpportunisticCorrectionPhase(
+  Phase::ReachedPtr reached_nodes, size_t max_dist)
+  : CorrectionPhase<send_over_root>(reached_nodes),
+    max_dist(max_dist)
+{
+  assert(max_dist < this->num_nodes && "Nonsensical correction distance");
 }
 
 template<bool send_over_root>
@@ -19,12 +31,12 @@ Phase::Result
 OpportunisticCorrectionPhase<send_over_root>::dispatch(
   const InitTask &t, TaskQueue &tq, int node_id)
 {
-  // all reached nodes send out correction messages (TODO: left only!?)
-  for (int offset = 1; offset <= this->arity - 1; ++offset) {
-    int receiver = (node_id + (CorrectionPhase<send_over_root>::DIR_LEFT * offset));
+  // all reached nodes send out correction messages
+  for (int offset = 1; offset <= max_dist - 1; ++offset) {
+    int receiver = node_id - offset;
 
     if (send_over_root) {
-      receiver =  (receiver + this->num_nodes) % this->num_nodes;
+      receiver = (receiver + this->num_nodes) % this->num_nodes;
     }
 
     if (receiver >= 0) {
@@ -32,10 +44,16 @@ OpportunisticCorrectionPhase<send_over_root>::dispatch(
     }
   }
 
-  tq.schedule(FinishTask::make_new(node_id));
   return Phase::Result::DONE_PHASE;
 }
 
+template<bool send_over_root>
+Time
+OpportunisticCorrectionPhase<send_over_root>::deadline(
+  const int L, const int o, const int g) const
+{
+  return o + (max_dist - 1) * std::max(o,g);
+}
 
 #if 0
 OpportunisticCorrectionPhase::

@@ -8,17 +8,20 @@
 class CombinerPhase : public Phase
 {
   using PhasePtr = std::unique_ptr<Phase>;
+  using PhaseVec = std::vector<PhasePtr>;
 
-  PhasePtr phases[2];
-  std::vector<int> cur_phase;
+  PhaseVec phases;
+  std::vector<size_t> cur_phase;
+
+  Result forward(const auto &t, TaskQueue &tq, const int node_id);
 
 public:
-  CombinerPhase(ReachedPtr reached_nodes, PhasePtr &&p1, PhasePtr &&p2)
-    : Phase(reached_nodes),
-      phases{std::move(p1), std::move(p2)},
-      cur_phase(num_nodes, 0)
-  {
-  }
+  CombinerPhase(ReachedPtr reached_nodes, PhaseVec &&phases);
+
+  virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
+  virtual Result dispatch(const IdleTask &t, TaskQueue &tq, int node_id) override;
+  virtual Result dispatch(const TimerTask &t, TaskQueue &tq, int node_id) override;
+  virtual Result dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id) override;
 };
 
 
