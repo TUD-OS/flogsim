@@ -73,6 +73,11 @@ ListFaults::ListFaults(const std::vector<int> &failed_nodes)
 
 void ListFaults::print(std::ostream &os) const
 {
+  if (failed_nodes.empty()) {
+    os << "none";
+    return;
+  }
+
   for (unsigned i = 0; i < failed_nodes.size() - 1; i++) {
     os << failed_nodes[i] << ",";
   }
