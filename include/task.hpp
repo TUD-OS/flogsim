@@ -262,7 +262,7 @@ public:
   }
 
   IdleTask(Sequence seq, Time time, int receiver) :
-    IdleTask(seq, Tag(0), time, receiver, receiver)
+    IdleTask(seq, Tag::INTERNAL, time, receiver, receiver)
   {
   }
 
@@ -280,7 +280,7 @@ class FinishTask : public TaskCounted<FinishTask>
 public:
 
   FinishTask(Sequence seq, int receiver) :
-    TaskCounted(TaskData{seq, Tag(0), Time::max(), receiver, receiver})
+    TaskCounted(TaskData{seq, Tag::INTERNAL, Time::max(), receiver, receiver})
   {
   }
 
@@ -292,7 +292,7 @@ class TimerTask : public TaskCounted<TimerTask>
 public:
 
   TimerTask(Sequence seq, Time time, int sender) :
-    TaskCounted(TaskData{seq, Tag(0), time, sender, sender})
+    TaskCounted(TaskData{seq, Tag::INTERNAL, time, sender, sender})
   {
   }
 
@@ -304,7 +304,7 @@ class InitTask : public TaskCounted<InitTask>
 public:
 
   InitTask(Sequence seq, Time time, int sender) :
-    TaskCounted(TaskData{seq, Tag(0), time, sender, sender})
+    TaskCounted(TaskData{seq, Tag::INTERNAL, time, sender, sender})
   {
   }
 

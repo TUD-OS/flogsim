@@ -4,7 +4,7 @@
 
 enum class Tag
 {
-  GENERIC    = 1,
+  INTERNAL   = 1,
   TREE       = 2,
   GOSSIP     = 3,
   RING_LEFT  = 10,
