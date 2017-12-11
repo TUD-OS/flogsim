@@ -49,3 +49,16 @@ void NodeDemux::accept(const RecvEndTask& t, TaskQueue& tq)
   forward(t, tq, node_id);
   tq.schedule(IdleTask::make_new(node_id));
 }
+
+Timeline NodeDemux::run(std::unique_ptr<Phase> &&_phase)
+{
+  phase = std::move(_phase);
+
+  // Here we basically run it
+  TaskQueue tq{faults.get()};
+  Timeline timeline;
+
+  tq.run(*this, timeline);
+
+  return timeline;
+}

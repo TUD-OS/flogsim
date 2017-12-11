@@ -10,7 +10,6 @@
 #include "model.hpp"
 #include "task.hpp"
 #include "task_queue.hpp"
-#include "fault_injector.hpp"
 #include "tree_phase.hpp"
 #include "correction_phase.hpp"
 #include "combiner_phase.hpp"
@@ -32,20 +31,10 @@ int main(int argc, char *argv[])
 
     auto coll = NodeDemux();
 
-    {
-      // Here you build a collective
-      auto correction = std::make_unique<OpportunisticCorrectionPhase<true>>(coll.reached_nodes);
+    // Here you build a collective
+    auto correction = std::make_unique<OpportunisticCorrectionPhase<true>>(coll.reached_nodes);
 
-      coll.set_phase(std::move(correction));
-    }
-
-    // Here we basically run it
-
-    auto faults = FaultInjector::create();
-    TaskQueue tq{faults.get()};
-    Timeline timeline;
-
-    tq.run(coll, timeline);
+    auto timeline = coll.run(std::move(correction));
 
     std::cout << "TotalRuntime," << timeline.get_total_time() << std::endl;
 
@@ -54,7 +43,7 @@ int main(int argc, char *argv[])
               << "FinishedNodes," << finished << std::endl
               << "UnreachedNodes," << unreached << std::endl
               << "MsgTask," << MsgTask::issued() << std::endl
-              << "FailedNodeList," << tq.faults() << std::endl;
+              << "FailedNodeList," << *coll.faults << std::endl;
 
     if (conf.verbose) {
       std::cout << "ReschRecvStartTask," << RecvStartTask::reschedules() << std::endl
