@@ -58,6 +58,8 @@ OpportunisticCorrectionPhase<send_over_root>::deadline() const
   return o + (max_dist - 1) * std::max(o,g);
 }
 
+template class OpportunisticCorrectionPhase<true>;
+
 #if 0
 OpportunisticCorrectionPhase::
 {
