@@ -49,9 +49,12 @@ OpportunisticCorrectionPhase<send_over_root>::dispatch(
 
 template<bool send_over_root>
 Time
-OpportunisticCorrectionPhase<send_over_root>::deadline(
-  const int L, const int o, const int g) const
+OpportunisticCorrectionPhase<send_over_root>::deadline() const
 {
+  auto &model = Globals::get().model();
+  auto o = model.o;
+  auto g = model.g;
+
   return o + (max_dist - 1) * std::max(o,g);
 }
 

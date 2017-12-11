@@ -30,7 +30,7 @@ public:
 
   virtual Phase::Result dispatch(const InitTask &, TaskQueue &tq, int node_id) override;
 
-  virtual Time deadline(const int L, const int o, const int g) const override;
+  virtual Time deadline() const override;
 };
 
 

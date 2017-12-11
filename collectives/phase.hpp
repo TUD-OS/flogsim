@@ -60,5 +60,5 @@ public:
   virtual Result dispatch(const RecvEndTask &, TaskQueue &, int);
 
   // maximum time after which the phase will finish, i.e. report 'DONE_*'
-  virtual Time deadline(const int L, const int o, const int g) const;
+  virtual Time deadline() const;
 };

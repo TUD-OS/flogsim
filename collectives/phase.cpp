@@ -38,7 +38,7 @@ Result Phase::dispatch(const RecvEndTask &, TaskQueue &, int)
   return Result::ONGOING;
 }
 
-Time Phase::deadline(const int, const int, const int) const
+Time Phase::deadline() const
 {
   return Time::max(); // infinite/unpredictable runtime
 }

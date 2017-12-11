@@ -86,8 +86,13 @@ KAryTreePhase<interleave>::dispatch(const RecvEndTask &, TaskQueue &tq, int node
 
 template <bool interleave>
 Time
-KAryTreePhase<interleave>::deadline(const int L, const int o, const int g) const
+KAryTreePhase<interleave>::deadline() const
 {
+  auto &model = Globals::get().model();
+  auto L = model.L;
+  auto o = model.o;
+  auto g = model.g;
+
   return Time{calc_runtime(L, o, g, num_nodes, arity)};
 }
 

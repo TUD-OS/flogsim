@@ -28,7 +28,7 @@ public:
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const RecvEndTask& t, TaskQueue &tq, int node_id) override;
 
-  virtual Time deadline(const int L, const int o, const int g) const override;
+  virtual Time deadline() const override;
 };
 
 class BinomialTreePhase : public TreePhase
