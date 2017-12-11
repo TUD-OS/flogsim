@@ -29,7 +29,7 @@ OpportunisticCorrectionPhase<send_over_root>::OpportunisticCorrectionPhase(
 template<bool send_over_root>
 Phase::Result
 OpportunisticCorrectionPhase<send_over_root>::dispatch(
-  const InitTask &t, TaskQueue &tq, int node_id)
+  const InitTask &, TaskQueue &tq, int node_id)
 {
   // all reached nodes send out correction messages
   for (int offset = 1; offset <= max_dist - 1; ++offset) {
@@ -50,7 +50,7 @@ OpportunisticCorrectionPhase<send_over_root>::dispatch(
 template<bool send_over_root>
 Time
 OpportunisticCorrectionPhase<send_over_root>::deadline(
-  const int L, const int o, const int g) const
+  const int, const int o, const int g) const
 {
   return o + (max_dist - 1) * std::max(o,g);
 }
