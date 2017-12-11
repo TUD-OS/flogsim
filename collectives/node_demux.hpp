@@ -4,6 +4,8 @@
 #include "collective.hpp"
 #include "globals.hpp"
 #include "reached_nodes.hpp"
+#include "fault_injector.hpp"
+#include "timeline.hpp"
 
 class Phase;
 
@@ -15,33 +17,30 @@ class Phase;
 class NodeDemux : public Collective
 {
 private:
-  std::unique_ptr<Phase> phase;
-
   void forward(const auto &t, TaskQueue &tq, const int node_id);
 
+  std::unique_ptr<Phase> phase;
 public:
   ReachedNodes reached_nodes;
+  std::unique_ptr<FaultInjector> faults;
 
   // Enable everybody
-  NodeDemux()
-    : reached_nodes(Globals::get().model().P)
+  NodeDemux() : NodeDemux{{}}
   {
     reached_nodes.assign(reached_nodes.size(), true);
   }
 
   // Enable root selected
   NodeDemux(std::initializer_list<int> selected)
-    : reached_nodes(Globals::get().model().P)
+    : reached_nodes(Globals::get().model().P),
+      faults(FaultInjector::create())
   {
     for (auto i : selected) {
       reached_nodes[i] = true;
     }
   }
 
-  void set_phase(std::unique_ptr<Phase> &&_phase)
-  {
-    phase = std::move(_phase);
-  }
+  Timeline run(std::unique_ptr<Phase> &&);
 
   virtual void accept(const InitTask &t, TaskQueue &tq);
   virtual void accept(const TimerTask &t, TaskQueue &tq);
