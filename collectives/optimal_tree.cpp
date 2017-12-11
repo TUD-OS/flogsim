@@ -123,9 +123,9 @@ OptimalTreePhase::OptimalTreePhase(ReachedPtr reached_nodes)
   auto o = model.o;
   auto g = model.g;
 
-  std::vector<Node> nodes = compute_opt_tree(L, o, g, num_nodes);
+  std::vector<Node> nodes = compute_opt_tree(L, o, g, num_nodes());
 
-  send_to.resize(num_nodes);
+  send_to.resize(num_nodes());
   for (int i = 0; i < static_cast<int>(nodes.size()); i++) {
     auto &cur = nodes[i];
     if (cur.parent != i) {

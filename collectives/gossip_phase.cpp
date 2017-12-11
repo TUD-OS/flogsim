@@ -31,7 +31,7 @@ Phase::Result GossipPhase::post_sends(const int sender, TaskQueue &tq)
   //
   // We do n-2, because n-1 is the maximum id, but also we exclude
   // ourselves
-  std::uniform_int_distribution<int> distribution(0, num_nodes - 2);
+  std::uniform_int_distribution<int> distribution(0, num_nodes() - 2);
   int receiver = distribution(generator);
 
   if (receiver == sender) {

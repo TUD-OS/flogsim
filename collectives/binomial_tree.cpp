@@ -24,10 +24,10 @@ int get_lvl(int sender)
 Phase::Result
 BinomialTreePhase::post_sends(const int sender, TaskQueue &tq) const
 {
-  for (int lvl = get_lvl(sender); lvl <= get_lvl(num_nodes); lvl++) {
+  for (int lvl = get_lvl(sender); lvl <= get_lvl(num_nodes()); lvl++) {
     int receiver = sender + (1 << lvl);
 
-    if (receiver < num_nodes) {
+    if (receiver < num_nodes()) {
       tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
     }
   }

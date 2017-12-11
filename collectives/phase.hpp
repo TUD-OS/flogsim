@@ -37,12 +37,12 @@ public:
   };
 
 protected:
-  const int num_nodes;      // number of participating nodes (P in LogP)
   ReachedPtr reached_nodes; // which nodes were reached already
 
   bool is_reached(int node_id);
   void mark_reached(int node_id);
 
+  int num_nodes() const { return reached_nodes.size(); }
 public:
   enum class Result
   {

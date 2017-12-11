@@ -23,7 +23,7 @@ OpportunisticCorrectionPhase<send_over_root>::OpportunisticCorrectionPhase(
   : CorrectionPhase<send_over_root>(reached_nodes),
     max_dist(max_dist)
 {
-  assert(max_dist < this->num_nodes && "Nonsensical correction distance");
+  assert(max_dist < this->num_nodes() && "Nonsensical correction distance");
 }
 
 template<bool send_over_root>
@@ -36,7 +36,7 @@ OpportunisticCorrectionPhase<send_over_root>::dispatch(
     int receiver = node_id - offset;
 
     if (send_over_root) {
-      receiver = (receiver + this->num_nodes) % this->num_nodes;
+      receiver = (receiver + this->num_nodes()) % this->num_nodes();
     }
 
     if (receiver >= 0) {

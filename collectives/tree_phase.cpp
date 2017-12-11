@@ -55,7 +55,7 @@ KAryTreePhase<interleave>::post_sends(const int sender, TaskQueue &tq) const
     int receiver = interleave ? (sender + child * std::pow(arity, lvl))
                               : (arity * sender + child);
 
-    if (receiver < num_nodes) {
+    if (receiver < num_nodes()) {
       tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
     }
   }
@@ -90,7 +90,7 @@ KAryTreePhase<interleave>::deadline() const
   auto o = model.o;
   auto g = model.g;
 
-  return Time{calc_runtime(L, o, g, num_nodes, arity)};
+  return Time{calc_runtime(L, o, g, num_nodes(), arity)};
 }
 
 // explicit instantiation
