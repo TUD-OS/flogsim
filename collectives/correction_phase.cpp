@@ -19,7 +19,7 @@ CorrectionPhase<send_over_root>::CorrectionPhase(ReachedPtr reached_nodes)
 
 template<bool send_over_root>
 OpportunisticCorrectionPhase<send_over_root>::OpportunisticCorrectionPhase(
-  Phase::ReachedPtr reached_nodes, size_t max_dist)
+  Phase::ReachedPtr reached_nodes, int max_dist)
   : CorrectionPhase<send_over_root>(reached_nodes),
     max_dist(max_dist)
 {
@@ -34,7 +34,7 @@ OpportunisticCorrectionPhase<send_over_root>::dispatch(
   assert(this->is_reached(node_id) && "Init on unreached node");
 
   // all reached nodes send out correction messages
-  for (int offset = 1; offset <= max_dist - 1; ++offset) {
+  for (size_t offset = 1; offset <= max_dist; ++offset) {
     int receiver = node_id - offset;
 
     if (send_over_root) {
@@ -63,7 +63,7 @@ Time
 OpportunisticCorrectionPhase<send_over_root>::deadline(
   const int, const int o, const int g) const
 {
-  return o + (max_dist - 1) * std::max(o,g);
+  return Time(o + (max_dist - 1) * std::max(o,g));
 }
 
 #if 0
