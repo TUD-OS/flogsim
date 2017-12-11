@@ -18,7 +18,6 @@ GossipPhase::GossipPhase(ReachedPtr reached_nodes)
     generator(generate_seed()),
     gossip_time(Globals::get().conf().k)
 {
-  assert(reached_nodes && (*reached_nodes)[0] && "Root unreached in tree");
 }
 
 Phase::Result GossipPhase::post_sends(const int sender, TaskQueue &tq)

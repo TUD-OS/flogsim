@@ -31,6 +31,8 @@ Phase::Result
 OpportunisticCorrectionPhase<send_over_root>::dispatch(
   const InitTask &, TaskQueue &tq, int node_id)
 {
+  assert(this->is_reached(node_id) && "Init on unreached node");
+
   // all reached nodes send out correction messages
   for (int offset = 1; offset <= max_dist - 1; ++offset) {
     int receiver = node_id - offset;

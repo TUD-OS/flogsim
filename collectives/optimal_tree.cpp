@@ -147,7 +147,7 @@ OptimalTreePhase::post_sends(const int sender, TaskQueue &tq) const
 Phase::Result
 OptimalTreePhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
-  assert(node_id == 0 && "SimpleTreePhase init on non-root node");
+  assert(node_id == 0 && "TreePhase init on non-root node");
 
   return post_sends(node_id, tq);
 }
