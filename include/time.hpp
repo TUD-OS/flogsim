@@ -23,6 +23,12 @@ struct Time : public Integer<Time>
   {
     return Time(a * time);
   }
+
+  friend Time operator*(const int a, const Time &other)
+  {
+    return other * a;
+  }
+
   Time operator+(const Time &other) const
   {
     return Time(time + other.time);
