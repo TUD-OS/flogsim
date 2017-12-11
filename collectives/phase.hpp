@@ -12,7 +12,6 @@ class InitTask;
 class IdleTask;
 class TimerTask;
 class RecvEndTask;
-class NodeDemux;
 
 /* Interface of a collective phase for a single node
  *

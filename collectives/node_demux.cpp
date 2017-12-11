@@ -14,18 +14,17 @@ void NodeDemux::forward(const auto &t, TaskQueue &tq, const int node_id)
   }
 }
 
-NodeDemux::NodeDemux(std::unique_ptr<Phase> &&p)
-  : phase(std::move(p))
-{
-  assert(phase && "Invalid phase");
-}
-
 void NodeDemux::accept(const InitTask &t, TaskQueue &tq)
 {
   const int node_id = t.sender();
 
-//TODO   assert(Phase::ReachAcc::is_reached(phase, node_id) && "Init on unreached node");
-  forward(t, tq, node_id);
+  assert(node_id == 0);
+
+  for (size_t i = 0; i < reached_nodes.size(); i++) {
+    if (reached_nodes[i]) {
+      forward(t, tq, i);
+    }
+  }
 }
 
 void NodeDemux::accept(const TimerTask &t, TaskQueue &tq)
