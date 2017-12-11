@@ -112,8 +112,6 @@ struct FinishEvent : public Event
 
 struct FailureEvent : public Event
 {
-  int sender;
-
   FailureEvent() = default;
 
   FailureEvent(Sequence seq, Time time) :

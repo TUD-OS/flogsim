@@ -26,7 +26,7 @@ Result CombinerPhase::forward(const auto &t, TaskQueue &tq, const int node_id)
       ++node_cur_phase; // switch to next phase
 
       // init next phase for this node iff it was reached
-      if (is_reached(node_id)) {
+      if (reached_nodes[node_id]) {
         InitTask::make_new(tq.now(), node_id);
       }
       break;
@@ -44,10 +44,10 @@ Result CombinerPhase::forward(const auto &t, TaskQueue &tq, const int node_id)
   return res;
 }
 
-CombinerPhase::CombinerPhase(ReachedPtr reached_nodes, PhaseVec &&phases)
+CombinerPhase::CombinerPhase(ReachedNodes &reached_nodes, PhaseVec &&phases)
   : Phase(reached_nodes),
     phases(std::move(phases)),
-    cur_phase(num_nodes, 0)
+    cur_phase(num_nodes(), 0)
 {
   assert(std::all_of(phases.cbegin(),
                      phases.cend(),

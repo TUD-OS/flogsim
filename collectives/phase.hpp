@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "reached_nodes.hpp"
 #include "globals.hpp"
 
 class Time;
@@ -11,7 +12,6 @@ class InitTask;
 class IdleTask;
 class TimerTask;
 class RecvEndTask;
-class NodeDemux;
 
 /* Interface of a collective phase for a single node
  *
@@ -21,16 +21,11 @@ class NodeDemux;
 class Phase
 {
 public:
-  using ReachedVec = std::vector<bool>;
-  using ReachedPtr = std::shared_ptr<ReachedVec>;
 
 protected:
-  const int num_nodes;      // number of participating nodes (P in LogP)
-  ReachedPtr reached_nodes; // which nodes were reached already
+  ReachedNodes &reached_nodes; // which nodes were reached already
 
-  bool is_reached(int node_id);
-  void mark_reached(int node_id);
-
+  int num_nodes() const { return reached_nodes.size(); }
 public:
   enum class Result
   {
@@ -39,7 +34,9 @@ public:
     DONE_COLL  = 3,
   };
 
-  Phase(ReachedPtr reached_nodes);
+  Phase(ReachedNodes &reached_nodes)
+    : reached_nodes(reached_nodes)
+  {}
 
   // process various possible events
   virtual Result dispatch(const InitTask &, TaskQueue &, int) = 0;
@@ -48,5 +45,5 @@ public:
   virtual Result dispatch(const RecvEndTask &, TaskQueue &, int);
 
   // maximum time after which the phase will finish, i.e. report 'DONE_*'
-  virtual Time deadline(const int L, const int o, const int g) const;
+  virtual Time deadline() const;
 };

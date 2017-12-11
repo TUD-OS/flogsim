@@ -13,7 +13,7 @@ private:
 
   Result post_sends(const int sender, TaskQueue &tq);
 public:
-  GossipPhase(ReachedPtr reached_nodes);
+  GossipPhase(ReachedNodes &reached_nodes);
 
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const IdleTask& t, TaskQueue &tq, int node_id) override;

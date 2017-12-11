@@ -7,23 +7,23 @@
 
 
 template<bool send_over_root>
-CorrectionPhase<send_over_root>::CorrectionPhase(ReachedPtr reached_nodes)
+CorrectionPhase<send_over_root>::CorrectionPhase(ReachedNodes &reached_nodes)
   : Phase(reached_nodes)
 {
-  assert(reached_nodes && std::any_of(reached_nodes->begin(),
-                                      reached_nodes->end(),
-                                      [] (bool reached) {return reached;})
-                       && "No reached node");
+  assert(std::any_of(reached_nodes.begin(),
+                     reached_nodes.end(),
+                     [] (bool reached) {return reached;})
+         && "No reached node");
 }
 
 
 template<bool send_over_root>
 OpportunisticCorrectionPhase<send_over_root>::OpportunisticCorrectionPhase(
-  Phase::ReachedPtr reached_nodes, int max_dist)
+  ReachedNodes &reached_nodes)
   : CorrectionPhase<send_over_root>(reached_nodes),
-    max_dist(max_dist)
+    max_dist(Globals::get().conf().k)
 {
-  assert(max_dist < this->num_nodes && "Nonsensical correction distance");
+  assert(max_dist < this->num_nodes() && "Nonsensical correction distance");
 }
 
 template<bool send_over_root>
@@ -31,14 +31,14 @@ Phase::Result
 OpportunisticCorrectionPhase<send_over_root>::dispatch(
   const InitTask &, TaskQueue &tq, int node_id)
 {
-  assert(this->is_reached(node_id) && "Init on unreached node");
+  assert(this->reached_nodes[node_id] && "Init on unreached node");
 
   // all reached nodes send out correction messages
-  for (size_t offset = 1; offset <= max_dist; ++offset) {
+  for (int offset = 1; offset <= max_dist; ++offset) {
     int receiver = node_id - offset;
 
     if (send_over_root) {
-      receiver = (receiver + this->num_nodes) % this->num_nodes;
+      receiver = (receiver + this->num_nodes()) % this->num_nodes();
     }
 
     if (receiver >= 0) {
@@ -54,16 +54,19 @@ Phase::Result
 OpportunisticCorrectionPhase<send_over_root>::dispatch(
   const RecvEndTask &, TaskQueue &, int node_id)
 {
-  this->mark_reached(node_id);
+  this->reached_nodes[node_id] = true;
   return Phase::Result::ONGOING;
 }
 
 template<bool send_over_root>
 Time
-OpportunisticCorrectionPhase<send_over_root>::deadline(
-  const int, const int o, const int g) const
+OpportunisticCorrectionPhase<send_over_root>::deadline() const
 {
-  return Time(o + (max_dist - 1) * std::max(o,g));
+  auto &model = Globals::get().model();
+  auto o = model.o;
+  auto g = model.g;
+
+  return o + (max_dist - 1) * std::max(o,g);
 }
 
 // explicit instantiation

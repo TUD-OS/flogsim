@@ -16,7 +16,7 @@ class CombinerPhase : public Phase
   Result forward(const auto &t, TaskQueue &tq, const int node_id);
 
 public:
-  CombinerPhase(ReachedPtr reached_nodes, PhaseVec &&phases);
+  CombinerPhase(ReachedNodes &reached_nodes, PhaseVec &&phases);
 
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const IdleTask &t, TaskQueue &tq, int node_id) override;

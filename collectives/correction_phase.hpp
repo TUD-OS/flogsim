@@ -15,7 +15,7 @@ protected:
   };
 
 public:
-  CorrectionPhase(ReachedPtr reached_nodes);
+  CorrectionPhase(ReachedNodes &reached_nodes);
 };
 
 
@@ -23,17 +23,16 @@ template<bool send_over_root>
 class OpportunisticCorrectionPhase
   : public CorrectionPhase<send_over_root>
 {
-  const size_t max_dist; // maximum distance to cover
+  const int max_dist; // maximum distance to cover
 
 public:
-  OpportunisticCorrectionPhase(Phase::ReachedPtr reached_nodes, int max_dist);
+  OpportunisticCorrectionPhase(ReachedNodes &reached_nodes);
 
   virtual Phase::Result dispatch(const InitTask &, TaskQueue &tq, int node_id) override;
   virtual Phase::Result dispatch(const RecvEndTask &, TaskQueue &tq, int node_id) override;
 
-  virtual Time deadline(const int L, const int o, const int g) const override;
+  virtual Time deadline() const override;
 };
-
 
 #if 0
 template<bool send_over_root, int faults_to_tolerate>
