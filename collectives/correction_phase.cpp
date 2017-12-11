@@ -59,37 +59,3 @@ OpportunisticCorrectionPhase<send_over_root>::deadline() const
 }
 
 template class OpportunisticCorrectionPhase<true>;
-
-#if 0
-OpportunisticCorrectionPhase::
-{
-  int lvl = int(std::log(sender + 1) / std::log(k));
-  for (int i = 1; i <= k; i++) {
-    int recv = sender + i * std::pow(k, lvl);
-    if (recv < nodes) {
-      tq.schedule(SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
-    }
-  }
-
-  for (int i = 1; i <= k - 1; i++) {
-    int recv = (sender + nodes - i) % nodes;
-    tq.schedule(SendStartTask::make_new(Tag(0), tq.now(), sender, recv));
-  }
-
-  tq.schedule(FinishTask::make_new(sender));
-  done[sender] = true;
-}
-
-public:
-
-  virtual void accept(const RecvStartTask& task, TaskQueue& tq)
-  {
-    post_sends(task.receiver(), tq);
-  }
-
-  virtual void accept(const InitTask &, TaskQueue &tq)
-  {
-    int root = 0;
-    post_sends(root, tq);
-  }
-#endif
