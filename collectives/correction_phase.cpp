@@ -19,7 +19,7 @@ CorrectionPhase<send_over_root>::CorrectionPhase(ReachedPtr reached_nodes)
 
 template<bool send_over_root>
 OpportunisticCorrectionPhase<send_over_root>::OpportunisticCorrectionPhase(
-  Phase::ReachedPtr reached_nodes, size_t max_dist)
+  Phase::ReachedPtr reached_nodes, int max_dist)
   : CorrectionPhase<send_over_root>(reached_nodes),
     max_dist(max_dist)
 {

@@ -23,10 +23,10 @@ template<bool send_over_root>
 class OpportunisticCorrectionPhase
   : public CorrectionPhase<send_over_root>
 {
-  const size_t max_dist; // maximum distance to cover
+  const int max_dist; // maximum distance to cover
 
 public:
-  OpportunisticCorrectionPhase(Phase::ReachedPtr reached_nodes, size_t max_dist);
+  OpportunisticCorrectionPhase(Phase::ReachedPtr reached_nodes, int max_dist);
 
   virtual Phase::Result dispatch(const InitTask &, TaskQueue &tq, int node_id) override;
 
