@@ -26,7 +26,7 @@ class OpportunisticCorrectionPhase
   const int max_dist; // maximum distance to cover
 
 public:
-  OpportunisticCorrectionPhase(Phase::ReachedPtr reached_nodes, int max_dist);
+  OpportunisticCorrectionPhase(ReachedNodes &reached_nodes);
 
   virtual Phase::Result dispatch(const InitTask &, TaskQueue &tq, int node_id) override;
 
