@@ -33,6 +33,7 @@ struct Time : public Integer<Time>
   {
     return Time(time + other.time);
   }
+
   Time operator-(const Time &other) const
   {
     return Time(time - other.time);
