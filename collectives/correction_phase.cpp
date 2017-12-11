@@ -48,6 +48,15 @@ OpportunisticCorrectionPhase<send_over_root>::dispatch(
 }
 
 template<bool send_over_root>
+Phase::Result
+OpportunisticCorrectionPhase<send_over_root>::dispatch(
+  const RecvEndTask &, TaskQueue &, int node_id)
+{
+  this->mark_reached(node_id);
+  return Phase::Result::ONGOING;
+}
+
+template<bool send_over_root>
 Time
 OpportunisticCorrectionPhase<send_over_root>::deadline(
   const int, const int o, const int g) const

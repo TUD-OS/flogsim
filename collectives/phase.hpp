@@ -3,7 +3,6 @@
 #include <memory>
 #include <vector>
 
-#include "node_demux.hpp"
 #include "globals.hpp"
 
 class Time;
@@ -24,17 +23,6 @@ class Phase
 public:
   using ReachedVec = std::vector<bool>;
   using ReachedPtr = std::shared_ptr<ReachedVec>;
-
-  // Helper class to grant access to 'reached_nodes' only
-  class ReachAcc
-  {
-    static bool is_reached(const Phase &p, int node_id);
-    static void mark_reached(Phase &p, int node_id);
-
-    // restrictive handing out of priviledges
-    friend void NodeDemux::accept(const RecvEndTask& t, TaskQueue& tq);
-    friend void NodeDemux::accept(const InitTask &t, TaskQueue &tq);
-  };
 
 protected:
   const int num_nodes;      // number of participating nodes (P in LogP)

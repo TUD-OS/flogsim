@@ -155,5 +155,6 @@ OptimalTreePhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 Phase::Result
 OptimalTreePhase::dispatch(const RecvEndTask &, TaskQueue &tq, int node_id)
 {
+  mark_reached(node_id);
   return post_sends(node_id, tq);
 }

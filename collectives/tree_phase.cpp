@@ -80,6 +80,7 @@ template <bool interleave>
 Result
 KAryTreePhase<interleave>::dispatch(const RecvEndTask &, TaskQueue &tq, int node_id)
 {
+  mark_reached(node_id);
   post_sends(node_id, tq);
   return Result::DONE_PHASE;
 }

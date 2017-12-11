@@ -58,3 +58,10 @@ GossipPhase::dispatch(const IdleTask &, TaskQueue &tq, int node_id)
 {
   return post_sends(node_id, tq);
 }
+
+Phase::Result
+GossipPhase::dispatch(const RecvEndTask &, TaskQueue &, int node_id)
+{
+  mark_reached(node_id);
+  return Result::ONGOING;
+}
