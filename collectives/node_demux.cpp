@@ -24,7 +24,7 @@ void NodeDemux::accept(const InitTask &t, TaskQueue &tq)
 {
   const int node_id = t.sender();
 
-//   assert(is_reached(node_id) && "Init on unreached node");
+//TODO   assert(Phase::ReachAcc::is_reached(phase, node_id) && "Init on unreached node");
   forward(t, tq, node_id);
 }
 
@@ -46,7 +46,7 @@ void NodeDemux::accept(const SendEndTask &t, TaskQueue &tq)
 void NodeDemux::accept(const RecvEndTask& t, TaskQueue& tq)
 {
   const int node_id = t.receiver();
-//   mark_reached(node_id);
+//TODO  Phase::ReachAcc::mark_reached(node_id);
   forward(t, tq, node_id);
   tq.schedule(IdleTask::make_new(node_id));
 }

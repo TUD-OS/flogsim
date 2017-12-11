@@ -23,11 +23,3 @@ public:
   virtual Result dispatch(const TimerTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id) override;
 };
-
-
-
-// - keep current phase
-// - forward to current phase
-// - delay next phase (estimate current phase length -> phase.interface (optional))
-// - skip phase on DONE_COLL
-

@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <assert.h>
 
+#include "task.hpp"
+#include "task_queue.hpp"
 #include "combiner_phase.hpp"
 
 using Result = Phase::Result;
@@ -21,8 +23,8 @@ Result CombinerPhase::forward(const auto &t, TaskQueue &tq, const int node_id)
       break;
 
     case Result::DONE_PHASE:
-      ++node_cur_phase; // start next phase
-      //TODO: add init task
+      ++node_cur_phase; // switch to next phase
+      InitTask::make_new(tq.now(), node_id); // init next phase for this node
       break;
 
     case Result::DONE_COLL:
