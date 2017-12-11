@@ -15,7 +15,7 @@ protected:
   };
 
 public:
-  CorrectionPhase(ReachedPtr reached_nodes);
+  CorrectionPhase(ReachedNodes &reached_nodes);
 };
 
 

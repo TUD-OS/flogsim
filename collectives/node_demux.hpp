@@ -2,6 +2,8 @@
 
 #include <memory>
 #include "collective.hpp"
+#include "globals.hpp"
+#include "reached_nodes.hpp"
 
 class Phase;
 

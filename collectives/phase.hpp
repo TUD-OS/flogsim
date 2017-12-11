@@ -22,9 +22,6 @@ class NodeDemux;
 class Phase
 {
 public:
-  using ReachedVec = std::vector<bool>;
-  using ReachedPtr = std::shared_ptr<ReachedVec>;
-
   // Helper class to grant access to 'reached_nodes' only
   class ReachAcc
   {
@@ -37,10 +34,7 @@ public:
   };
 
 protected:
-  ReachedPtr reached_nodes; // which nodes were reached already
-
-  bool is_reached(int node_id);
-  void mark_reached(int node_id);
+  ReachedNodes &reached_nodes; // which nodes were reached already
 
   int num_nodes() const { return reached_nodes.size(); }
 public:
@@ -51,7 +45,9 @@ public:
     DONE_COLL  = 3,
   };
 
-  Phase(ReachedPtr reached_nodes);
+  Phase(ReachedNodes &reached_nodes)
+    : reached_nodes(reached_nodes)
+  {}
 
   // process various possible events
   virtual Result dispatch(const InitTask &, TaskQueue &, int) = 0;

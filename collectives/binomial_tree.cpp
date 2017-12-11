@@ -39,7 +39,7 @@ BinomialTreePhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   const int root [[maybe_unused]] = 0;
   assert(node_id == root && "SimpleTreePhase init on non-root node");
-  assert(is_reached(root) && "Root unreached in tree");
+  assert(reached_nodes[root] && "Root unreached in tree");
 
   return post_sends(node_id, tq);
 }

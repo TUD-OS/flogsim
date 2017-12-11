@@ -13,12 +13,12 @@ unsigned generate_seed()
 }
 }
 
-GossipPhase::GossipPhase(ReachedPtr reached_nodes)
+GossipPhase::GossipPhase(ReachedNodes &reached_nodes)
   : Phase(reached_nodes),
     generator(generate_seed()),
     gossip_time(Globals::get().conf().k)
 {
-  assert(reached_nodes && (*reached_nodes)[0] && "Root unreached in tree");
+  assert(reached_nodes[0] && "Root unreached in tree");
 }
 
 Phase::Result GossipPhase::post_sends(const int sender, TaskQueue &tq)
@@ -48,7 +48,7 @@ GossipPhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   const int root [[maybe_unused]] = 0;
   assert(node_id == root && "GossipPhase init on non-root node");
-  assert(is_reached(root) && "Root unreached in tree");
+  assert(reached_nodes[root] && "Root unreached in tree");
 
   return post_sends(node_id, tq);
 }

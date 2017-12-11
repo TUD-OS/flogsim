@@ -5,7 +5,7 @@
 class TreePhase : public Phase
 {
 public:
-  TreePhase(ReachedPtr reached_nodes)
+  TreePhase(ReachedNodes &reached_nodes)
     : Phase(reached_nodes)
   {
   }
@@ -19,7 +19,7 @@ class KAryTreePhase : public TreePhase
   void post_sends(const int sender, TaskQueue &tq) const;
 
 public:
-  KAryTreePhase(ReachedPtr reached_nodes, size_t arity)
+  KAryTreePhase(ReachedNodes &reached_nodes, size_t arity)
     : TreePhase(reached_nodes),
       arity(arity)
   {
@@ -35,7 +35,7 @@ class BinomialTreePhase : public TreePhase
 {
   Result post_sends(const int sender, TaskQueue &tq) const;
 public:
-  BinomialTreePhase(ReachedPtr reached_nodes)
+  BinomialTreePhase(ReachedNodes &reached_nodes)
     : TreePhase(reached_nodes)
   {
   }
@@ -49,7 +49,7 @@ class OptimalTreePhase : public TreePhase
   std::vector<std::vector<int>> send_to;
   Result post_sends(const int sender, TaskQueue &tq) const;
 public:
-  OptimalTreePhase(ReachedPtr reached_nodes);
+  OptimalTreePhase(ReachedNodes &reached_nodes);
 
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const RecvEndTask& t, TaskQueue &tq, int node_id) override;

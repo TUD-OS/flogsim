@@ -7,19 +7,19 @@
 
 
 template<bool send_over_root>
-CorrectionPhase<send_over_root>::CorrectionPhase(ReachedPtr reached_nodes)
+CorrectionPhase<send_over_root>::CorrectionPhase(ReachedNodes &reached_nodes)
   : Phase(reached_nodes)
 {
-  assert(reached_nodes && std::any_of(reached_nodes->begin(),
-                                      reached_nodes->end(),
-                                      [] (bool reached) {return reached;})
-                       && "No reached node");
+  assert(std::any_of(reached_nodes.begin(),
+                     reached_nodes.end(),
+                     [] (bool reached) {return reached;})
+         && "No reached node");
 }
 
 
 template<bool send_over_root>
 OpportunisticCorrectionPhase<send_over_root>::OpportunisticCorrectionPhase(
-  Phase::ReachedPtr reached_nodes)
+  ReachedNodes &reached_nodes)
   : CorrectionPhase<send_over_root>(reached_nodes),
     max_dist(Globals::get().conf().k)
 {

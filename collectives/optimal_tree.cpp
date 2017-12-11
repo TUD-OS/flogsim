@@ -115,7 +115,7 @@ std::vector<Node> compute_opt_tree(Time L, Time o, Time g, int num_nodes)
 
 // OptimalTreePhase
 
-OptimalTreePhase::OptimalTreePhase(ReachedPtr reached_nodes)
+OptimalTreePhase::OptimalTreePhase(ReachedNodes &reached_nodes)
   : TreePhase(reached_nodes)
 {
   auto &model = Globals::get().model();
