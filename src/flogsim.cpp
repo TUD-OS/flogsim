@@ -12,6 +12,8 @@
 #include "task_queue.hpp"
 #include "fault_injector.hpp"
 #include "tree_phase.hpp"
+#include "correction_phase.hpp"
+#include "combiner_phase.hpp"
 #include "node_demux.hpp"
 #include "globals.hpp"
 
@@ -28,14 +30,22 @@ int main(int argc, char *argv[])
     Model model(conf);
     Globals::set({&conf, &model});
 
-    auto reached = std::make_shared<Phase::ReachedVec>(model.P);
-    (*reached)[0] = true;
-    Collective *coll = new NodeDemux(std::make_unique<KAryTreePhase<true>>(reached, conf.k)); //CollectiveRegistry::create();
+    auto coll = NodeDemux();
+
+    {
+      // Here you build a collective
+      auto correction = std::make_unique<OpportunisticCorrectionPhase<true>>(coll.reached_nodes);
+
+      coll.set_phase(std::move(correction));
+    }
+
+    // Here we basically run it
+
     auto faults = FaultInjector::create();
     TaskQueue tq{faults.get()};
     Timeline timeline;
 
-    tq.run(*coll, timeline);
+    tq.run(coll, timeline);
 
     std::cout << "TotalRuntime," << timeline.get_total_time() << std::endl;
 
