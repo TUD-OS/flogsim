@@ -10,21 +10,21 @@ using Result = Phase::Result;
 
 namespace {
   // Helper function to calculate runtime of whole tree
-  int calc_runtime(auto L, auto o, auto g, int P, int k)
+  Time calc_runtime(auto L, auto o, auto g, int P, int k)
   {
     if (P <= 1) {
-      return 0;
+      return Time(0);
     }
 
     if (P <= k + 1) {
       return std::max(o, g) * P + L;
     }
 
-    int subtree_max(0);
+    Time subtree_max(0);
 
     for (int i = 1; i <= k; i++) {
       int sub_P = (P - 1) / k + (i <= (P - 1) % k);
-      int sub_time = calc_runtime(L, o, g, sub_P, k);
+      Time sub_time = calc_runtime(L, o, g, sub_P, k);
       subtree_max = std::max(subtree_max, std::max(o, g) * (i + 1) + L + sub_time);
     }
 
