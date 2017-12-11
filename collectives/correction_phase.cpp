@@ -66,6 +66,11 @@ OpportunisticCorrectionPhase<send_over_root>::deadline(
   return Time(o + (max_dist - 1) * std::max(o,g));
 }
 
+// explicit instantiation
+template class OpportunisticCorrectionPhase<true>;
+template class OpportunisticCorrectionPhase<false>;
+
+
 #if 0
 OpportunisticCorrectionPhase::
 {
