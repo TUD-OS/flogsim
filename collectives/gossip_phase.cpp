@@ -47,7 +47,6 @@ Phase::Result
 GossipPhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   const int root [[maybe_unused]] = 0;
-  assert(node_id == root && "GossipPhase init on non-root node");
   assert(reached_nodes[root] && "Root unreached in Gossip");
 
   if (start_time == Time::max()) {
