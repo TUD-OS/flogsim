@@ -26,7 +26,7 @@ Result CombinerPhase::forward(const auto &t, TaskQueue &tq, const int node_id)
 
       // init next phase for this node iff it was reached
       if (reached_nodes[node_id]) {
-        InitTask::make_new(tq.now(), node_id);
+        tq.schedule(InitTask::make_new(tq.now(), node_id));
       }
       break;
 
