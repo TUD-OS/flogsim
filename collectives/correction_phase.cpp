@@ -171,6 +171,11 @@ Phase::Result
 CheckedCorrectionPhase<send_over_root>::dispatch(
   const RecvEndTask &t, TaskQueue&, int node_id)
 {
+  if (!this->reached_nodes[node_id]) {
+    this->reached_nodes[node_id] = true;
+    return Phase::Result::DONE_PHASE;
+  }
+
   Ring &left = this->left[node_id];
   Ring &right = this->right[node_id];
 
