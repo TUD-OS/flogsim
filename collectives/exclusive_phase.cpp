@@ -61,6 +61,8 @@ ExclusivePhase::dispatch(const InitTask &t, TaskQueue &tq, int node_id)
   const Time now = tq.now();
   assert((start == Time::max() || start == now) && "Skewed init");
 
+  start = now;
+
   return forward(t, tq, node_id);
 }
 
