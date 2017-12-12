@@ -12,7 +12,7 @@ const Globals &Globals::get()
 {
   auto &globals = __get();
   if (!globals.initialized) {
-    std::runtime_error("Initialize globals first");
+    throw std::runtime_error("Initialize globals first");
   }
   return globals;
 }
