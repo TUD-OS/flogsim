@@ -45,7 +45,7 @@ ExclusivePhase::ExclusivePhase(ReachedNodes &reached_nodes, PhasePtr &&_phase)
     start(Time::max()), // cannot initialise, we don't know the time yet
     rel_deadline(Time::max()) // cannot initialise, 'phase' may hold 'nullptr'
 {
-  assert(phase.get() && "Invalid phase");
+  assert(phase && "Invalid phase");
 
   if (phase->deadline() == Time::max()) {
     throw std::invalid_argument("Provided phase without specified deadline");
