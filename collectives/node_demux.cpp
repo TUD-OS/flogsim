@@ -16,14 +16,7 @@ void NodeDemux::forward(const auto &t, TaskQueue &tq, const int node_id)
 
 void NodeDemux::accept(const InitTask &t, TaskQueue &tq)
 {
-  assert(t.sender() == 0);
-
-  // broadcast InitTask to all (initially) reached nodes
-  for (size_t i = 0; i < reached_nodes.size(); i++) {
-    if (reached_nodes[i]) {
-      forward(t, tq, i);
-    }
-  }
+  forward(t, tq, t.sender());
 }
 
 void NodeDemux::accept(const TimerTask &t, TaskQueue &tq)
@@ -55,6 +48,13 @@ Timeline NodeDemux::run(std::unique_ptr<Phase> &&_phase)
   // Here we basically run it
   TaskQueue tq{faults.get()};
   Timeline timeline;
+
+  // broadcast InitTask to all (initially) reached nodes
+  for (size_t i = 0; i < reached_nodes.size(); i++) {
+    if (reached_nodes[i]) {
+      tq.schedule(InitTask::make_new(Time(0), i));
+    }
+  }
 
   tq.run(*this, timeline);
 
