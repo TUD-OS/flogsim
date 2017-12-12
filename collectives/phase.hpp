@@ -37,6 +37,7 @@ public:
   Phase(ReachedNodes &reached_nodes)
     : reached_nodes(reached_nodes)
   {}
+  virtual ~Phase() {}
 
   // process various possible events
   virtual Result dispatch(const InitTask &, TaskQueue &, int) = 0;
