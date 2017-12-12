@@ -291,6 +291,11 @@ class TimerTask : public TaskCounted<TimerTask>
 {
 public:
 
+  TimerTask(Sequence seq, Tag tag, Time time, int sender) :
+    TaskCounted(TaskData{seq, tag, time, sender, sender})
+  {
+  }
+
   TimerTask(Sequence seq, Time time, int sender) :
     TaskCounted(TaskData{seq, Tag::INTERNAL, time, sender, sender})
   {
