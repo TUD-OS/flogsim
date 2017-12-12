@@ -22,4 +22,6 @@ public:
   virtual Result dispatch(const IdleTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const TimerTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id) override;
+
+  virtual Time deadline() const;
 };

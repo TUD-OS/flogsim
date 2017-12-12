@@ -73,3 +73,16 @@ Result CombinerPhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   return forward(t, tq, node_id);
 }
+
+Time CombinerPhase::deadline() const
+{
+  Time length{0};
+  for (const auto &phase : phases) {
+    if (phase->deadline() == Time::max()) {
+      return Time::max();
+    }
+    length = length + phase->deadline();
+  }
+
+  return length;
+}
