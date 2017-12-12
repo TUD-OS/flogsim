@@ -5,7 +5,6 @@
 
 #include "phase.hpp"
 
-template<bool send_over_root>
 class CorrectionPhase : public Phase
 {
 protected:
@@ -21,8 +20,7 @@ public:
 
 
 template<bool send_over_root>
-class OpportunisticCorrectionPhase
-  : public CorrectionPhase<send_over_root>
+class OpportunisticCorrectionPhase : public CorrectionPhase
 {
   const int max_dist; // maximum distance to cover
 
@@ -36,7 +34,7 @@ public:
 };
 
 template<bool send_over_root>
-class CheckedCorrectionPhase : public CorrectionPhase<send_over_root>
+class CheckedCorrectionPhase : public CorrectionPhase
 {
   // relevant information per direction (array) and node (vector)
   struct Ring

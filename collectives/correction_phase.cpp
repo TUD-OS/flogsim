@@ -6,8 +6,7 @@
 #include "task_queue.hpp"
 
 
-template<bool send_over_root>
-CorrectionPhase<send_over_root>::CorrectionPhase(ReachedNodes &reached_nodes)
+CorrectionPhase::CorrectionPhase(ReachedNodes &reached_nodes)
   : Phase(reached_nodes)
 {
   assert(std::any_of(reached_nodes.begin(),
@@ -20,8 +19,7 @@ CorrectionPhase<send_over_root>::CorrectionPhase(ReachedNodes &reached_nodes)
 template<bool send_over_root>
 OpportunisticCorrectionPhase<send_over_root>::OpportunisticCorrectionPhase(
   ReachedNodes &reached_nodes)
-  : CorrectionPhase<send_over_root>(reached_nodes),
-    max_dist(Globals::get().conf().k)
+  : CorrectionPhase(reached_nodes), max_dist(Globals::get().conf().k)
 {
   assert(max_dist < this->num_nodes() && "Nonsensical correction distance");
 }
@@ -78,7 +76,7 @@ template class OpportunisticCorrectionPhase<false>;
 template<bool send_over_root>
 CheckedCorrectionPhase<send_over_root>::CheckedCorrectionPhase(
   ReachedNodes &reached_nodes)
-  : CorrectionPhase<send_over_root>(reached_nodes),
+  : CorrectionPhase(reached_nodes),
     left{unsigned(this->num_nodes())},
     right{unsigned(left.size())}
 {
