@@ -43,9 +43,9 @@ Result CombinerPhase::forward(const auto &t, TaskQueue &tq, const int node_id)
   return res;
 }
 
-CombinerPhase::CombinerPhase(ReachedNodes &reached_nodes, PhaseVec &&phases)
+CombinerPhase::CombinerPhase(ReachedNodes &reached_nodes, PhaseVec &&_phases)
   : Phase(reached_nodes),
-    phases(std::move(phases)),
+    phases(std::move(_phases)),
     cur_phase(num_nodes(), 0)
 {
   assert(std::all_of(phases.cbegin(),

@@ -39,9 +39,9 @@ Result ExclusivePhase::forward(const auto &t, TaskQueue &tq, const int node_id)
   return res;
 }
 
-ExclusivePhase::ExclusivePhase(ReachedNodes &reached_nodes, PhasePtr &&phase)
+ExclusivePhase::ExclusivePhase(ReachedNodes &reached_nodes, PhasePtr &&_phase)
   : Phase(reached_nodes),
-    phase(std::move(phase)),
+    phase(std::move(_phase)),
     start(Time::max()), // cannot initialise, we don't know the time yet
     rel_deadline(Time::max()) // cannot initialise, 'phase' may hold 'nullptr'
 {
