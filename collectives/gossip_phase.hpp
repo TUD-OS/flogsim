@@ -10,6 +10,7 @@ class GossipPhase : public Phase
 private:
   std::default_random_engine generator;
   const Time gossip_time;
+  Time start_time;
 
   Result post_sends(const int sender, TaskQueue &tq);
 public:

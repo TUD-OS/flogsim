@@ -16,13 +16,14 @@ unsigned generate_seed()
 GossipPhase::GossipPhase(ReachedNodes &reached_nodes)
   : Phase(reached_nodes),
     generator(generate_seed()),
-    gossip_time(Globals::get().conf().k)
+    gossip_time(Globals::get().conf().k),
+    start_time(Time::max())
 {
 }
 
 Phase::Result GossipPhase::post_sends(const int sender, TaskQueue &tq)
 {
-  if (tq.now() >= gossip_time) {
+  if (tq.now() >= start_time + gossip_time) {
     return Result::DONE_PHASE;
   }
 
@@ -48,6 +49,10 @@ GossipPhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
   const int root [[maybe_unused]] = 0;
   assert(node_id == root && "GossipPhase init on non-root node");
   assert(reached_nodes[root] && "Root unreached in Gossip");
+
+  if (start_time == Time::max()) {
+    start_time = tq.now();
+  }
 
   return post_sends(node_id, tq);
 }
