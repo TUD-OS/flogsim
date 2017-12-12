@@ -47,7 +47,7 @@ GossipPhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   const int root [[maybe_unused]] = 0;
   assert(node_id == root && "GossipPhase init on non-root node");
-  assert(reached_nodes[root] && "Root unreached in tree");
+  assert(reached_nodes[root] && "Root unreached in Gossip");
 
   return post_sends(node_id, tq);
 }
@@ -63,4 +63,10 @@ GossipPhase::dispatch(const RecvEndTask &, TaskQueue &, int node_id)
 {
   reached_nodes[node_id] = true;
   return Result::ONGOING;
+}
+
+Time
+GossipPhase::deadline() const
+{
+  return gossip_time;
 }
