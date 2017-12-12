@@ -19,9 +19,9 @@ class KAryTreePhase : public TreePhase
   void post_sends(const int sender, TaskQueue &tq) const;
 
 public:
-  KAryTreePhase(ReachedNodes &reached_nodes, size_t arity)
+  KAryTreePhase(ReachedNodes &reached_nodes)
     : TreePhase(reached_nodes),
-      arity(arity)
+      arity(Globals::get().conf().k)
   {
   }
 
