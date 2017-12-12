@@ -29,7 +29,7 @@ Result ExclusivePhase::forward(const auto &t, TaskQueue &tq, const int node_id)
     {
       const Time abs_deadline = start + rel_deadline;
 
-      if (abs_deadline == tq.now()) { break; }
+      if (abs_deadline <= tq.now()) { break; }
 
       tq.schedule(TimerTask::make_new(Tag::EXCLUSIVE, abs_deadline, node_id));
       res = Result::ONGOING;
