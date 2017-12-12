@@ -8,6 +8,7 @@ std::ostream& operator<<(std::ostream &os, const Tag& t)
     case Tag::GOSSIP:     os << "gossip";     break;
     case Tag::RING_LEFT:  os << "left_ring";  break;
     case Tag::RING_RIGHT: os << "right_ring"; break;
+    case Tag::EXCLUSIVE:  os << "exclusive";  break;
   }
   return os;
 }

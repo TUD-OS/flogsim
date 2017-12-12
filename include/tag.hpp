@@ -8,7 +8,8 @@ enum class Tag
   TREE       = 2,
   GOSSIP     = 3,
   RING_LEFT  = 10,
-  RING_RIGHT = 11
+  RING_RIGHT = 11,
+  EXCLUSIVE  = 50,
 };
 
 std::ostream& operator<<(std::ostream &os, const Tag& t);

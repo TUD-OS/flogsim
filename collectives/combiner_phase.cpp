@@ -7,7 +7,6 @@
 
 using Result = Phase::Result;
 
-
 Result CombinerPhase::forward(const auto &t, TaskQueue &tq, const int node_id)
 {
   size_t &node_cur_phase = cur_phase[node_id];
