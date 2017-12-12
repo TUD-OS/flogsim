@@ -21,8 +21,7 @@ int get_lvl(int sender)
 
 // BinomialTreePhase
 
-Phase::Result
-BinomialTreePhase::post_sends(const int sender, TaskQueue &tq) const
+void BinomialTreePhase::post_sends(const int sender, TaskQueue &tq) const
 {
   for (int lvl = get_lvl(sender); lvl <= get_lvl(num_nodes()); lvl++) {
     int receiver = sender + (1 << lvl);
@@ -31,7 +30,6 @@ BinomialTreePhase::post_sends(const int sender, TaskQueue &tq) const
       tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
     }
   }
-  return Result::DONE_PHASE;
 }
 
 Phase::Result
@@ -41,11 +39,19 @@ BinomialTreePhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
   assert(node_id == root && "SimpleTreePhase init on non-root node");
   assert(reached_nodes[root] && "Root unreached in tree");
 
-  return post_sends(node_id, tq);
+  post_sends(node_id, tq);
+
+  return Result::DONE_PHASE;
 }
 
 Phase::Result
-BinomialTreePhase::dispatch(const RecvEndTask &, TaskQueue &tq, int node_id)
+BinomialTreePhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
-  return post_sends(node_id, tq);
+  post_sends(node_id, tq);
+
+  if (t.tag() == Tag::TREE) {
+    return Result::DONE_PHASE;
+  } else {
+    return Result::DONE_COLL;
+  }
 }

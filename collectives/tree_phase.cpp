@@ -75,11 +75,16 @@ KAryTreePhase<interleave>::dispatch(const InitTask &, TaskQueue &tq, int node_id
 
 template <bool interleave>
 Result
-KAryTreePhase<interleave>::dispatch(const RecvEndTask &, TaskQueue &tq, int node_id)
+KAryTreePhase<interleave>::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   reached_nodes[node_id] = true;
   post_sends(node_id, tq);
-  return Result::DONE_PHASE;
+
+  if (t.tag() == Tag::TREE) {
+    return Result::DONE_PHASE;
+  } else {
+    return Result::DONE_COLL;
+  }
 }
 
 template <bool interleave>

@@ -134,14 +134,12 @@ OptimalTreePhase::OptimalTreePhase(ReachedNodes &reached_nodes)
   }
 }
 
-Phase::Result
-OptimalTreePhase::post_sends(const int sender, TaskQueue &tq) const
+void OptimalTreePhase::post_sends(const int sender, TaskQueue &tq) const
 {
   const auto &my_send_to = send_to[sender];
   for (auto receiver : my_send_to) {
     tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
   }
-  return Result::DONE_PHASE;
 }
 
 Phase::Result
@@ -149,12 +147,21 @@ OptimalTreePhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   assert(node_id == 0 && "TreePhase init on non-root node");
 
-  return post_sends(node_id, tq);
+  post_sends(node_id, tq);
+
+  return Result::DONE_PHASE;
 }
 
 Phase::Result
-OptimalTreePhase::dispatch(const RecvEndTask &, TaskQueue &tq, int node_id)
+OptimalTreePhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   reached_nodes[node_id] = true;
-  return post_sends(node_id, tq);
+
+  post_sends(node_id, tq);
+
+  if (t.tag() == Tag::TREE) {
+    return Result::DONE_PHASE;
+  } else {
+    return Result::DONE_COLL;
+  }
 }

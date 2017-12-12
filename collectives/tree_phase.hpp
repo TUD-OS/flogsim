@@ -33,7 +33,7 @@ public:
 
 class BinomialTreePhase : public TreePhase
 {
-  Result post_sends(const int sender, TaskQueue &tq) const;
+  void post_sends(const int sender, TaskQueue &tq) const;
 public:
   BinomialTreePhase(ReachedNodes &reached_nodes)
     : TreePhase(reached_nodes)
@@ -47,7 +47,7 @@ public:
 class OptimalTreePhase : public TreePhase
 {
   std::vector<std::vector<int>> send_to;
-  Result post_sends(const int sender, TaskQueue &tq) const;
+  void post_sends(const int sender, TaskQueue &tq) const;
 public:
   OptimalTreePhase(ReachedNodes &reached_nodes);
 

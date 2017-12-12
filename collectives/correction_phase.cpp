@@ -178,14 +178,17 @@ CheckedCorrectionPhase<send_over_root>::dispatch(
   int dist;
   // The message comes from the right, so it is remembered by the
   // left ring
-  if (t.tag() == Tag::RING_RIGHT) {
-    dist = (P + node_id - t.sender()) % P;
-    left.min_recv = std::min(left.min_recv, dist);
-  } else if (t.tag() == Tag::RING_LEFT) {
-    dist = (P + t.sender() - node_id) % P;
-    right.min_recv = std::min(right.min_recv, dist);
-  } else {
-    throw std::runtime_error("Unknown tag");
+  switch (t.tag()) {
+    case Tag::RING_RIGHT:
+      dist = (P + node_id - t.sender()) % P;
+      left.min_recv = std::min(left.min_recv, dist);
+      break;
+    case Tag::RING_LEFT:
+      dist = (P + t.sender() - node_id) % P;
+      right.min_recv = std::min(right.min_recv, dist);
+      break;
+    default:
+      break;
   }
   return Phase::Result::ONGOING;
 }
