@@ -7,9 +7,11 @@
 
 class CombinerPhase : public Phase
 {
+public:
   using PhasePtr = std::unique_ptr<Phase>;
   using PhaseVec = std::vector<PhasePtr>;
 
+private:
   PhaseVec phases;
   std::vector<size_t> cur_phase;
 
