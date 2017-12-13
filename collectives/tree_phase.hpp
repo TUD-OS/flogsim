@@ -42,6 +42,8 @@ public:
 
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const RecvEndTask& t, TaskQueue &tq, int node_id) override;
+
+  virtual Time deadline() const override;
 };
 
 class OptimalTreePhase : public TreePhase

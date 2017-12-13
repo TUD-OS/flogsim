@@ -17,6 +17,19 @@ int get_lvl(int sender)
   }
   return lvl;
 }
+
+Time binomial_runtime(Time L, Time o, Time g, int P)
+{
+
+  if (P <=1) {
+    return Time(0);
+  }
+
+  Time runtime = std::max(std::max(o, g) + L + o + binomial_runtime(L, o, g, P / 2),
+                          std::max(o, g) + binomial_runtime(L, o, g, (P + 1) / 2));
+  return runtime;
+}
+
 }
 
 // BinomialTreePhase
@@ -54,4 +67,14 @@ BinomialTreePhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
   } else {
     return Result::DONE_COLL;
   }
+}
+
+Time BinomialTreePhase::deadline() const
+{
+  auto &model = Globals::get().model();
+  auto L = model.L;
+  auto o = model.o;
+  auto g = model.g;
+
+  return binomial_runtime(L, o, g, num_nodes());
 }
