@@ -81,7 +81,12 @@ trace.df[variable=="Failure", End := Time + 0.1]
 
 # Convert tags to something more readable
 trace.df$Tag <- factor(trace.df$Tag)
-levels(trace.df$Tag) <- c("Tree", "Left", "Right")
+levels(trace.df$Tag) <- c(
+    "right_ring"="Right",
+    "left_ring"="Left",
+    "gossip"="Gossip",
+    "tree"="Tree"
+    )
 
 ## End of CpuEvent is start of latency
 msg.start <- trace.df[, .SD[variable %in% c("CpuEvent"),
@@ -94,10 +99,13 @@ messages <- msg.start[msg.end, on = "Sequence"]
 
 full.stop <- trace.df[variable=="Finish", max(Time)]
 
-message.variables <- c("Tree" = 'black', "Left" = '#cfcf33', "Right" = '#a65628')
+message.variables <- c("Gossip" = "red", "Tree" = "black", "Left" = "#cfcf33", "Right" = "#a65628")
 event.variables <- c("CpuEvent" = '#fc8d62', "SendGap" = '#66c2a5', "RecvGap" = '#8da0cb', "Failure" = '#984ea3', "Finish" = 'black')
-breaks <- c("Tree", "Left", "Right", "CpuEvent", "RecvGap", "SendGap",  "Failure", "Finish")
-labels <- c("Tree", "Ring left", "Ring right", "CPU (o)", "Receive gap (g)", "Send gap (g)",  "Failure", "Finish")
+message.breaks <- c("Tree", "Gossip", "Left", "Right")
+message.labels <- c("Tree" = "Tree", "Gossip" = "Gossip", "Left" = "Ring left", "Right" = "Ring right")
+
+breaks <- c("CpuEvent", "RecvGap", "SendGap",  "Failure", "Finish")
+labels <- c("CPU (o)", "Receive gap (g)", "Send gap (g)",  "Failure", "Finish")
 
 ## Model specific part ended
 
@@ -113,24 +121,27 @@ p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
     geom_rect(data = trace.df[variable %in% c("Finish", "Failure")],
                  size = 0.1, aes(ymin = CPU + 0.0, ymax = CPU + 0.7), col = 'black') +
     geom_vline(xintercept = full.stop, size = 1) +
-    scale_colour_manual(name = "Message type", breaks=breaks, labels=labels, values = message.variables) +
     scale_fill_manual(name = "Event type", breaks=breaks, labels=labels, values = event.variables) +
-    scale_y_continuous(breaks = minor.breaks, labels = minor.breaks, limits = c(0, max(model.df$P))) +
-    xlab("Time") + ylab("CPU") + theme_linedraw() + theme(panel.grid.minor = element_blank(),
-                                                          panel.grid.major = element_line(colour='gray'))
+    scale_y_continuous(breaks = minor.breaks, labels = minor.breaks, limits = c(0, max(model.df$P)))
 
 arrow.type <- arrow(type = 'closed', angle = 15, length = unit(0.03, "npc"))
-if (opt$options$cpu_only == TRUE) {
-    print(p)
-} else if (is.null(interesting.nodes)) {
-    print(p + geom_segment(data = messages,
-                           aes(y = From + 0.25, yend = To + 0.25, x = Start, xend = End, col = Tag),
-                           arrow = arrow.type, inherit.aes = FALSE))
-} else {
-    print(p + geom_segment(data = messages[From %in% interesting.nodes | To %in% interesting.nodes],
-                           aes(x = From + 0.05, yend = To + 0.05, x = Start, xend = End, col = Tag),
-                           arrow = arrow.type, inherit.aes = FALSE) +
-          ggtitle("Highlighted nodes:", subtitle = paste(interesting.nodes, collapse = ", ")))
+if (opt$options$cpu_only != TRUE) {
+    if (is.null(interesting.nodes)) {
+        p <- p + geom_segment(data = messages,
+                              aes(y = From + 0.25, yend = To + 0.25, x = Start, xend = End, col = Tag),
+                              arrow = arrow.type, inherit.aes = FALSE)
+    } else {
+        p <- p + geom_segment(data = messages[From %in% interesting.nodes | To %in% interesting.nodes],
+                              aes(x = From + 0.05, yend = To + 0.05, x = Start, xend = End, col = Tag),
+                              arrow = arrow.type, inherit.aes = FALSE) +
+            ggtitle("Highlighted nodes:", subtitle = paste(interesting.nodes, collapse = ", "))
+    }
 }
+
+print(p + xlab("Time") + ylab("CPU") +
+      scale_colour_manual(name = "Message type", breaks=message.breaks, labels=message.labels, values = message.variables) +
+      theme_linedraw() + theme(panel.grid.minor = element_blank(),
+                               panel.grid.major = element_line(colour='gray')))
+
 
 res <- dev.off()
