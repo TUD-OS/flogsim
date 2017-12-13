@@ -36,6 +36,8 @@ Time binomial_runtime(Time L, Time o, Time g, int P)
 
 void BinomialTreePhase::post_sends(const int sender, TaskQueue &tq) const
 {
+  reached_nodes[sender] = true;
+
   for (int lvl = get_lvl(sender); lvl <= get_lvl(num_nodes()); lvl++) {
     int receiver = sender + (1 << lvl);
 
