@@ -32,22 +32,7 @@ int main(int argc, char *argv[])
 
     auto coll = Collective({0});
 
-    auto &rn = coll.reached_nodes;
-
-    // Here you build a collective
-    std::vector<std::unique_ptr<int>> v {int{4}};
-    std::vector<std::unique_ptr<Phase>> phases;
-
-    std::unique_ptr<Phase> tree = std::make_unique<KAryTreePhase<true>>(rn);
-    phases.push_back(std::make_unique<ExclusivePhase>(rn, std::move(tree)));
-    phases.push_back(std::make_unique<OpportunisticCorrectionPhase<true>>(rn));
-    phases.push_back(std::make_unique<ExclusivePhase>(rn,
-                                                      std::make_unique<GossipPhase>(rn)));
-    phases.push_back(std::make_unique<CheckedCorrectionPhase<true>>(rn));
-
-    std::unique_ptr<Phase> full = std::make_unique<CombinerPhase>(coll.reached_nodes, std::move(phases));
-
-    auto timeline = coll.run(std::move(full));
+    auto timeline = coll.run(CollectiveRegistry::create(coll.reached_nodes));
 
     std::cout << "TotalRuntime," << timeline.get_total_time() << std::endl;
 

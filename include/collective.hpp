@@ -65,29 +65,23 @@ public:
 class CollectiveRegistry
 {
 public:
-  typedef std::function<std::unique_ptr<Collective>()> create_fun_t;
+  typedef std::function<std::unique_ptr<Phase>(ReachedNodes&)> create_fun_t;
 
   static void declare(create_fun_t &create_fun, const std::string_view &name);
-  static std::unique_ptr<Collective> create();
+  static std::unique_ptr<Phase> create(ReachedNodes &reached_nodes);
 
 private:
   std::map<std::string_view, create_fun_t> data;
   static CollectiveRegistry &get();
 };
 
-template<typename T>
 class CollectiveRegistrator
 {
+  using create_fun_t = CollectiveRegistry::create_fun_t;
 public:
 
-  static std::unique_ptr<T> create()
+  CollectiveRegistrator(create_fun_t create_fun, const char name[])
   {
-    return std::make_unique<T>();
-  }
-
-  CollectiveRegistrator()
-  {
-    auto create_fun = static_cast<CollectiveRegistry::create_fun_t>(&create);
-    CollectiveRegistry::declare(create_fun, T::name);
+    CollectiveRegistry::declare(create_fun, name);
   }
 };
