@@ -15,7 +15,6 @@
 #include "combiner_phase.hpp"
 #include "exclusive_phase.hpp"
 #include "gossip_phase.hpp"
-#include "node_demux.hpp"
 #include "globals.hpp"
 
 #include "configuration_args.hpp"
@@ -31,7 +30,7 @@ int main(int argc, char *argv[])
     Model model(conf);
     Globals::set({&conf, &model});
 
-    auto coll = NodeDemux({0});
+    auto coll = Collective({0});
 
     auto &rn = coll.reached_nodes;
 
