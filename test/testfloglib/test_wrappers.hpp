@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gtest/gtest.h"
+#include "fault_injector.hpp"
 
 template<template<class> class T, class ALG>
 class Test
@@ -91,102 +92,100 @@ public:
 
 };
 
-template<class ALG>
-class NoFaultTest : public Test<NoFaultTest, ALG>
-{
-public:
+// template<class ALG>
+// class NoFaultTest : public Test<NoFaultTest, ALG>
+// {
+// public:
 
-  void operator()(int linenum) override final
-  {
-    auto conf = Configuration(this->param_k,
-                              this->expect_runtime + 10).
-      LogP(this->param_L,
-           this->param_o,
-           this->param_g,
-           this->param_P).faults("none");
-    auto model = Model(conf);
+//   void operator()(int linenum) override final
+//   {
+//     auto conf = Configuration(this->param_k,
+//                               this->expect_runtime + 10).
+//       LogP(this->param_L,
+//            this->param_o,
+//            this->param_g,
+//            this->param_P).faults("none");
+//     auto model = Model(conf);
 
-    Globals::set({&conf, &model});
+//     Globals::set({&conf, &model});
 
-    ALG coll;
+//     Collective coll;
 
-    NoFaults faults;
-    TaskQueue tq{&faults};
-    Timeline timeline;
+//     auto &rn = coll.reached_nodes;
 
-    tq.run(coll, timeline);
+//     coll.run(coll, timeline);
 
-    auto cmd = this->make_command(conf, faults);
-    std::stringstream info;
-    info << conf << std::endl
-         << "Test case from line: " << linenum << std::endl
-         << "Suggested command:" << std::endl
-         << cmd;
-    auto info_str = info.str();
+//     auto cmd = this->make_command(conf, faults);
+//     std::stringstream info;
+//     info << conf << std::endl
+//          << "Test case from line: " << linenum << std::endl
+//          << "Suggested command:" << std::endl
+//          << cmd;
+//     auto info_str = info.str();
 
-    EXPECT_EQ(timeline.get_total_time(),
-              Time(this->expect_runtime)) << info_str;
+//     EXPECT_EQ(timeline.get_total_time(),
+//               Time(this->expect_runtime)) << info_str;
 
-    auto [failed, finished, unreached] = timeline.node_stat();
-    EXPECT_EQ(failed, 0) << info_str;
-    EXPECT_EQ(finished, this->param_P) << info_str;
-    EXPECT_EQ(unreached, 0) << info_str;
-  }
-};
+//     auto [failed, finished, unreached] = timeline.node_stat();
+//     EXPECT_EQ(failed, 0) << info_str;
+//     EXPECT_EQ(finished, this->param_P) << info_str;
+//     EXPECT_EQ(unreached, 0) << info_str;
+//   }
+// };
 
-template<class ALG>
-class FaultTest : public Test<FaultTest, ALG>
-{
-  // List of failed nodes
-  std::vector<int> param_failed;
-public:
-  FaultTest &failed(std::initializer_list<int> failed)
-  {
-    param_failed = std::vector<int>(failed);
-    return *this;
-  }
+// template<class ALG>
+// class FaultTest : public Test<FaultTest, ALG>
+// {
+//   // List of failed nodes
+//   std::vector<int> param_failed;
+// public:
+//   FaultTest &failed(std::initializer_list<int> failed)
+//   {
+//     param_failed = std::vector<int>(failed);
+//     return *this;
+//   }
 
-  void operator()(int linenum) override final
-  {
-    auto conf = Configuration(this->param_k,
-                              this->expect_runtime + 10).
-      LogP(this->param_L,
-           this->param_o,
-           this->param_g,
-           this->param_P);
-    auto model = Model(conf);
+//   void operator()(int linenum) override final
+//   {
+//     auto conf = Configuration(this->param_k,
+//                               this->expect_runtime + 10).
+//       LogP(this->param_L,
+//            this->param_o,
+//            this->param_g,
+//            this->param_P);
+//     auto model = Model(conf);
 
 
-    Globals::set({&conf, &model});
+//     Globals::set({&conf, &model});
 
-    ALG coll;
+//     ALG coll;
 
-    ListFaults fi(param_failed);
-    TaskQueue tq(&fi);
-    Timeline timeline;
+//     ListFaults fi(param_failed);
+//     TaskQueue tq(&fi);
+//     Timeline timeline;
 
 
-    tq.run(coll, timeline);
+//     tq.run(coll, timeline);
 
-    auto cmd = this->make_command(conf, fi);
-    std::stringstream info;
-    info << conf << fi << std::endl
-         << "Test case from line: " << linenum << std::endl
-         << "Suggested command:" << std::endl
-         << cmd;
-    auto info_str = info.str();
+//     auto cmd = this->make_command(conf, fi);
+//     std::stringstream info;
+//     info << conf << fi << std::endl
+//          << "Test case from line: " << linenum << std::endl
+//          << "Suggested command:" << std::endl
+//          << cmd;
+//     auto info_str = info.str();
 
-    EXPECT_EQ(timeline.get_total_time(),
-              Time(this->expect_runtime)) << info_str;
+//     EXPECT_EQ(timeline.get_total_time(),
+//               Time(this->expect_runtime)) << info_str;
 
-    auto [failed, finished, unreached] = timeline.node_stat();
-    auto expect_finished = (this->param_P - fi.fault_count() -
-                            this->expect_unreach);
-    EXPECT_EQ(failed, fi.fault_count()) << info_str;
-    EXPECT_EQ(finished, expect_finished) << info_str;
-    EXPECT_EQ(unreached, this->expect_unreach) << info_str;
-  }
-};
+//     auto [failed, finished, unreached] = timeline.node_stat();
+//     auto expect_finished = (this->param_P - fi.fault_count() -
+//                             this->expect_unreach);
+//     EXPECT_EQ(failed, fi.fault_count()) << info_str;
+//     EXPECT_EQ(finished, expect_finished) << info_str;
+//     EXPECT_EQ(unreached, this->expect_unreach) << info_str;
+//   }
+// };
 
 #define CALL(x)                                 \
   ({                                            \
