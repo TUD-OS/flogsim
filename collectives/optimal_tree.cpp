@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include "task_queue.hpp"
-#include "tree_phase.hpp"
+#include "optimal_tree.hpp"
 
 // Implementation of optimal tree broadcast from Section 2 "Optimal
 // Broadcast and Summation in the LogP Model", Karp et. al.

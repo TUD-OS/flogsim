@@ -3,7 +3,7 @@
 
 #include "globals.hpp"
 #include "task_queue.hpp"
-#include "tree_phase.hpp"
+#include "kary_tree.hpp"
 
 using Result = Phase::Result;
 

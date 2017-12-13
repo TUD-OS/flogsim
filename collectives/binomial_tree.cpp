@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include "task_queue.hpp"
-#include "tree_phase.hpp"
+#include "binomial_tree.hpp"
 
 namespace
 {
