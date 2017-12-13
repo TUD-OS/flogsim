@@ -13,6 +13,8 @@
 #include "tree_phase.hpp"
 #include "correction_phase.hpp"
 #include "combiner_phase.hpp"
+#include "exclusive_phase.hpp"
+#include "gossip_phase.hpp"
 #include "node_demux.hpp"
 #include "globals.hpp"
 
@@ -29,12 +31,24 @@ int main(int argc, char *argv[])
     Model model(conf);
     Globals::set({&conf, &model});
 
-    auto coll = NodeDemux();
+    auto coll = NodeDemux({0});
+
+    auto &rn = coll.reached_nodes;
 
     // Here you build a collective
-    auto correction = std::make_unique<OpportunisticCorrectionPhase<true>>(coll.reached_nodes);
+    std::vector<std::unique_ptr<int>> v {int{4}};
+    std::vector<std::unique_ptr<Phase>> phases;
 
-    auto timeline = coll.run(std::move(correction));
+    std::unique_ptr<Phase> tree = std::make_unique<KAryTreePhase<true>>(rn);
+    phases.push_back(std::make_unique<ExclusivePhase>(rn, std::move(tree)));
+    phases.push_back(std::make_unique<OpportunisticCorrectionPhase<true>>(rn));
+    phases.push_back(std::make_unique<ExclusivePhase>(rn,
+                                                      std::make_unique<GossipPhase>(rn)));
+    phases.push_back(std::make_unique<CheckedCorrectionPhase<true>>(rn));
+
+    std::unique_ptr<Phase> full = std::make_unique<CombinerPhase>(coll.reached_nodes, std::move(phases));
+
+    auto timeline = coll.run(std::move(full));
 
     std::cout << "TotalRuntime," << timeline.get_total_time() << std::endl;
 
