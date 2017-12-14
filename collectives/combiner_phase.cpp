@@ -24,8 +24,8 @@ Result CombinerPhase::forward(const auto &t, TaskQueue &tq, const int node_id)
     case Result::DONE_PHASE:
       ++node_cur_phase; // switch to next phase
 
-      // init next phase for this node iff it was reached
-      if (reached_nodes[node_id]) {
+      // init next phase for this node
+      if (node_cur_phase < phases.size()) {
         tq.schedule(InitTask::make_new(tq.now(), node_id));
       }
       break;
