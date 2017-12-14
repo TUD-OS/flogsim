@@ -79,9 +79,6 @@ std::unique_ptr<Task> TaskQueue::pop()
 
 void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq, Timeline &tl)
 {
-  if (delivered) {
-    return;
-  }
   for (unsigned node = 0; node < pending.size(); node++) {
     if (!was_idle[node] || !pending[node]) {
       // In this timestamp the core wasn't idling
@@ -100,11 +97,9 @@ void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq, Timeline &tl)
     }
     pending[node] = false;
   }
-  delivered = true;
 }
 
 void TaskQueue::IdleTracker::prepare_next_timestamp()
 {
   std::fill(was_idle.begin(), was_idle.end(), threads);
-  delivered = false;
 }
