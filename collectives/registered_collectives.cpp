@@ -114,8 +114,7 @@ std::vector<CollectiveRegistrator> _{
         CombinerPhase::PhaseVec phases;
 
         phases.push_back(
-          std::make_unique<ExclusivePhase>(rn,
-            std::make_unique<GossipPhase>(rn)));
+            std::make_unique<GossipPhase>(rn));
         phases.push_back(
           std::make_unique<OpportunisticCorrectionPhase<true>>(rn));
         return std::make_unique<CombinerPhase>(rn, std::move(phases));
@@ -128,8 +127,7 @@ std::vector<CollectiveRegistrator> _{
         CombinerPhase::PhaseVec phases;
 
         phases.push_back(
-          std::make_unique<ExclusivePhase>(rn,
-            std::make_unique<GossipPhase>(rn)));
+          std::make_unique<GossipPhase>(rn));
         phases.push_back(
           std::make_unique<CheckedCorrectionPhase<true>>(rn));
         return std::make_unique<CombinerPhase>(rn, std::move(phases));
