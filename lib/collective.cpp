@@ -66,7 +66,6 @@ void Collective::accept(const RecvEndTask& t, TaskQueue &tq)
 {
   const int node_id = t.receiver();
   forward(t, tq, node_id);
-  tq.schedule(IdleTask::make_new(node_id));
 }
 
 void Collective::accept(const MsgTask&, TaskQueue&)
@@ -91,9 +90,7 @@ Timeline Collective::run(std::unique_ptr<Phase> &&_phase)
 
   // broadcast InitTask to all (initially) reached nodes
   for (size_t i = 0; i < reached_nodes.size(); i++) {
-    if (reached_nodes[i]) {
-      tq.schedule(InitTask::make_new(Time(0), i));
-    }
+    tq.schedule(InitTask::make_new(Time(0), i));
   }
 
   tq.run(*this, timeline);

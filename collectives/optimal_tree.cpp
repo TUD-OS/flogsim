@@ -145,6 +145,10 @@ void OptimalTreePhase::post_sends(const int sender, TaskQueue &tq) const
 Phase::Result
 OptimalTreePhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
+  if(!reached_nodes[node_id]) {
+    return Result::ONGOING;
+  }
+
   assert(node_id == 0 && "TreePhase init on non-root node");
 
   post_sends(node_id, tq);

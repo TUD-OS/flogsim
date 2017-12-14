@@ -29,7 +29,9 @@ Phase::Result
 OpportunisticCorrectionPhase<send_over_root>::dispatch(
   const InitTask &, TaskQueue &tq, int node_id)
 {
-  assert(this->reached_nodes[node_id] && "Init on unreached node");
+  if(!reached_nodes[node_id]) {
+    return Result::ONGOING;
+  }
 
   // all reached nodes send out correction messages
   for (int offset = 1; offset <= max_dist; ++offset) {
@@ -153,9 +155,14 @@ Phase::Result
 CheckedCorrectionPhase<send_over_root>::dispatch(
   const InitTask&, TaskQueue &tq, int node_id)
 {
-  assert(this->reached_nodes[node_id] && "Init on unreached node");
+  if (reached_nodes[node_id]) {
+    // We were not reached in previous phase, we declare that we want
+    // to participate in the correction
+    tq.schedule(IdleTask::make_new(node_id));
+    return Result::ONGOING;
+  }
 
-  return post_message(tq, node_id);
+  return Result::DONE_PHASE;
 }
 
 template<bool send_over_root>

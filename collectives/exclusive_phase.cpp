@@ -27,11 +27,6 @@ Result ExclusivePhase::forward(const auto &t, TaskQueue &tq, const int node_id)
 
     case Result::DONE_PHASE: // delay nodes that finish the phase early
     {
-      const Time abs_deadline = start + rel_deadline;
-
-      if (abs_deadline <= tq.now()) { break; }
-
-      tq.schedule(TimerTask::make_new(Tag::EXCLUSIVE, abs_deadline, node_id));
       res = Result::ONGOING;
     }
   }
@@ -59,10 +54,17 @@ Result
 ExclusivePhase::dispatch(const InitTask &t, TaskQueue &tq, int node_id)
 {
   const Time now = tq.now();
-  assert((start == Time::max() || start == now) && "Skewed init");
+  if (start == Time::max()) {
+    start = now;
+  }
 
-  start = now;
+  const Time abs_deadline = start + rel_deadline;
 
+  if (abs_deadline <= tq.now()) {
+    return Result::DONE_PHASE;
+  }
+
+  tq.schedule(TimerTask::make_new(Tag::EXCLUSIVE, abs_deadline, node_id));
   return forward(t, tq, node_id);
 }
 

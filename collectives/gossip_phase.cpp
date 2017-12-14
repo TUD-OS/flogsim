@@ -46,14 +46,23 @@ Phase::Result GossipPhase::post_sends(const int sender, TaskQueue &tq)
 Phase::Result
 GossipPhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
-  const int root [[maybe_unused]] = 0;
-  assert(reached_nodes[root] && "Root unreached in Gossip");
-
   if (start_time == Time::max()) {
     start_time = tq.now();
   }
 
-  return post_sends(node_id, tq);
+  const Time abs_deadline = start_time + gossip_time;
+
+  if (abs_deadline <= tq.now()) {
+    return Result::DONE_PHASE;
+  }
+
+  tq.schedule(TimerTask::make_new(abs_deadline, node_id));
+
+  if(reached_nodes[node_id]) {
+    tq.schedule(IdleTask::make_new(node_id));
+  }
+
+  return Result::ONGOING;
 }
 
 Phase::Result
@@ -63,9 +72,21 @@ GossipPhase::dispatch(const IdleTask &, TaskQueue &tq, int node_id)
 }
 
 Phase::Result
-GossipPhase::dispatch(const RecvEndTask &, TaskQueue &, int node_id)
+GossipPhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
+  if (t.tag() != Tag::GOSSIP) {
+    return Result::DONE_COLL;
+  }
+
   reached_nodes[node_id] = true;
+
+  const Time abs_deadline = start_time + gossip_time;
+
+  if (abs_deadline <= tq.now()) {
+    return Result::DONE_PHASE;
+  }
+
+  tq.schedule(IdleTask::make_new(node_id));
   return Result::ONGOING;
 }
 

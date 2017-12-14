@@ -65,6 +65,10 @@ template <bool interleave>
 Result
 KAryTreePhase<interleave>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
+  if(!reached_nodes[node_id]) {
+    return Result::ONGOING;
+  }
+
   const int root [[maybe_unused]] = 0;
   assert(node_id == root  && "TreePhase init on non-root node");
   assert(reached_nodes[root] && "Root unreached in tree");
