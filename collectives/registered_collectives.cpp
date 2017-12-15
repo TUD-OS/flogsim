@@ -38,6 +38,13 @@ std::vector<CollectiveRegistrator> _{
       },
       "optimal_bcast"
     },
+    {
+      [](ReachedNodes &rn)
+      {
+        return std::make_unique<GossipPhase>(rn);
+      },
+      "gossip_bcast"
+    },
 
     {
       [](ReachedNodes &rn)
