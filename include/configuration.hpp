@@ -20,6 +20,52 @@ struct Configuration
   std::string collective;
   int k;
   int parallelism;
+  class Priority
+  {
+    int _value;
+  public:
+    enum
+    {
+      RECV,
+      TAG,
+    };
+
+    Priority(const std::string &value = "recv")
+    {
+      if (value == "tag") {
+        _value = TAG;
+      } else if (value == "recv") {
+        _value = RECV;
+      } else {
+        throw std::runtime_error("Unknow priority provided: " + value);
+      }
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const Priority &prio)
+    {
+      switch (prio.get()) {
+        case RECV:
+          os << "recv";
+          break;
+        case TAG:
+          os << "tag";
+          break;
+      }
+      return os;
+    }
+
+    friend std::istream &operator>>(std::istream &is, Priority &prio)
+    {
+      std::string s;
+      is >> s;
+      prio = Priority(s);
+      return is;
+    }
+
+    int get() const { return _value; }
+  };
+
+  Priority priority;
 
   friend std::ostream &operator<<(std::ostream &os, const Configuration &conf)
   {
@@ -31,6 +77,7 @@ struct Configuration
        << "limit = " << conf.limit << ", "
        << "F = " << conf.F << ", "
        << "Parallelism = " << conf.parallelism << ", "
+       << "Priority = " << conf.priority << ", "
        << "fault_injector = " << conf.fault_injector;
     return os;
   }

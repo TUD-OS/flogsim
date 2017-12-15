@@ -80,6 +80,16 @@ public:
       return false;
     }
 
+    auto prio = Globals::get().conf().priority;
+
+    if (prio.get() == Configuration::Priority::TAG) {
+      if (tag() < other.tag()) {
+        return true;
+      } else if (tag() > other.tag()) {
+        return false;
+      }
+    }
+
     if (task_priority() < other.task_priority()) {
       return true;
     } else if (task_priority() > other.task_priority()) {

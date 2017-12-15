@@ -26,7 +26,8 @@ protected:
        << " --g " << conf.g
        << " --P " << conf.P
        << " --faults " << fi
-       << " --coll " << ALG::name;
+       << " --coll " << ALG::name
+       << " --prio " << conf.priority;
     return ss.str();
   }
 public:
