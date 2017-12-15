@@ -60,6 +60,11 @@ class TaskQueue
     {
       return *items.front().get();
     }
+
+    Queue()
+    {
+      items.reserve(Globals::get().model().P);
+    }
   private:
     item_t items;
   };
