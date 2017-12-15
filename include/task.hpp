@@ -309,7 +309,7 @@ class InitTask : public TaskCounted<InitTask>
 public:
 
   InitTask(Sequence seq, Time time, int sender) :
-    TaskCounted(TaskData{seq, Tag::INTERNAL, time, sender, sender})
+    TaskCounted(TaskData{seq, Tag::INIT, time, sender, sender})
   {
   }
 

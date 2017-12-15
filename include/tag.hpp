@@ -4,11 +4,12 @@
 
 enum class Tag
 {
-  INTERNAL   = 1,
+  INIT       = 1,
   TREE       = 2,
   GOSSIP     = 3,
   RING_LEFT  = 10,
   RING_RIGHT = 11,
+  INTERNAL   = 20,
   EXCLUSIVE  = 50,
 };
 
