@@ -96,6 +96,7 @@ msg.start <- msg.start[, .SD[which.min(Start)], by = Sequence]
 msg.end = trace.df[, .SD[variable %in% c("RecvGap", "Failure"), .(To = CPU, End = Time, variable = variable)], by = Sequence]
 
 messages <- msg.start[msg.end, on = "Sequence"]
+messages <- na.omit(messages)
 
 full.stop <- trace.df[variable=="Finish", max(Time)]
 
