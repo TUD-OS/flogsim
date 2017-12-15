@@ -80,6 +80,10 @@ std::unique_ptr<Task> TaskQueue::pop()
 void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq, Timeline &tl)
 {
   for (unsigned node = 0; node < pending.size(); node++) {
+    if (!count) {
+      break;
+    }
+
     if (!was_idle[node] || !pending[node]) {
       // In this timestamp the core wasn't idling
       continue;
