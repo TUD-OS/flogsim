@@ -49,27 +49,22 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        CombinerPhase::PhaseVec phases;
+        auto phases = CombinerPhase::Phases(rn).
+          add_phase<ExclusivePhase>(std::make_unique<BinomialTreePhase>(rn)).
+          add_phase<OpportunisticCorrectionPhase<false>>();
 
-        phases.push_back(
-          std::make_unique<ExclusivePhase>
-          (rn, std::make_unique<BinomialTreePhase>(rn)));
-        phases.push_back(
-          std::make_unique<OpportunisticCorrectionPhase<false>>(rn));
-        return std::make_unique<CombinerPhase>(rn, std::move(phases));
+        return std::make_unique<CombinerPhase>(std::move(phases));
       },
       "phased_corrected_binomial_bcast"
     },
     {
       [](ReachedNodes &rn)
       {
-        CombinerPhase::PhaseVec phases;
+        auto phases = CombinerPhase::Phases(rn).
+          add_phase<BinomialTreePhase>().
+          add_phase<OpportunisticCorrectionPhase<false>>();
 
-        phases.push_back(
-          std::make_unique<BinomialTreePhase>(rn));
-        phases.push_back(
-          std::make_unique<OpportunisticCorrectionPhase<false>>(rn));
-        return std::make_unique<CombinerPhase>(rn, std::move(phases));
+        return std::make_unique<CombinerPhase>(std::move(phases));
       },
       "corrected_binomial_bcast"
     },
@@ -77,40 +72,33 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        CombinerPhase::PhaseVec phases;
+        auto phases = CombinerPhase::Phases(rn).
+          add_phase<ExclusivePhase>(std::make_unique<BinomialTreePhase>(rn)).
+          add_phase<CheckedCorrectionPhase<true>>();
 
-        phases.push_back(
-          std::make_unique<ExclusivePhase>
-          (rn, std::make_unique<BinomialTreePhase>(rn)));
-        phases.push_back(
-          std::make_unique<CheckedCorrectionPhase<true>>(rn));
-        return std::make_unique<CombinerPhase>(rn, std::move(phases));
+        return std::make_unique<CombinerPhase>(std::move(phases));
       },
       "phased_checked_corrected_binomial_bcast"
     },
     {
       [](ReachedNodes &rn)
       {
-        CombinerPhase::PhaseVec phases;
+        auto phases = CombinerPhase::Phases(rn).
+          add_phase<BinomialTreePhase>().
+          add_phase<CheckedCorrectionPhase<false>>();
 
-        phases.push_back(
-          std::make_unique<BinomialTreePhase>(rn));
-        phases.push_back(
-          std::make_unique<CheckedCorrectionPhase<false>>(rn));
-        return std::make_unique<CombinerPhase>(rn, std::move(phases));
+        return std::make_unique<CombinerPhase>(std::move(phases));
       },
       "checked_corrected_binomial_bcast"
     },
     {
       [](ReachedNodes &rn)
       {
-        CombinerPhase::PhaseVec phases;
+        auto phases = CombinerPhase::Phases(rn).
+          add_phase<OptimalTreePhase>().
+          add_phase<CheckedCorrectionPhase<false>>();
 
-        phases.push_back(
-          std::make_unique<OptimalTreePhase>(rn));
-        phases.push_back(
-          std::make_unique<CheckedCorrectionPhase<false>>(rn));
-        return std::make_unique<CombinerPhase>(rn, std::move(phases));
+        return std::make_unique<CombinerPhase>(std::move(phases));
       },
       "checked_corrected_optimal_bcast"
     },
@@ -118,26 +106,22 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        CombinerPhase::PhaseVec phases;
+        auto phases = CombinerPhase::Phases(rn).
+          add_phase<GossipPhase>().
+          add_phase<OpportunisticCorrectionPhase<true>>();
 
-        phases.push_back(
-            std::make_unique<GossipPhase>(rn));
-        phases.push_back(
-          std::make_unique<OpportunisticCorrectionPhase<true>>(rn));
-        return std::make_unique<CombinerPhase>(rn, std::move(phases));
+        return std::make_unique<CombinerPhase>(std::move(phases));
       },
       "opportunistic_corrected_gossip_bcast"
     },
     {
       [](ReachedNodes &rn)
       {
-        CombinerPhase::PhaseVec phases;
+        auto phases = CombinerPhase::Phases(rn).
+          add_phase<GossipPhase>().
+          add_phase<CheckedCorrectionPhase<true>>();
 
-        phases.push_back(
-          std::make_unique<GossipPhase>(rn));
-        phases.push_back(
-          std::make_unique<CheckedCorrectionPhase<true>>(rn));
-        return std::make_unique<CombinerPhase>(rn, std::move(phases));
+        return std::make_unique<CombinerPhase>(std::move(phases));
       },
       "checked_corrected_gossip_bcast"
     },
