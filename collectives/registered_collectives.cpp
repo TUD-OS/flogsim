@@ -22,7 +22,7 @@ std::vector<CollectiveRegistrator> _{
       {
         return std::make_unique<KAryTreePhase<true>>(rn);
       },
-        "kary_bcast"
+      "kary_bcast"
     },
     {
       [](ReachedNodes &rn)
