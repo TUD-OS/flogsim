@@ -35,6 +35,7 @@ private:
   void forward(const auto &t, TaskQueue &tq, const int node_id);
 
   std::unique_ptr<Phase> phase;
+  ReachedNodes done_nodes;
 public:
   ReachedNodes reached_nodes;
   std::unique_ptr<FaultInjector> faults;

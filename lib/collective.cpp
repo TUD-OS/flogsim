@@ -17,7 +17,8 @@ Collective::Collective()
 
 // Enable root selected
 Collective::Collective(std::initializer_list<int> selected)
-  : reached_nodes(Globals::get().model().P),
+  : done_nodes(Globals::get().model().P),
+    reached_nodes(Globals::get().model().P),
     faults(FaultInjector::create())
 {
   for (auto i : selected) {
@@ -30,7 +31,10 @@ void Collective::forward(const auto &t, TaskQueue &tq, const int node_id)
   Phase::Result res = phase->dispatch(t, tq, node_id);
 
   if (res == Phase::Result::DONE_PHASE || res == Phase::Result::DONE_COLL) {
-    tq.schedule(FinishTask::make_new(node_id));
+    if (!done_nodes[node_id]) {
+      tq.schedule(FinishTask::make_new(node_id));
+      done_nodes[node_id] = true;
+    }
   }
 }
 
