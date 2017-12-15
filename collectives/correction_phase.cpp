@@ -205,5 +205,15 @@ CheckedCorrectionPhase<send_over_root>::dispatch(
   return Phase::Result::ONGOING;
 }
 
+template<bool send_over_root>
+Phase::Result
+CheckedCorrectionPhase<send_over_root>::dispatch(
+  const SendEndTask &, TaskQueue &tq, int node_id)
+{
+  tq.schedule(IdleTask::make_new(node_id));
+  return Result::ONGOING;
+}
+
+
 template class CheckedCorrectionPhase<true>;
 template class CheckedCorrectionPhase<false>;

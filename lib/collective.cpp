@@ -55,7 +55,7 @@ void Collective::accept(const IdleTask &t, TaskQueue &tq)
 
 void Collective::accept(const SendEndTask &t, TaskQueue &tq)
 {
-  tq.schedule(IdleTask::make_new(t.sender()));
+  forward(t, tq, t.sender());
 }
 
 void Collective::accept(const SendStartTask&, TaskQueue&)

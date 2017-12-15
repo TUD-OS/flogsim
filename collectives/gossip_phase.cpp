@@ -90,6 +90,13 @@ GossipPhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
   return Result::ONGOING;
 }
 
+Phase::Result
+GossipPhase::dispatch(const SendEndTask &t, TaskQueue &tq, int node_id)
+{
+  tq.schedule(IdleTask::make_new(node_id));
+  return Result::ONGOING;
+}
+
 Time
 GossipPhase::deadline() const
 {

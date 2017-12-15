@@ -74,6 +74,11 @@ Result CombinerPhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
   return forward(t, tq, node_id);
 }
 
+Result CombinerPhase::dispatch(const SendEndTask &t, TaskQueue &tq, int node_id)
+{
+  return forward(t, tq, node_id);
+}
+
 Time CombinerPhase::deadline() const
 {
   Time length{0};

@@ -56,4 +56,5 @@ public:
   virtual Phase::Result dispatch(const InitTask&, TaskQueue &tq, int node_id) override;
   virtual Phase::Result dispatch(const IdleTask&, TaskQueue &tq, int node_id) override;
   virtual Phase::Result dispatch(const RecvEndTask&, TaskQueue &tq, int node_id) override;
+  virtual Phase::Result dispatch(const SendEndTask&, TaskQueue &tq, int node_id) override;
 };
