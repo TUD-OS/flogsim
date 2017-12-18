@@ -6,7 +6,8 @@
 namespace
 {
 
-TEST_P(PhaseTest, Runtime)
+typedef PhaseTest KaryTreeTests;
+TEST_P(KaryTreeTests, Runtime)
 {
   do_test(
     [](ReachedNodes& rn)
@@ -15,7 +16,7 @@ TEST_P(PhaseTest, Runtime)
     });
 }
 
-RunParams KaryTreeTests[] = {
+RunParams tests[] = {
   RunParams().LogP(1, 1, 1, 4 ).k(3).runtime(5),
   RunParams().LogP(1, 1, 1, 13).k(3).runtime(10),
   RunParams().LogP(1, 1, 1, 5 ).k(4).runtime(6),
@@ -24,7 +25,7 @@ RunParams KaryTreeTests[] = {
 };
 
 
-INSTANTIATE_TEST_CASE_P(KaryTreeTests,
-                        PhaseTest,
-                        ::testing::ValuesIn(KaryTreeTests));
+INSTANTIATE_TEST_CASE_P(All,
+                        KaryTreeTests,
+                        ::testing::ValuesIn(tests));
 }
