@@ -68,7 +68,8 @@ ListFaults::ListFaults(const std::vector<int> &failed_nodes)
     F(failed_nodes.size()),
     failed_nodes(failed_nodes)
 {
-  assert(*std::max_element(failed_nodes.begin(), failed_nodes.end()) < P);
+  assert(failed_nodes.empty() ||
+         (*std::max_element(failed_nodes.begin(), failed_nodes.end()) < P));
 }
 
 void ListFaults::print(std::ostream &os) const
