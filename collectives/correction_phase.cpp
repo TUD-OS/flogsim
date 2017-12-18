@@ -113,7 +113,7 @@ CheckedCorrectionPhase<send_over_root>::post_message(
   // If we are not done in both directions pick the one where we sent
   // less messages
   if ((left.offset < left.min_recv) && (right.offset < right.min_recv)) {
-    dir = ((left.offset < right.offset) ? DIR_LEFT : DIR_RIGHT);
+    dir = ((left.offset <= right.offset) ? DIR_LEFT : DIR_RIGHT);
   } else {
     // Here one of the directions is done, so we just pick another one
     dir = ((left.offset < left.min_recv) ? DIR_LEFT : DIR_RIGHT);
