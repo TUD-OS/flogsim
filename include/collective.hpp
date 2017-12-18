@@ -57,7 +57,8 @@ public:
   Timeline run(std::unique_ptr<Phase> &&);
 
   Collective();
-  Collective(std::initializer_list<int> selected);
+  Collective(std::initializer_list<int> selected,
+             std::unique_ptr<FaultInjector> faults);
   // Factory method, which creates collectives based on
   // configuration.
   static std::unique_ptr<Collective> create();

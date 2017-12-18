@@ -10,16 +10,17 @@
 
 // Enable everybody
 Collective::Collective()
-  : Collective{{}}
+  : Collective{{}, std::make_unique<NoFaults>()}
 {
   reached_nodes.assign(reached_nodes.size(), true);
 }
 
 // Enable root selected
-Collective::Collective(std::initializer_list<int> selected)
+Collective::Collective(std::initializer_list<int> selected,
+                       std::unique_ptr<FaultInjector> faults)
   : done_nodes(Globals::get().model().P),
     reached_nodes(Globals::get().model().P),
-    faults(FaultInjector::create())
+    faults(std::move(faults))
 {
   for (auto i : selected) {
     reached_nodes[i] = true;

@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     Model model(conf);
     Globals::set({&conf, &model});
 
-    auto coll = Collective({0});
+    auto coll = Collective({0}, FaultInjector::create());
 
     auto timeline = coll.run(CollectiveRegistry::create(coll.reached_nodes));
 
