@@ -14,9 +14,9 @@ file(GLOB FLOGLIB_SRC ${PROJECT_SOURCE_DIR}/lib/*.cpp)
 file(GLOB COLLECTIVES_SRC ${PROJECT_SOURCE_DIR}/collectives/*.cpp)
 
 
-add_library(flog SHARED ${FLOGLIB_SRC})
+add_library(flog SHARED ${FLOGLIB_SRC} ${COLLECTIVES_SRC})
 
-add_executable(flogsim ${FLOGSIM_SRC} ${COLLECTIVES_SRC})
+add_executable(flogsim ${FLOGSIM_SRC})
 TARGET_LINK_LIBRARIES(flogsim ${Boost_LIBRARIES} flog)
 
 install(DIRECTORY script DESTINATION ${PROJECT_BINARY_BIN}/bin
