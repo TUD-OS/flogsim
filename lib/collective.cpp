@@ -32,7 +32,7 @@ void Collective::forward(const auto &t, TaskQueue &tq, const int node_id)
   Phase::Result res = phase->dispatch(t, tq, node_id);
 
   if (res == Phase::Result::DONE_PHASE || res == Phase::Result::DONE_COLL) {
-    if (!done_nodes[node_id]) {
+    if (!done_nodes[node_id] && reached_nodes[node_id]) {
       tq.schedule(FinishTask::make_new(node_id));
       done_nodes[node_id] = true;
     }

@@ -159,10 +159,8 @@ CheckedCorrection<send_over_root>::dispatch(
     // We were not reached in previous phase, we declare that we want
     // to participate in the correction
     tq.schedule(IdleTask::make_new(node_id));
-    return Result::ONGOING;
   }
-
-  return Result::DONE_PHASE;
+  return Result::ONGOING;
 }
 
 template<bool send_over_root>
