@@ -86,7 +86,8 @@ bool IdleTask::execute(Timeline&, TaskQueue&) const
 bool FinishTask::execute(Timeline &timeline, TaskQueue&) const
 {
   auto &cpu = timeline.per_cpu_time[sender()];
-  assert(!cpu.cpu_events.empty() && "CPU done without ever doing anything");
+  if (cpu.cpu_events.empty())
+    throw std::runtime_error("CPU done without ever doing anything");
 
   cpu.finish.append(FinishEvent(seq(), cpu.cpu_events.end()));
 
