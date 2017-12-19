@@ -19,6 +19,8 @@ struct RunParams
   int param_P;
   // Arity
   int param_k;
+  // Timelimit
+  int param_limit;
   // Expected runtime
   int expect_runtime;
   // Expected number of unreached nodes
@@ -74,6 +76,12 @@ struct RunParams
     return *this;
   }
 
+  auto &limit(int limit)
+  {
+    param_limit = limit;
+    return *this;
+  }
+
   auto &failed(std::initializer_list<int> fl)
   {
     param_failed = fl;
@@ -101,6 +109,7 @@ struct RunParams
       param_g(1),
       param_P(1),
       param_k(1),
+      param_limit(0),
       expect_runtime(0),
       expect_unreach(0),
       create_coll(nullptr)
@@ -153,7 +162,10 @@ public:
                      trace_filename.native() + " and " +
                      model_filename.native());
 
-    auto conf = Configuration(param.param_k, param.expect_runtime + 10).
+    if (param.param_limit == 0) {
+      param.param_limit = param.expect_runtime + 10;
+    }
+    auto conf = Configuration(param.param_k, param.param_limit).
       LogP(param.param_L,
            param.param_o,
            param.param_g,
