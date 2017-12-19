@@ -30,8 +30,6 @@ std::ostream &operator<<(std::ostream &os, std::shared_ptr<Task> t)
 
 void TaskQueue::run(Collective &coll, Timeline &timeline)
 {
-  schedule(InitTask::make_new());
-
   auto &conf = Globals::get().conf();
   while (!empty() || idle.is_pending()) {
     if (conf.verbose) {
@@ -81,10 +79,11 @@ std::unique_ptr<Task> TaskQueue::pop()
 
 void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq, Timeline &tl)
 {
-  if (delivered) {
-    return;
-  }
   for (unsigned node = 0; node < pending.size(); node++) {
+    if (!count) {
+      break;
+    }
+
     if (!was_idle[node] || !pending[node]) {
       // In this timestamp the core wasn't idling
       continue;
@@ -102,11 +101,9 @@ void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq, Timeline &tl)
     }
     pending[node] = false;
   }
-  delivered = true;
 }
 
 void TaskQueue::IdleTracker::prepare_next_timestamp()
 {
   std::fill(was_idle.begin(), was_idle.end(), threads);
-  delivered = false;
 }

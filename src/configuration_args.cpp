@@ -9,6 +9,22 @@
 
 namespace po = boost::program_options;
 
+void validate(boost::any& v,
+              const std::vector<std::string>& values,
+              Configuration::Priority,
+              int)
+{
+  po::validators::check_first_occurrence(v);
+
+  std::string const&s = po::validators::get_single_string(values);
+
+  if (s == "tag" || s == "recv") {
+    v = boost::any(Configuration::Priority(s));
+  } else {
+    throw po::validation_error(po::validation_error::invalid_option_value);
+  }
+}
+
 void
 show_help(const po::options_description& desc)
 {
@@ -46,6 +62,10 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     ("P",
      po::value<int>(&P)->default_value(8),
      "Number of processors")
+    ("prio",
+     po::value<Configuration::Priority>(&priority)->default_value(Configuration::Priority("recv")),
+     "How to schedule tasks on a CPU. Option 'recv' prefers receives "
+     "over sends. Option 'tag' looks at the tag first.")
     ("parallelism",
      po::value<int>(&parallelism)->default_value(1),
      "Parallelism level per node."

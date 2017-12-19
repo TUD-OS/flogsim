@@ -5,7 +5,10 @@
 #include <map>
 #include <string>
 #include <type_traits>
-#include <assert.h>
+
+#include "reached_nodes.hpp"
+#include "timeline.hpp"
+#include "phase.hpp"
 
 class SendStartTask;
 class SendEndTask;
@@ -19,53 +22,43 @@ class InitTask;
 class FailureTask;
 
 class TaskQueue;
+class FaultInjector;
 
+/* Act as a collective and forward relevant Tasks to individual nodes */
+//
+// This class is responsible to set up reach_nodes. It either accepts
+// explicit list of reached nodes as an initializer list (for example
+// only root: {0}) or it enables everybody.
 class Collective
 {
+private:
+  void forward(const auto &t, TaskQueue &tq, const int node_id);
+
+  std::unique_ptr<Phase> phase;
+  ReachedNodes done_nodes;
 public:
-  Collective()
-  {}
+  ReachedNodes reached_nodes;
+  std::unique_ptr<FaultInjector> faults;
 
-  virtual void accept(const SendStartTask&, TaskQueue&)
-  {
-  }
+  virtual void accept(const InitTask &t, TaskQueue &tq);
+  virtual void accept(const TimerTask &t, TaskQueue &tq);
+  virtual void accept(const IdleTask &t, TaskQueue &tq);
 
-  virtual void accept(const SendEndTask&, TaskQueue&)
-  {
-  }
+  virtual void accept(const SendStartTask &t, TaskQueue &tq);
+  virtual void accept(const SendEndTask &t, TaskQueue &tq);
 
-  virtual void accept(const RecvStartTask&, TaskQueue&)
-  {
-  }
+  virtual void accept(const RecvStartTask &t, TaskQueue &tq);
+  virtual void accept(const RecvEndTask &t, TaskQueue &tq);
 
-  virtual void accept(const RecvEndTask&, TaskQueue&)
-  {
-  }
+  virtual void accept(const MsgTask &t, TaskQueue &tq);
+  virtual void accept(const FinishTask &t, TaskQueue &tq);
+  virtual void accept(const FailureTask &t, TaskQueue &tq);
 
-  virtual void accept(const MsgTask&, TaskQueue&)
-  {
-  }
+  Timeline run(std::unique_ptr<Phase> &&);
 
-  virtual void accept(const IdleTask&, TaskQueue&)
-  {
-  }
-
-  virtual void accept(const FinishTask&, TaskQueue&)
-  {
-  }
-
-  virtual void accept(const TimerTask&, TaskQueue&)
-  {
-  }
-
-  virtual void accept(const InitTask&, TaskQueue&)
-  {
-  }
-
-  virtual void accept(const FailureTask&, TaskQueue&)
-  {
-  }
-
+  Collective();
+  Collective(std::initializer_list<int> selected,
+             std::unique_ptr<FaultInjector> faults);
   // Factory method, which creates collectives based on
   // configuration.
   static std::unique_ptr<Collective> create();
@@ -74,29 +67,23 @@ public:
 class CollectiveRegistry
 {
 public:
-  typedef std::function<std::unique_ptr<Collective>()> create_fun_t;
+  typedef std::function<std::unique_ptr<Phase>(ReachedNodes&)> create_fun_t;
 
   static void declare(create_fun_t &create_fun, const std::string_view &name);
-  static std::unique_ptr<Collective> create();
+  static std::unique_ptr<Phase> create(ReachedNodes &reached_nodes);
 
 private:
   std::map<std::string_view, create_fun_t> data;
   static CollectiveRegistry &get();
 };
 
-template<typename T>
 class CollectiveRegistrator
 {
+  using create_fun_t = CollectiveRegistry::create_fun_t;
 public:
 
-  static std::unique_ptr<T> create()
+  CollectiveRegistrator(create_fun_t create_fun, const char name[])
   {
-    return std::make_unique<T>();
-  }
-
-  CollectiveRegistrator()
-  {
-    auto create_fun = static_cast<CollectiveRegistry::create_fun_t>(&create);
-    CollectiveRegistry::declare(create_fun, T::name);
+    CollectiveRegistry::declare(create_fun, name);
   }
 };

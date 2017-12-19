@@ -10,7 +10,6 @@
 #include "model.hpp"
 #include "task.hpp"
 #include "task_queue.hpp"
-#include "fault_injector.hpp"
 #include "globals.hpp"
 
 #include "configuration_args.hpp"
@@ -26,12 +25,9 @@ int main(int argc, char *argv[])
     Model model(conf);
     Globals::set({&conf, &model});
 
-    auto coll = CollectiveRegistry::create();
-    auto faults = FaultInjector::create();
-    TaskQueue tq{faults.get()};
-    Timeline timeline;
+    auto coll = Collective({0}, FaultInjector::create());
 
-    tq.run(*coll, timeline);
+    auto timeline = coll.run(CollectiveRegistry::create(coll.reached_nodes));
 
     std::cout << "TotalRuntime," << timeline.get_total_time() << std::endl;
 
@@ -40,7 +36,7 @@ int main(int argc, char *argv[])
               << "FinishedNodes," << finished << std::endl
               << "UnreachedNodes," << unreached << std::endl
               << "MsgTask," << MsgTask::issued() << std::endl
-              << "FailedNodeList," << tq.faults() << std::endl;
+              << "FailedNodeList," << *coll.faults << std::endl;
 
     if (conf.verbose) {
       std::cout << "ReschRecvStartTask," << RecvStartTask::reschedules() << std::endl

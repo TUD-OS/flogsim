@@ -2,15 +2,15 @@
 
 #include "integer.hpp"
 
-struct Tag : public Integer<Tag>
+enum class Tag
 {
-  int tag;
-
-  constexpr int get() const { return tag; }
-
-  Tag() = default;
-  constexpr explicit Tag(int tag)
-    : tag(tag)
-  {}
-  Tag(const Tag &other) = default;
+  INIT       = 1,
+  TREE       = 2,
+  GOSSIP     = 3,
+  RING_LEFT  = 10,
+  RING_RIGHT = 11,
+  INTERNAL   = 20,
+  EXCLUSIVE  = 50,
 };
+
+std::ostream& operator<<(std::ostream &os, const Tag& t);

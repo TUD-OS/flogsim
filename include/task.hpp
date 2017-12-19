@@ -31,8 +31,8 @@ public:
       _receiver(receiver)
   {
     assert(time >= Time(0));
-    assert(_sender >= 0);
-    assert(_receiver >= 0);
+    assert(_sender   >= 0 && _sender < Globals::get().conf().P);
+    assert(_receiver >= 0 && _sender < Globals::get().conf().P);
   }
 };
 
@@ -41,7 +41,7 @@ enum class TaskPriority : int
   RECEIVER = 3,
   NORMAL = 4,
   SENDER = 5,
-  IDLE = 6,
+  IDLE   = 6,
   FINISH = 7,
 };
 
@@ -78,6 +78,16 @@ public:
       return true;
     } else if (time > other.time) {
       return false;
+    }
+
+    auto prio = Globals::get().conf().priority;
+
+    if (prio.get() == Configuration::Priority::TAG) {
+      if (tag() < other.tag()) {
+        return true;
+      } else if (tag() > other.tag()) {
+        return false;
+      }
     }
 
     if (task_priority() < other.task_priority()) {
@@ -159,7 +169,7 @@ public:
   }
 
   template<class ...Args>
-  static auto make_new(Args... args)
+  static std::unique_ptr<CHILD> make_new(Args... args)
   {
     get_counter() ++;
     return std::make_unique<CHILD>(Sequence::next(), args...);
@@ -262,7 +272,7 @@ public:
   }
 
   IdleTask(Sequence seq, Time time, int receiver) :
-    IdleTask(seq, Tag(0), time, receiver, receiver)
+    IdleTask(seq, Tag::INTERNAL, time, receiver, receiver)
   {
   }
 
@@ -280,7 +290,7 @@ class FinishTask : public TaskCounted<FinishTask>
 public:
 
   FinishTask(Sequence seq, int receiver) :
-    TaskCounted(TaskData{seq, Tag(0), Time::max(), receiver, receiver})
+    TaskCounted(TaskData{seq, Tag::INTERNAL, Time::max(), receiver, receiver})
   {
   }
 
@@ -291,8 +301,13 @@ class TimerTask : public TaskCounted<TimerTask>
 {
 public:
 
+  TimerTask(Sequence seq, Tag tag, Time time, int sender) :
+    TaskCounted(TaskData{seq, tag, time, sender, sender})
+  {
+  }
+
   TimerTask(Sequence seq, Time time, int sender) :
-    TaskCounted(TaskData{seq, Tag(0), time, sender, sender})
+    TaskCounted(TaskData{seq, Tag::INTERNAL, time, sender, sender})
   {
   }
 
@@ -303,8 +318,8 @@ class InitTask : public TaskCounted<InitTask>
 {
 public:
 
-  InitTask(Sequence seq) :
-    TaskCounted(TaskData{seq, Tag(0), Time(0), 0, 0})
+  InitTask(Sequence seq, Time time, int sender) :
+    TaskCounted(TaskData{seq, Tag::INIT, time, sender, sender})
   {
   }
 

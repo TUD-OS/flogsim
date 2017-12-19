@@ -60,6 +60,11 @@ class TaskQueue
     {
       return *items.front().get();
     }
+
+    Queue()
+    {
+      items.reserve(Globals::get().model().P);
+    }
   private:
     item_t items;
   };
@@ -98,8 +103,6 @@ class TaskQueue
       was_idle[node]--;
     }
 
-    // Worked in current timestamp
-    bool delivered;
     int threads;
     int count;
     // Count how many threads were actually idling
@@ -108,8 +111,7 @@ class TaskQueue
     std::vector<bool> pending;
 
     IdleTracker(int P, int threads)
-      : delivered(false),
-        threads(threads),
+      : threads(threads),
         count(0),
         was_idle(P, threads),
         pending(P)
