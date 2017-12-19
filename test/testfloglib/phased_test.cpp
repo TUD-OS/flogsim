@@ -97,6 +97,7 @@ INSTANTIATE_TEST_CASE_P(K_3,
 RunParams tests_faults[] = {
   RunParams().LogP(1, 1, 1, 7).k(2).failed({4}).runtime(16),
   RunParams().LogP(2, 1, 1, 15).k(2).failed({5, 12}).runtime(26),
+  RunParams().LogP(2, 1, 1, 15).k(2).failed({0, 1}).runtime(0).unreach(13).limit(99),
 };
 
 INSTANTIATE_TEST_CASE_P(Faults,
