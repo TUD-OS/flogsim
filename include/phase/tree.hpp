@@ -2,10 +2,10 @@
 
 #include "phase.hpp"
 
-class TreePhase : public Phase
+class Tree : public Phase
 {
 public:
-  TreePhase(ReachedNodes &reached_nodes)
+  Tree(ReachedNodes &reached_nodes)
     : Phase(reached_nodes)
   {
   }

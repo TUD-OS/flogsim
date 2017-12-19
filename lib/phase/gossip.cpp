@@ -3,7 +3,8 @@
 #include <chrono>
 
 #include "task_queue.hpp"
-#include "gossip_phase.hpp"
+
+#include "phase/gossip.hpp"
 
 namespace
 {
@@ -13,7 +14,7 @@ unsigned generate_seed()
 }
 }
 
-GossipPhase::GossipPhase(ReachedNodes &reached_nodes)
+Gossip::Gossip(ReachedNodes &reached_nodes)
   : Phase(reached_nodes),
     generator(generate_seed()),
     gossip_time(Globals::get().conf().k),
@@ -21,7 +22,7 @@ GossipPhase::GossipPhase(ReachedNodes &reached_nodes)
 {
 }
 
-Phase::Result GossipPhase::post_sends(const int sender, TaskQueue &tq)
+Phase::Result Gossip::post_sends(const int sender, TaskQueue &tq)
 {
   if (tq.now() >= start_time + gossip_time) {
     return Result::DONE_PHASE;
@@ -44,7 +45,7 @@ Phase::Result GossipPhase::post_sends(const int sender, TaskQueue &tq)
 }
 
 Phase::Result
-GossipPhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
+Gossip::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   if (start_time == Time::max()) {
     start_time = tq.now();
@@ -66,13 +67,13 @@ GossipPhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 }
 
 Phase::Result
-GossipPhase::dispatch(const IdleTask &, TaskQueue &tq, int node_id)
+Gossip::dispatch(const IdleTask &, TaskQueue &tq, int node_id)
 {
   return post_sends(node_id, tq);
 }
 
 Phase::Result
-GossipPhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
+Gossip::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   if (t.tag() != Tag::GOSSIP) {
     return Result::DONE_COLL;
@@ -91,14 +92,14 @@ GossipPhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 }
 
 Phase::Result
-GossipPhase::dispatch(const SendEndTask &, TaskQueue &tq, int node_id)
+Gossip::dispatch(const SendEndTask &, TaskQueue &tq, int node_id)
 {
   tq.schedule(IdleTask::make_new(node_id));
   return Result::ONGOING;
 }
 
 Time
-GossipPhase::deadline() const
+Gossip::deadline() const
 {
   return gossip_time;
 }

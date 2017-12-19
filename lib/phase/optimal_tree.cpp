@@ -2,7 +2,8 @@
 #include <cmath>
 
 #include "task_queue.hpp"
-#include "optimal_tree.hpp"
+
+#include "phase/optimal_tree.hpp"
 
 // Implementation of optimal tree broadcast from Section 2 "Optimal
 // Broadcast and Summation in the LogP Model", Karp et. al.
@@ -113,10 +114,10 @@ std::vector<Node> compute_opt_tree(Time L, Time o, Time g, int num_nodes)
 
 }
 
-// OptimalTreePhase
+// OptimalTree
 
-OptimalTreePhase::OptimalTreePhase(ReachedNodes &reached_nodes)
-  : TreePhase(reached_nodes)
+OptimalTree::OptimalTree(ReachedNodes &reached_nodes)
+  : Tree(reached_nodes)
 {
   auto &model = Globals::get().model();
   auto L = model.L;
@@ -134,7 +135,7 @@ OptimalTreePhase::OptimalTreePhase(ReachedNodes &reached_nodes)
   }
 }
 
-void OptimalTreePhase::post_sends(const int sender, TaskQueue &tq) const
+void OptimalTree::post_sends(const int sender, TaskQueue &tq) const
 {
   const auto &my_send_to = send_to[sender];
   for (auto receiver : my_send_to) {
@@ -143,13 +144,13 @@ void OptimalTreePhase::post_sends(const int sender, TaskQueue &tq) const
 }
 
 Phase::Result
-OptimalTreePhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
+OptimalTree::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   if(!reached_nodes[node_id]) {
     return Result::ONGOING;
   }
 
-  assert(node_id == 0 && "TreePhase init on non-root node");
+  assert(node_id == 0 && "Tree init on non-root node");
 
   post_sends(node_id, tq);
 
@@ -157,7 +158,7 @@ OptimalTreePhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 }
 
 Phase::Result
-OptimalTreePhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
+OptimalTree::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   reached_nodes[node_id] = true;
 

@@ -5,7 +5,7 @@
 
 #include "phase.hpp"
 
-class CorrectionPhase : public Phase
+class Correction : public Phase
 {
 protected:
   enum Direction
@@ -15,17 +15,17 @@ protected:
   };
 
 public:
-  CorrectionPhase(ReachedNodes &reached_nodes);
+  Correction(ReachedNodes &reached_nodes);
 };
 
 
 template<bool send_over_root>
-class OpportunisticCorrectionPhase : public CorrectionPhase
+class OpportunisticCorrection : public Correction
 {
   const int max_dist; // maximum distance to cover
 
 public:
-  OpportunisticCorrectionPhase(ReachedNodes &reached_nodes);
+  OpportunisticCorrection(ReachedNodes &reached_nodes);
 
   virtual Phase::Result dispatch(const InitTask &, TaskQueue &tq, int node_id) override;
   virtual Phase::Result dispatch(const RecvEndTask &, TaskQueue &tq, int node_id) override;
@@ -34,7 +34,7 @@ public:
 };
 
 template<bool send_over_root>
-class CheckedCorrectionPhase : public CorrectionPhase
+class CheckedCorrection : public Correction
 {
   // relevant information per direction (array) and node (vector)
   struct Ring
@@ -51,7 +51,7 @@ class CheckedCorrectionPhase : public CorrectionPhase
 
   Phase::Result post_message(TaskQueue &tq, int node_id);
 public:
-  CheckedCorrectionPhase(ReachedNodes &reached_nodes);
+  CheckedCorrection(ReachedNodes &reached_nodes);
 
   virtual Phase::Result dispatch(const InitTask&, TaskQueue &tq, int node_id) override;
   virtual Phase::Result dispatch(const IdleTask&, TaskQueue &tq, int node_id) override;

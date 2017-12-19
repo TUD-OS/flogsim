@@ -11,10 +11,9 @@ include_directories(${Boost_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include ${PROJEC
 
 file(GLOB FLOGSIM_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB FLOGLIB_SRC ${PROJECT_SOURCE_DIR}/lib/*.cpp)
-file(GLOB COLLECTIVES_SRC ${PROJECT_SOURCE_DIR}/collectives/*.cpp)
+file(GLOB PHASES_SRC ${PROJECT_SOURCE_DIR}/lib/phase/*.cpp)
 
-
-add_library(flog SHARED ${FLOGLIB_SRC} ${COLLECTIVES_SRC})
+add_library(flog SHARED ${FLOGLIB_SRC} ${PHASES_SRC})
 
 add_executable(flogsim ${FLOGSIM_SRC})
 TARGET_LINK_LIBRARIES(flogsim ${Boost_LIBRARIES} flog)

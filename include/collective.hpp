@@ -8,6 +8,7 @@
 
 #include "reached_nodes.hpp"
 #include "timeline.hpp"
+#include "phase.hpp"
 
 class SendStartTask;
 class SendEndTask;
@@ -21,7 +22,6 @@ class InitTask;
 class FailureTask;
 
 class TaskQueue;
-class Phase;
 class FaultInjector;
 
 /* Act as a collective and forward relevant Tasks to individual nodes */

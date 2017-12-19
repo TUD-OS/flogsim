@@ -1,14 +1,15 @@
 #include <assert.h>
 #include <stdexcept>
 
-#include "exclusive_phase.hpp"
 #include "task.hpp"
 #include "task_queue.hpp"
+
+#include "phase/exclusive.hpp"
 
 using Result = Phase::Result;
 
 
-Result ExclusivePhase::forward(const auto &t, TaskQueue &tq, const int node_id)
+Result Exclusive::forward(const auto &t, TaskQueue &tq, const int node_id)
 {
   // handle our own tasks...
   if (t.tag() == Tag::EXCLUSIVE) {
@@ -34,7 +35,7 @@ Result ExclusivePhase::forward(const auto &t, TaskQueue &tq, const int node_id)
   return res;
 }
 
-ExclusivePhase::ExclusivePhase(ReachedNodes &reached_nodes, PhasePtr &&_phase)
+Exclusive::Exclusive(ReachedNodes &reached_nodes, PhasePtr &&_phase)
   : Phase(reached_nodes),
     phase(std::move(_phase)),
     start(Time::max()), // cannot initialise, we don't know the time yet
@@ -51,7 +52,7 @@ ExclusivePhase::ExclusivePhase(ReachedNodes &reached_nodes, PhasePtr &&_phase)
 
 
 Result
-ExclusivePhase::dispatch(const InitTask &t, TaskQueue &tq, int node_id)
+Exclusive::dispatch(const InitTask &t, TaskQueue &tq, int node_id)
 {
   const Time now = tq.now();
   if (start == Time::max()) {
@@ -69,19 +70,19 @@ ExclusivePhase::dispatch(const InitTask &t, TaskQueue &tq, int node_id)
 }
 
 Result
-ExclusivePhase::dispatch(const IdleTask &t, TaskQueue &tq, int node_id)
+Exclusive::dispatch(const IdleTask &t, TaskQueue &tq, int node_id)
 {
   return forward(t, tq, node_id);
 }
 
 Result
-ExclusivePhase::dispatch(const TimerTask &t, TaskQueue &tq, int node_id)
+Exclusive::dispatch(const TimerTask &t, TaskQueue &tq, int node_id)
 {
   return forward(t, tq, node_id);
 }
 
 Result
-ExclusivePhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
+Exclusive::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   return forward(t, tq, node_id);
 }

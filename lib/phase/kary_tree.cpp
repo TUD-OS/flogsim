@@ -3,7 +3,8 @@
 
 #include "globals.hpp"
 #include "task_queue.hpp"
-#include "kary_tree.hpp"
+
+#include "phase/kary_tree.hpp"
 
 using Result = Phase::Result;
 
@@ -47,7 +48,7 @@ int get_lvl(int sender, int arity)
 
 template <bool interleave>
 void
-KAryTreePhase<interleave>::post_sends(const int sender, TaskQueue &tq) const
+KAryTree<interleave>::post_sends(const int sender, TaskQueue &tq) const
 {
   const int lvl = get_lvl(sender, arity);
 
@@ -63,14 +64,14 @@ KAryTreePhase<interleave>::post_sends(const int sender, TaskQueue &tq) const
 
 template <bool interleave>
 Result
-KAryTreePhase<interleave>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
+KAryTree<interleave>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   if(!reached_nodes[node_id]) {
     return Result::ONGOING;
   }
 
   const int root [[maybe_unused]] = 0;
-  assert(node_id == root  && "TreePhase init on non-root node");
+  assert(node_id == root  && "Tree init on non-root node");
   assert(reached_nodes[root] && "Root unreached in tree");
 
   post_sends(node_id, tq);
@@ -79,7 +80,7 @@ KAryTreePhase<interleave>::dispatch(const InitTask &, TaskQueue &tq, int node_id
 
 template <bool interleave>
 Result
-KAryTreePhase<interleave>::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
+KAryTree<interleave>::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   reached_nodes[node_id] = true;
   post_sends(node_id, tq);
@@ -93,7 +94,7 @@ KAryTreePhase<interleave>::dispatch(const RecvEndTask &t, TaskQueue &tq, int nod
 
 template <bool interleave>
 Time
-KAryTreePhase<interleave>::deadline() const
+KAryTree<interleave>::deadline() const
 {
   auto &model = Globals::get().model();
   auto L = model.L;
@@ -104,5 +105,5 @@ KAryTreePhase<interleave>::deadline() const
 }
 
 // explicit instantiation
-template class KAryTreePhase<true>;
-template class KAryTreePhase<false>;
+template class KAryTree<true>;
+template class KAryTree<false>;

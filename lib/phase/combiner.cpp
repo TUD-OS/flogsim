@@ -3,11 +3,11 @@
 
 #include "task.hpp"
 #include "task_queue.hpp"
-#include "combiner_phase.hpp"
+#include "phase/combiner.hpp"
 
 using Result = Phase::Result;
 
-Result CombinerPhase::forward(const auto &t, TaskQueue &tq, const int node_id)
+Result Combiner::forward(const auto &t, TaskQueue &tq, const int node_id)
 {
   size_t &node_cur_phase = cur_phase[node_id];
   if (node_cur_phase >= phases.size()) {
@@ -43,7 +43,7 @@ Result CombinerPhase::forward(const auto &t, TaskQueue &tq, const int node_id)
   return res;
 }
 
-CombinerPhase::CombinerPhase(Phases &&_phases)
+Combiner::Combiner(Phases &&_phases)
   : Phase(_phases.reached_nodes),
     phases(std::move(_phases.phases)),
     cur_phase(num_nodes(), 0)
@@ -54,32 +54,32 @@ CombinerPhase::CombinerPhase(Phases &&_phases)
          && "Invalid phases");
 }
 
-Result CombinerPhase::dispatch(const InitTask &t, TaskQueue &tq, int node_id)
+Result Combiner::dispatch(const InitTask &t, TaskQueue &tq, int node_id)
 {
   return forward(t, tq, node_id);
 }
 
-Result CombinerPhase::dispatch(const IdleTask &t, TaskQueue &tq, int node_id)
+Result Combiner::dispatch(const IdleTask &t, TaskQueue &tq, int node_id)
 {
   return forward(t, tq, node_id);
 }
 
-Result CombinerPhase::dispatch(const TimerTask &t, TaskQueue &tq, int node_id)
+Result Combiner::dispatch(const TimerTask &t, TaskQueue &tq, int node_id)
 {
   return forward(t, tq, node_id);
 }
 
-Result CombinerPhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
+Result Combiner::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   return forward(t, tq, node_id);
 }
 
-Result CombinerPhase::dispatch(const SendEndTask &t, TaskQueue &tq, int node_id)
+Result Combiner::dispatch(const SendEndTask &t, TaskQueue &tq, int node_id)
 {
   return forward(t, tq, node_id);
 }
 
-Time CombinerPhase::deadline() const
+Time Combiner::deadline() const
 {
   Time length{0};
   for (const auto &phase : phases) {

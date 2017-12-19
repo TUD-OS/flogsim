@@ -5,7 +5,7 @@
 
 #include "phase.hpp"
 
-class CombinerPhase : public Phase
+class Combiner : public Phase
 {
 public:
   using PhasePtr = std::unique_ptr<Phase>;
@@ -42,7 +42,7 @@ private:
   Result forward(const auto &t, TaskQueue &tq, const int node_id);
 
 public:
-  CombinerPhase(Phases &&phases);
+  Combiner(Phases &&phases);
 
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const IdleTask &t, TaskQueue &tq, int node_id) override;

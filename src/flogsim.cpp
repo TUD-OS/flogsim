@@ -10,11 +10,6 @@
 #include "model.hpp"
 #include "task.hpp"
 #include "task_queue.hpp"
-#include "tree_phase.hpp"
-#include "correction_phase.hpp"
-#include "combiner_phase.hpp"
-#include "exclusive_phase.hpp"
-#include "gossip_phase.hpp"
 #include "globals.hpp"
 
 #include "configuration_args.hpp"

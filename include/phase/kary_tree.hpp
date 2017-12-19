@@ -1,15 +1,15 @@
 #pragma once
-#include "tree_phase.hpp"
+#include "tree.hpp"
 
 template <bool interleave>
-class KAryTreePhase : public TreePhase
+class KAryTree : public Tree
 {
   const size_t arity;
   void post_sends(const int sender, TaskQueue &tq) const;
 
 public:
-  KAryTreePhase(ReachedNodes &reached_nodes)
-    : TreePhase(reached_nodes),
+  KAryTree(ReachedNodes &reached_nodes)
+    : Tree(reached_nodes),
       arity(Globals::get().conf().k)
   {
   }

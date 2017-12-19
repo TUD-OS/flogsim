@@ -2,11 +2,11 @@
 #include <algorithm>
 #include <cmath>
 
-#include "correction_phase.hpp"
 #include "task_queue.hpp"
+#include "phase/correction.hpp"
 
 
-CorrectionPhase::CorrectionPhase(ReachedNodes &reached_nodes)
+Correction::Correction(ReachedNodes &reached_nodes)
   : Phase(reached_nodes)
 {
   assert(std::any_of(reached_nodes.begin(),
@@ -17,16 +17,16 @@ CorrectionPhase::CorrectionPhase(ReachedNodes &reached_nodes)
 
 
 template<bool send_over_root>
-OpportunisticCorrectionPhase<send_over_root>::OpportunisticCorrectionPhase(
+OpportunisticCorrection<send_over_root>::OpportunisticCorrection(
   ReachedNodes &reached_nodes)
-  : CorrectionPhase(reached_nodes), max_dist(Globals::get().conf().k)
+  : Correction(reached_nodes), max_dist(Globals::get().conf().k)
 {
   assert(max_dist < this->num_nodes() && "Nonsensical correction distance");
 }
 
 template<bool send_over_root>
 Phase::Result
-OpportunisticCorrectionPhase<send_over_root>::dispatch(
+OpportunisticCorrection<send_over_root>::dispatch(
   const InitTask &, TaskQueue &tq, int node_id)
 {
   if(!reached_nodes[node_id]) {
@@ -51,7 +51,7 @@ OpportunisticCorrectionPhase<send_over_root>::dispatch(
 
 template<bool send_over_root>
 Phase::Result
-OpportunisticCorrectionPhase<send_over_root>::dispatch(
+OpportunisticCorrection<send_over_root>::dispatch(
   const RecvEndTask &, TaskQueue &, int node_id)
 {
   this->reached_nodes[node_id] = true;
@@ -60,7 +60,7 @@ OpportunisticCorrectionPhase<send_over_root>::dispatch(
 
 template<bool send_over_root>
 Time
-OpportunisticCorrectionPhase<send_over_root>::deadline() const
+OpportunisticCorrection<send_over_root>::deadline() const
 {
   auto &model = Globals::get().model();
   auto o = model.o;
@@ -70,15 +70,15 @@ OpportunisticCorrectionPhase<send_over_root>::deadline() const
 }
 
 // explicit instantiation
-template class OpportunisticCorrectionPhase<true>;
-template class OpportunisticCorrectionPhase<false>;
+template class OpportunisticCorrection<true>;
+template class OpportunisticCorrection<false>;
 
-// CheckedCorrectionPhase
+// CheckedCorrection
 
 template<bool send_over_root>
-CheckedCorrectionPhase<send_over_root>::CheckedCorrectionPhase(
+CheckedCorrection<send_over_root>::CheckedCorrection(
   ReachedNodes &reached_nodes)
-  : CorrectionPhase(reached_nodes),
+  : Correction(reached_nodes),
     left{unsigned(this->num_nodes())},
     right{unsigned(left.size())}
 {
@@ -86,7 +86,7 @@ CheckedCorrectionPhase<send_over_root>::CheckedCorrectionPhase(
 
 template<bool send_over_root>
 Phase::Result
-CheckedCorrectionPhase<send_over_root>::post_message(
+CheckedCorrection<send_over_root>::post_message(
   TaskQueue &tq, int node_id)
 {
   auto DIR_LEFT = this->DIR_LEFT;
@@ -152,7 +152,7 @@ CheckedCorrectionPhase<send_over_root>::post_message(
 
 template<bool send_over_root>
 Phase::Result
-CheckedCorrectionPhase<send_over_root>::dispatch(
+CheckedCorrection<send_over_root>::dispatch(
   const InitTask&, TaskQueue &tq, int node_id)
 {
   if (reached_nodes[node_id]) {
@@ -167,7 +167,7 @@ CheckedCorrectionPhase<send_over_root>::dispatch(
 
 template<bool send_over_root>
 Phase::Result
-CheckedCorrectionPhase<send_over_root>::dispatch(
+CheckedCorrection<send_over_root>::dispatch(
   const IdleTask&, TaskQueue &tq, int node_id)
 {
   return post_message(tq, node_id);
@@ -175,7 +175,7 @@ CheckedCorrectionPhase<send_over_root>::dispatch(
 
 template<bool send_over_root>
 Phase::Result
-CheckedCorrectionPhase<send_over_root>::dispatch(
+CheckedCorrection<send_over_root>::dispatch(
   const RecvEndTask &t, TaskQueue&, int node_id)
 {
   if (!this->reached_nodes[node_id]) {
@@ -207,7 +207,7 @@ CheckedCorrectionPhase<send_over_root>::dispatch(
 
 template<bool send_over_root>
 Phase::Result
-CheckedCorrectionPhase<send_over_root>::dispatch(
+CheckedCorrection<send_over_root>::dispatch(
   const SendEndTask &, TaskQueue &tq, int node_id)
 {
   tq.schedule(IdleTask::make_new(node_id));
@@ -215,5 +215,5 @@ CheckedCorrectionPhase<send_over_root>::dispatch(
 }
 
 
-template class CheckedCorrectionPhase<true>;
-template class CheckedCorrectionPhase<false>;
+template class CheckedCorrection<true>;
+template class CheckedCorrection<false>;

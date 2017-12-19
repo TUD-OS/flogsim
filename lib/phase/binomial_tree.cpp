@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include "task_queue.hpp"
-#include "binomial_tree.hpp"
+#include "phase/binomial_tree.hpp"
 
 namespace
 {
@@ -32,9 +32,9 @@ Time binomial_runtime(Time L, Time o, Time g, int P)
 
 }
 
-// BinomialTreePhase
+// BinomialTree
 
-void BinomialTreePhase::post_sends(const int sender, TaskQueue &tq) const
+void BinomialTree::post_sends(const int sender, TaskQueue &tq) const
 {
   reached_nodes[sender] = true;
 
@@ -48,14 +48,14 @@ void BinomialTreePhase::post_sends(const int sender, TaskQueue &tq) const
 }
 
 Phase::Result
-BinomialTreePhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
+BinomialTree::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   if(!reached_nodes[node_id]) {
     return Result::ONGOING;
   }
 
   const int root [[maybe_unused]] = 0;
-  assert(node_id == root && "SimpleTreePhase init on non-root node");
+  assert(node_id == root && "SimpleTree init on non-root node");
   assert(reached_nodes[root] && "Root unreached in tree");
 
   post_sends(node_id, tq);
@@ -64,7 +64,7 @@ BinomialTreePhase::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 }
 
 Phase::Result
-BinomialTreePhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
+BinomialTree::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   post_sends(node_id, tq);
 
@@ -75,7 +75,7 @@ BinomialTreePhase::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
   }
 }
 
-Time BinomialTreePhase::deadline() const
+Time BinomialTree::deadline() const
 {
   auto &model = Globals::get().model();
   auto L = model.L;

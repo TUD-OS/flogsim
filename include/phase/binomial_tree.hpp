@@ -1,13 +1,13 @@
 #pragma once
 
-#include "tree_phase.hpp"
+#include "tree.hpp"
 
-class BinomialTreePhase : public TreePhase
+class BinomialTree : public Tree
 {
   void post_sends(const int sender, TaskQueue &tq) const;
 public:
-  BinomialTreePhase(ReachedNodes &reached_nodes)
-    : TreePhase(reached_nodes)
+  BinomialTree(ReachedNodes &reached_nodes)
+    : Tree(reached_nodes)
   {
   }
 

@@ -1,7 +1,8 @@
 #include "globals.hpp"
 
 #include "test_wrappers.hpp"
-#include "kary_tree.hpp"
+
+#include "phase/kary_tree.hpp"
 
 namespace
 {
@@ -12,7 +13,7 @@ TEST_P(KaryTreeTests, Runtime)
   do_test(
     [](ReachedNodes& rn)
     {
-      return std::make_unique<KAryTreePhase<true>>(rn);
+      return std::make_unique<KAryTree<true>>(rn);
     });
 }
 

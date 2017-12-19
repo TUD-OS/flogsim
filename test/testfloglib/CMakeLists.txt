@@ -1,5 +1,3 @@
-include_directories(${PROJECT_SOURCE_DIR}/collectives)
-
 file(GLOB TEST_SRC *.cpp)
 add_executable(unit_test ${TEST_SRC})
 target_link_libraries(unit_test libgtest libgmock flog stdc++fs)

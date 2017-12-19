@@ -1,11 +1,11 @@
 #include "globals.hpp"
 
 #include "test_wrappers.hpp"
-#include "kary_tree.hpp"
-#include "exclusive_phase.hpp"
-#include "combiner_phase.hpp"
 
-#include "correction_phase.hpp"
+#include "phase/kary_tree.hpp"
+#include "phase/exclusive.hpp"
+#include "phase/combiner.hpp"
+#include "phase/correction.hpp"
 
 namespace
 {
@@ -16,11 +16,11 @@ TEST_P(CheckedCorrectedKaryTreeBroadcast, Runtime)
   do_test(
     [](ReachedNodes& rn)
     {
-      auto phases = CombinerPhase::Phases(rn).
-        add_phase<KAryTreePhase<true>>().
-        add_phase<CheckedCorrectionPhase<false>>();
+      auto phases = Combiner::Phases(rn).
+        add_phase<KAryTree<true>>().
+        add_phase<CheckedCorrection<false>>();
 
-      return std::make_unique<CombinerPhase>(std::move(phases));
+      return std::make_unique<Combiner>(std::move(phases));
     });
 }
 

@@ -5,7 +5,7 @@
 /* Wraps any other phase and makes sure it does not signal phase completion
  * ('DONE_PHASE') before its 'deadline' passed. Note that 'DONE_COLL' is
  * forwarded immediately.                                                     */
-class ExclusivePhase : public Phase
+class Exclusive : public Phase
 {
 public:
   using PhasePtr = std::unique_ptr<Phase>;
@@ -16,7 +16,7 @@ private:
   Result forward(const auto &t, TaskQueue &tq, const int node_id);
 
 public:
-  ExclusivePhase(ReachedNodes &reached_nodes, PhasePtr &&phase);
+  Exclusive(ReachedNodes &reached_nodes, PhasePtr &&phase);
 
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const IdleTask &t, TaskQueue &tq, int node_id) override;
