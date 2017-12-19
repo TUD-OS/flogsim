@@ -163,9 +163,12 @@ public:
 
     Globals::set({&conf, &model});
 
-    auto coll = Collective({0}, std::make_unique<ListFaults>(param.param_failed));
+    auto faults = std::make_unique<ListFaults>(param.param_failed);
+    auto coll = Collective({0}, faults.get());
 
-    auto timeline = coll.run(create_coll(coll.reached_nodes));
+    Timeline timeline;
+
+    coll.run(timeline, create_coll(coll.reached_nodes));
 
     EXPECT_EQ(timeline.get_total_time(),
               Time(param.expect_runtime)) << info;

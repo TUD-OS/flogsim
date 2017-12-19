@@ -9,18 +9,18 @@
 #include "fault_injector.hpp"
 
 // Enable everybody
-Collective::Collective()
-  : Collective{{}, std::make_unique<NoFaults>()}
+Collective::Collective(FaultInjector *faults)
+  : Collective{{}, faults}
 {
   reached_nodes.assign(reached_nodes.size(), true);
 }
 
 // Enable root selected
 Collective::Collective(std::initializer_list<int> selected,
-                       std::unique_ptr<FaultInjector> faults)
+                       FaultInjector *faults)
   : done_nodes(Globals::get().model().P),
     reached_nodes(Globals::get().model().P),
-    faults(std::move(faults))
+    faults(faults)
 {
   for (auto i : selected) {
     reached_nodes[i] = true;
@@ -85,13 +85,12 @@ void Collective::accept(const FailureTask&, TaskQueue&)
 {
 }
 
-Timeline Collective::run(std::unique_ptr<Phase> &&_phase)
+void Collective::run(Timeline &timeline, std::unique_ptr<Phase> &&_phase)
 {
   phase = std::move(_phase);
 
   // Here we basically run it
-  TaskQueue tq{faults.get()};
-  Timeline timeline;
+  TaskQueue tq{faults};
 
   // broadcast InitTask to all (initially) reached nodes
   for (size_t i = 0; i < reached_nodes.size(); i++) {
@@ -99,8 +98,6 @@ Timeline Collective::run(std::unique_ptr<Phase> &&_phase)
   }
 
   tq.run(*this, timeline);
-
-  return timeline;
 }
 
 CollectiveRegistry &CollectiveRegistry::get()

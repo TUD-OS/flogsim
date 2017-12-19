@@ -38,7 +38,7 @@ private:
   ReachedNodes done_nodes;
 public:
   ReachedNodes reached_nodes;
-  std::unique_ptr<FaultInjector> faults;
+  FaultInjector *faults;
 
   virtual void accept(const InitTask &t, TaskQueue &tq);
   virtual void accept(const TimerTask &t, TaskQueue &tq);
@@ -54,11 +54,11 @@ public:
   virtual void accept(const FinishTask &t, TaskQueue &tq);
   virtual void accept(const FailureTask &t, TaskQueue &tq);
 
-  Timeline run(std::unique_ptr<Phase> &&);
+  void run(Timeline &, std::unique_ptr<Phase> &&);
 
-  Collective();
+  Collective(FaultInjector *faults);
   Collective(std::initializer_list<int> selected,
-             std::unique_ptr<FaultInjector> faults);
+             FaultInjector *faults);
   // Factory method, which creates collectives based on
   // configuration.
   static std::unique_ptr<Collective> create();
