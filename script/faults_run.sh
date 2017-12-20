@@ -12,7 +12,7 @@ MYSQL_DIR=$BASE/faults/mariadb-10.2.10-linux-x86_64
 MYSQL=$MYSQL_DIR/bin/mysql
 MYSQL_REQUEST="$MYSQL --no-defaults -u user -h $DBSERVER -puser flogsim"
 
-FLOGSIM_DIR=$BASE/flogsim/build
+FLOGSIM_DIR=$BASE/flogsim/build_release
 FLOGSIM=$FLOGSIM_DIR/flogsim
 
 read -r -d '' REQUEST_EXPERIMENT_SQL << EOF
@@ -50,6 +50,8 @@ do
     fi
 
     read id COLL k L o g P F CONDUCTED TOTAL <<<$(echo $EXPERIMENT)
+
+    F=$(($P * $F / 100))
 
     echo $COLL $L $o "g=$g" "P=$P" $k $F $CONDUCTED $TOTAL
 
