@@ -74,4 +74,6 @@ then
     fi
 fi
 
+mkdir -p slurm
+
 sbatch -a$JOB_ARRAY $SCRIPT_DIR/faults_run.sh
