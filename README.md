@@ -79,7 +79,6 @@ Be aware that the scripts were written with SLURM in mind.
 
 # TODO
 
-  - [ ] Implement nodeset
   - [ ] Write tests
   - [ ] Add list of failed nodes to the command line interface
   - [ ] Add various finishing events: All done, All received, etc.
@@ -88,7 +87,6 @@ Be aware that the scripts were written with SLURM in mind.
 # Dropscon
 
   - [ ] Exponential backoff
-  - [ ] Send tree message after receiving correction
 
 # Code style
 
