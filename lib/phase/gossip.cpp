@@ -17,7 +17,7 @@ unsigned generate_seed()
 Gossip::Gossip(ReachedNodes &reached_nodes)
   : Phase(reached_nodes),
     generator(generate_seed()),
-    gossip_time(Globals::get().conf().k),
+    gossip_time(int(std::ceil(2 * std::log2(num_nodes()))) + Globals::get().conf().k),
     start_time(Time::max())
 {
 }
