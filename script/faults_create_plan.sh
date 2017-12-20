@@ -11,6 +11,14 @@ then
     exit 1
 fi
 
+GIT_COMMIT=$(git rev-parse --short=7 HEAD)
+
+if [[ ! -z $(git status -s | awk '{print $1}' | grep 'M') ]]
+then
+    echo "Require clean repository. Either stash or commit."
+    exit 1
+fi
+
 COMBINATIONS=$(eval echo "$COLL+$L+$o+$g+$P+$k+$F")
 for EXPERIMENT in $COMBINATIONS
 do
@@ -18,6 +26,6 @@ do
 
     CONDUCTED=0
 
-    echo $COLL $L $o $g $P $k $F $TOTAL
-    echo "INSERT INTO experiment_plan (COLL,k,L,o,g,P,F,conducted,total) VALUES (\"$COLL\",$k,$L,$o,$g,$P,$F,$CONDUCTED,$TOTAL)" | $MYSQL_REQUEST
+    echo $GIT_COMMIT $COLL $L $o $g $P $k $F $TOTAL
+    echo "INSERT INTO experiment_plan (GIT_COMMIT,COLL,k,L,o,g,P,F,conducted,total) VALUES (\"$GIT_COMMIT\",\"$COLL\",$k,$L,$o,$g,$P,$F,$CONDUCTED,$TOTAL)" | $MYSQL_REQUEST
 done

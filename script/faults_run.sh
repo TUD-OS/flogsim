@@ -12,7 +12,7 @@ MYSQL_DIR=$BASE/faults/mariadb-10.2.10-linux-x86_64
 MYSQL=$MYSQL_DIR/bin/mysql
 MYSQL_REQUEST="$MYSQL --no-defaults -u user -h $DBSERVER -puser flogsim"
 
-FLOGSIM_DIR=$BASE/flogsim/build_release
+FLOGSIM_DIR=$BASE/flogsim_build
 FLOGSIM=$FLOGSIM_DIR/flogsim
 
 read -r -d '' REQUEST_EXPERIMENT_SQL << EOF
@@ -49,7 +49,7 @@ do
         exit 0
     fi
 
-    read id COLL k L o g P F CONDUCTED TOTAL <<<$(echo $EXPERIMENT)
+    read ID GIT_COMMIT COLL k L o g P F CONDUCTED TOTAL <<<$(echo $EXPERIMENT)
 
     F=$(($P * $F / 100))
 
@@ -70,9 +70,7 @@ do
 
         read -r -d '' INSERT_RESULT_SQL << EOF
 INSERT INTO experiment_log
-VALUES ("$COLL",$k,
-  $L,$o,$g,$P,
-  $F,
+VALUES ($ID,
   $RUNTIME,$FAILED,$FINISHED,$UNREACHED,$MSGTASK,$SEED)
 EOF
 
