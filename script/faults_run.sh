@@ -64,14 +64,14 @@ do
     do
         OUT="$($COMMAND)"
         echo "$OUT"
-        read RUNTIME FAILED FINISHED UNREACHED MSGTASK REST <<<$(echo "$OUT" | sed -e 's/^[^,]*,//g')
+        read RUNTIME FAILED FINISHED UNREACHED MSGTASK SEED REST <<<$(echo "$OUT" | sed -e 's/^[^,]*,//g')
 
         read -r -d '' INSERT_RESULT_SQL << EOF
 INSERT INTO experiment_log
 VALUES ("$COLL",$k,
   $L,$o,$g,$P,
   $F,
-  $RUNTIME,$FAILED,$FINISHED,$UNREACHED,$MSGTASK)
+  $RUNTIME,$FAILED,$FINISHED,$UNREACHED,$MSGTASK,$SEED)
 EOF
 
         echo "$INSERT_RESULT_SQL" | $MYSQL_REQUEST
