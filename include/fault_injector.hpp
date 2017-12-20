@@ -19,10 +19,11 @@ class FaultInjector
 {
 protected:
   virtual void print(std::ostream &os) const = 0;
+  unsigned _seed;
 
 public:
-  FaultInjector()
-  {}
+  FaultInjector();
+  FaultInjector(unsigned seed);
 
   virtual Fault failure(Task* task) = 0;
   virtual int fault_count() { return 0; }
@@ -36,6 +37,10 @@ public:
     fi.print(os);
     return os;
   }
+
+  // The seed to reproduce the same fault pattern. If faults do not
+  // depend on randomness leave it 0
+  virtual unsigned seed() const { return _seed;}
 };
 
 class NoFaults : public FaultInjector
@@ -68,7 +73,7 @@ protected:
 
   virtual void print(std::ostream &os) const override final;
 public:
-  ListFaults();
+  ListFaults(unsigned seed=0);
   // Class to set up deterministic faults for testing
   ListFaults(const std::vector<int> &);
 
@@ -87,7 +92,7 @@ public:
 class UniformFaults : public ListFaults
 {
 public:
-  UniformFaults();
+  UniformFaults(unsigned seed);
 
   static bool match(const std::string &fault_injector)
   {

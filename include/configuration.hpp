@@ -15,6 +15,7 @@ struct Configuration
   // Fault injector parametrs
   std::string fault_injector;
   int F;
+  unsigned seed;
 
   // Collectives parameters
   std::string collective;
@@ -76,6 +77,7 @@ struct Configuration
        << "k = " << conf.k << ", "
        << "limit = " << conf.limit << ", "
        << "F = " << conf.F << ", "
+       << "seed = " << conf.seed << ", "
        << "Parallelism = " << conf.parallelism << ", "
        << "Priority = " << conf.priority << ", "
        << "fault_injector = " << conf.fault_injector;
@@ -103,6 +105,7 @@ struct Configuration
     : log_prefix(), verbose(false), limit(limit),
       L(1), o(1), g(1), P(1),
       F(0),
+      seed(0),
       collective(), k(k),
       parallelism(parallelism)
   {}

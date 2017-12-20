@@ -20,12 +20,25 @@ std::unique_ptr<FaultInjector> FaultInjector::create()
   if (NoFaults::match(conf.fault_injector)) {
     return std::make_unique<NoFaults>();
   } else if (UniformFaults::match(conf.fault_injector)) {
-    return std::make_unique<UniformFaults>();
+    return std::make_unique<UniformFaults>(conf.seed);
   } else if (ExplicitListFaults::match(conf.fault_injector)) {
     return std::make_unique<ExplicitListFaults>();
   } else {
     throw std::invalid_argument("Fault injector does not exist:" +
                                 conf.fault_injector);
+  }
+}
+
+FaultInjector::FaultInjector()
+  : _seed(std::chrono::system_clock::now().time_since_epoch().count())
+{
+}
+
+FaultInjector::FaultInjector(unsigned seed)
+  : FaultInjector()
+{
+  if (seed != 0) {
+    _seed = seed;
   }
 }
 
@@ -59,8 +72,8 @@ bool ExplicitListFaults::match(const std::string &fault_injector)
 
 // ListFaults
 
-ListFaults::ListFaults()
-  : P(Globals::get().model().P)
+ListFaults::ListFaults(unsigned seed)
+  : FaultInjector(seed), P(Globals::get().model().P)
 {}
 
 ListFaults::ListFaults(const std::vector<int> &failed_nodes)
@@ -113,7 +126,8 @@ Fault ListFaults::failure(Task *task)
 
 // UniformFaults
 
-UniformFaults::UniformFaults()
+UniformFaults::UniformFaults(unsigned seed)
+  : ListFaults(seed)
 {
   F = Globals::get().conf().F;
   // Probably not the most efficient way, but the easiest way to
@@ -123,10 +137,8 @@ UniformFaults::UniformFaults()
     failed_nodes.push_back(i);
   }
 
-  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-
   std::shuffle(failed_nodes.begin(), failed_nodes.end(),
-               std::default_random_engine(seed));
+               std::default_random_engine(_seed));
 
   failed_nodes.resize(F);
 

@@ -83,6 +83,10 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     ("F",
      po::value<int>(&F)->default_value(0),
      "Number of faults")
+    ("seed",
+     po::value<unsigned>(&seed)->default_value(0),
+     "Fault injector seed. Value 0 tells the simulator to generate "
+     "seed on its own.")
     ;
 
   desc.add(faults);

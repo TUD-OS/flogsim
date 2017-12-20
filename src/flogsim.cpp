@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
               << "FinishedNodes," << finished << std::endl
               << "UnreachedNodes," << unreached << std::endl
               << "MsgTask," << MsgTask::issued() << std::endl
+              << "FaultInjectorSeed," << coll.faults->seed() << std::endl
               << "FailedNodeList," << *coll.faults << std::endl;
 
     if (conf.verbose) {
