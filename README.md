@@ -18,6 +18,11 @@ In Debian you would need to install following packages:
   - r-cran-reshape2
   - r-cran-optparse
 
+## Enabling tests
+
+By default the simulator compiles without tests. If you want these,
+add `-DUNIT_TESTS=ON` to cmake configuration.
+
 # Usage
 
 Use "--help"

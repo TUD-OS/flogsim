@@ -24,5 +24,9 @@ install(DIRECTORY script DESTINATION ${PROJECT_BINARY_BIN}/bin
 install(TARGETS flogsim RUNTIME DESTINATION ${PROJECT_BINARY_BIN}/bin)
 install(TARGETS flog DESTINATION ${PROJECT_BINARY_BIN}/lib)
 
-enable_testing()
-add_subdirectory(test)
+option(UNIT_TESTS "Enable compilation of unit tests" OFF)
+
+if(UNIT_TESTS)
+  enable_testing()
+  add_subdirectory(test)
+endif()
