@@ -41,7 +41,7 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
      po::value<std::string>(&log_prefix),
      "Where to store the logs. Adds suffixes '.model.csv' and '.trace.csv' to the output files.")
     ("time_limit",
-     po::value<int64_t>(&limit)->default_value(INT64_MAX),
+     po::value<int64_t>(&limit),
      "When to stop the simulation.")
     ("verbose,v",
      po::bool_switch(&verbose)->default_value(false),
@@ -117,6 +117,10 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
 
   if (!args.count("log")) {
     assert(log_prefix == "");
+  }
+
+  if (!args.count("time_limit")) {
+    limit = INT64_MAX;
   }
 
   if (args.count("help")) {
