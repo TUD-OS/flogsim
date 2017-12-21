@@ -1,22 +1,13 @@
 #include <assert.h>
 #include <cmath>
-#include <chrono>
 
 #include "task_queue.hpp"
 
 #include "phase/gossip.hpp"
 
-namespace
-{
-unsigned generate_seed()
-{
-  return std::chrono::system_clock::now().time_since_epoch().count();
-}
-}
-
 Gossip::Gossip(ReachedNodes &reached_nodes)
   : Phase(reached_nodes),
-    generator(generate_seed()),
+    generator(Globals::get().entropy().generator),
     gossip_time(int(std::ceil(2 * std::log2(num_nodes()))) + Globals::get().conf().k),
     start_time(Time::max())
 {

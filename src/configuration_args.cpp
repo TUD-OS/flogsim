@@ -83,10 +83,6 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     ("F",
      po::value<int>(&F)->default_value(0),
      "Number of faults")
-    ("seed",
-     po::value<unsigned>(&seed)->default_value(0),
-     "Fault injector seed. Value 0 tells the simulator to generate "
-     "seed on its own.")
     ;
 
   desc.add(faults);
@@ -99,6 +95,10 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     ("k",
      po::value<int>(&k)->default_value(2),
      "K-arity of the tree")
+    ("seed",
+     po::value<unsigned>(&seed)->default_value(0),
+     "Seed for the entropy source. Value 0 tells the simulator to generate "
+     "seed on its own.")
     ;
 
   desc.add(collectives);

@@ -21,7 +21,10 @@ int main(int argc, char *argv[])
 {
   ConfigurationArgs conf(argc, argv);
   Model model(conf);
-  Globals::set({&conf, &model});
+  Entropy entropy(conf);
+
+  Globals::set({&conf, &model, &entropy});
+
   auto faults = FaultInjector::create();
   Timeline timeline;
 
@@ -37,7 +40,7 @@ int main(int argc, char *argv[])
               << "FinishedNodes," << finished << std::endl
               << "UnreachedNodes," << unreached << std::endl
               << "MsgTask," << MsgTask::issued() << std::endl
-              << "FaultInjectorSeed," << coll.faults->seed() << std::endl
+              << "FaultInjectorSeed," << entropy.seed << std::endl
               << "FailedNodeList," << *coll.faults << std::endl;
 
     if (conf.verbose) {

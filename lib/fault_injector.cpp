@@ -1,7 +1,5 @@
 #include <algorithm>
 #include <random>
-#include <chrono>
-#include <ctime>        // std::time
 #include <stdexcept>
 #include <iterator>
 #include <regex>
@@ -20,7 +18,7 @@ std::unique_ptr<FaultInjector> FaultInjector::create()
   if (NoFaults::match(conf.fault_injector)) {
     return std::make_unique<NoFaults>();
   } else if (UniformFaults::match(conf.fault_injector)) {
-    return std::make_unique<UniformFaults>(conf.seed);
+    return std::make_unique<UniformFaults>();
   } else if (ExplicitListFaults::match(conf.fault_injector)) {
     return std::make_unique<ExplicitListFaults>();
   } else {
@@ -30,16 +28,7 @@ std::unique_ptr<FaultInjector> FaultInjector::create()
 }
 
 FaultInjector::FaultInjector()
-  : _seed(std::chrono::system_clock::now().time_since_epoch().count())
 {
-}
-
-FaultInjector::FaultInjector(unsigned seed)
-  : FaultInjector()
-{
-  if (seed != 0) {
-    _seed = seed;
-  }
 }
 
 // ExplicitListFaults
@@ -72,8 +61,8 @@ bool ExplicitListFaults::match(const std::string &fault_injector)
 
 // ListFaults
 
-ListFaults::ListFaults(unsigned seed)
-  : FaultInjector(seed), P(Globals::get().model().P)
+ListFaults::ListFaults()
+  : FaultInjector(), P(Globals::get().model().P)
 {}
 
 ListFaults::ListFaults(const std::vector<int> &failed_nodes)
@@ -126,8 +115,8 @@ Fault ListFaults::failure(Task *task)
 
 // UniformFaults
 
-UniformFaults::UniformFaults(unsigned seed)
-  : ListFaults(seed)
+UniformFaults::UniformFaults()
+  : ListFaults()
 {
   F = Globals::get().conf().F;
   // Probably not the most efficient way, but the easiest way to
@@ -138,7 +127,7 @@ UniformFaults::UniformFaults(unsigned seed)
   }
 
   std::shuffle(failed_nodes.begin(), failed_nodes.end(),
-               std::default_random_engine(_seed));
+               Globals::get().entropy().generator);
 
   failed_nodes.resize(F);
 

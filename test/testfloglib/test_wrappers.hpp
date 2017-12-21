@@ -21,6 +21,8 @@ struct RunParams
   int param_k;
   // Timelimit
   int param_limit;
+  // Parameter for entropy seed
+  unsigned param_seed;
   // Expected runtime
   int expect_runtime;
   // Expected number of unreached nodes
@@ -82,6 +84,12 @@ struct RunParams
     return *this;
   }
 
+  auto &seed(int seed)
+  {
+    param_seed = seed;
+    return *this;
+  }
+
   auto &failed(std::initializer_list<int> fl)
   {
     param_failed = fl;
@@ -110,6 +118,7 @@ struct RunParams
       param_P(1),
       param_k(1),
       param_limit(0),
+      param_seed(368),
       expect_runtime(0),
       expect_unreach(0),
       create_coll(nullptr)
@@ -169,11 +178,12 @@ public:
       LogP(param.param_L,
            param.param_o,
            param.param_g,
-           param.param_P).faults("none");
+           param.param_P).set_seed(param.param_seed);
 
     auto model = Model(conf);
+    auto entropy = Entropy(conf);
 
-    Globals::set({&conf, &model});
+    Globals::set({&conf, &model, &entropy});
 
     auto faults = std::make_unique<ListFaults>(param.param_failed);
     auto coll = Collective({0}, faults.get());

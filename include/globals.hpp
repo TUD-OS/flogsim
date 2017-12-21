@@ -2,6 +2,7 @@
 
 #include "configuration.hpp"
 #include "model.hpp"
+#include "entropy.hpp"
 
 class Model;
 
@@ -11,6 +12,7 @@ class Globals
 
   const Configuration *_conf;
   const Model *_model;
+  Entropy *_entropy;
 public:
   const Configuration &conf() const
   {
@@ -22,11 +24,16 @@ public:
     return *_model;
   }
 
+  Entropy &entropy() const
+  {
+    return *_entropy;
+  }
+
   Globals()
-    : initialized(false), _conf(nullptr), _model(nullptr)
+    : initialized(false), _conf(nullptr), _model(nullptr), _entropy(nullptr)
   {}
-  Globals(const Configuration *conf, const Model *model)
-    : initialized(true), _conf(conf), _model(model)
+  Globals(const Configuration *conf, const Model *model, Entropy *entropy)
+    : initialized(true), _conf(conf), _model(model), _entropy(entropy)
   {}
 
   static const Globals &get();
