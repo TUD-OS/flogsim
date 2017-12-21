@@ -64,6 +64,12 @@ Gossip::dispatch(const IdleTask &, TaskQueue &tq, int node_id)
 }
 
 Phase::Result
+Gossip::dispatch(const TimerTask &, TaskQueue &, int)
+{
+  return Result::DONE_PHASE;
+}
+
+Phase::Result
 Gossip::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   if (t.tag() != Tag::GOSSIP) {
