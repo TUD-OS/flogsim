@@ -13,6 +13,7 @@
 #include "globals.hpp"
 
 #include "configuration_args.hpp"
+#include "results_printer.hpp"
 
 class TaskQueue;
 class Collective;
@@ -25,32 +26,19 @@ int main(int argc, char *argv[])
 
   Globals::set({&conf, &model, &entropy});
 
+  auto printer = ResultsPrinter::create();
+
   auto faults = FaultInjector::create();
+
   Timeline timeline;
 
   try {
+    printer->intro();
     auto coll = Collective({0}, faults.get());
 
     coll.run(timeline, CollectiveRegistry::create(coll.reached_nodes));
 
-    std::cout << "TotalRuntime," << timeline.get_total_time() << std::endl;
-
-    auto [failed, finished, unreached] = timeline.node_stat();
-    std::cout << "FailedNodes," << failed << std::endl
-              << "FinishedNodes," << finished << std::endl
-              << "UnreachedNodes," << unreached << std::endl
-              << "MsgTask," << MsgTask::issued() << std::endl
-              << "FaultInjectorSeed," << entropy.seed << std::endl
-              << "FailedNodeList," << *coll.faults << std::endl;
-
-    if (conf.verbose) {
-      std::cout << "ReschRecvStartTask," << RecvStartTask::reschedules() << std::endl
-                << "ReschRecvEndTask," << RecvEndTask::reschedules() << std::endl
-                << "ReschSendStartTask," << SendStartTask::reschedules() << std::endl
-                << "ReschSendEndTask," << SendEndTask::reschedules() << std::endl
-                << "ReschIdleTask," << IdleTask::reschedules() << std::endl;
-    }
-
+    printer->results(timeline, *faults.get());
   } catch (const std::exception &e) {
     std::cerr << "Caught an exception: " << e.what() << std::endl;
     std::cerr << "Initial environment: " << conf << std::endl;

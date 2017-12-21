@@ -40,6 +40,9 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     ("log",
      po::value<std::string>(&log_prefix)->value_name("PREFIX"),
      "Where to store the logs. Adds suffixes '.model.csv' and '.trace.csv' to the output files.")
+    ("results-format",
+     po::value<std::string>()->value_name("NAME"),
+     "Format to print out runtime results. Allowed values: tables, csv.")
     ("time_limit",
      po::value<int64_t>(&limit)->value_name("TIME"),
      "When to stop the simulation.")
@@ -124,6 +127,16 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
 
   if (!args.count("time_limit")) {
     limit = INT64_MAX;
+  }
+
+  if (args.count("results-format")) {
+    results_format = args["results-format"].as<std::string>();
+    if (results_format != "table" && results_format != "csv") {
+      std::cerr << "Unknown output format: " << results_format << std::endl;
+      throw po::validation_error(po::validation_error::invalid_option_value);
+    }
+  } else {
+    results_format = "table";
   }
 
   if (args.count("help")) {

@@ -6,6 +6,9 @@
 struct Configuration
 {
   std::string log_prefix;
+  // How to print out simulation results
+  std::string results_format;
+
   bool verbose;
   int64_t limit;
 
