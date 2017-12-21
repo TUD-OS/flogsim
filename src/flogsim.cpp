@@ -57,13 +57,15 @@ int main(int argc, char *argv[])
     std::cerr << "Faults: " << *faults << std::endl;
   }
 
-  auto trace_filename = conf.log_prefix + ".trace.csv";
-  std::ofstream trace_log(trace_filename);
-  trace_log << timeline;
+  if (!conf.log_prefix.empty()) {
+    auto trace_filename = conf.log_prefix + ".trace.csv";
+    std::ofstream trace_log(trace_filename);
+    trace_log << timeline;
 
-  auto model_filename = conf.log_prefix + ".model.csv";
-  std::ofstream model_log(model_filename);
-  model_log << model;
+    auto model_filename = conf.log_prefix + ".model.csv";
+    std::ofstream model_log(model_filename);
+    model_log << model;
+  }
 
   return 0;
 }

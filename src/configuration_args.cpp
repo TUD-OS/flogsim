@@ -38,7 +38,7 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
   desc.add_options()
     ("help", "Show help message")
     ("log",
-     po::value<std::string>(&log_prefix)->default_value("log"),
+     po::value<std::string>(&log_prefix),
      "Where to store the logs. Adds suffixes '.model.csv' and '.trace.csv' to the output files.")
     ("time_limit",
      po::value<int64_t>(&limit)->default_value(INT64_MAX),
@@ -114,6 +114,10 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     exit(EXIT_FAILURE);
   }
   po::notify(args);
+
+  if (!args.count("log")) {
+    assert(log_prefix == "");
+  }
 
   if (args.count("help")) {
     show_help(desc);
