@@ -50,16 +50,16 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
 
   po::options_description model("Model options");
   model.add_options()
-    ("L",
+    ("latency,L",
      po::value<int>(&L)->default_value(1),
      "Network latency")
-    ("o",
+    ("overhead,o",
      po::value<int>(&o)->default_value(1),
      "CPU overhead")
-    ("g",
+    ("gap,g",
      po::value<int>(&g)->default_value(2),
      "Send/Recv gap")
-    ("P",
+    ("processors,P",
      po::value<int>(&P)->default_value(8),
      "Number of processors")
     ("prio",
@@ -80,7 +80,7 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     ("faults",
      po::value<std::string>(&fault_injector)->default_value("none"),
      "Type of fault injector")
-    ("F",
+    ("fault-count,F",
      po::value<int>(&F)->default_value(0),
      "Number of faults")
     ;
@@ -92,7 +92,7 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     ("coll",
      po::value<std::string>(&collective)->default_value("binary_bcast"),
      "Type of collective to model")
-    ("k",
+    ("karity,k",
      po::value<int>(&k)->default_value(2),
      "K-arity of the tree")
     ("seed",
