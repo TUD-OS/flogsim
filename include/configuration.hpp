@@ -13,7 +13,7 @@ struct Configuration
   int L, o, g, P;
 
   // Fault injector parametrs
-  std::string fault_injector;
+  std::string fault_injector = "none";
   int F;
   unsigned seed;
 
@@ -95,9 +95,10 @@ struct Configuration
     return *this;
   }
 
-  Configuration &faults(const std::string &faults)
+  Configuration &set_seed(unsigned seed)
   {
-    this->fault_injector = faults;
+    this->seed = seed;
+
     return *this;
   }
 
