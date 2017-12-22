@@ -61,7 +61,7 @@ void CsvPrinter::intro()
   std::cout << std::endl;
 }
 
-void CsvPrinter::results(Timeline &timeline, FaultInjector &faults)
+void CsvPrinter::results(Timeline &timeline, FaultInjector &)
 {
   auto &conf = Globals::get().conf();
   auto &model = Globals::get().model();
