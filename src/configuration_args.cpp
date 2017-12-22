@@ -49,6 +49,9 @@ po::options_description create_options_description(ConfigurationArgs &conf)
     ("id",
      po::value<std::string>(&conf.id)->value_name("ID"),
      "Id of the experiment. Used together with 'csv-id' format.")
+    ("repeat,r",
+     po::value<unsigned>(&conf.repeat)->value_name("NUM")->default_value(1),
+     "How many times we should repeat the experiment.")
     ("time_limit",
      po::value<int64_t>(&conf.limit)->value_name("TIME"),
      "When to stop the simulation.")

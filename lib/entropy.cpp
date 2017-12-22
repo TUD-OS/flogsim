@@ -1,27 +1,27 @@
 #include <chrono>
 #include "entropy.hpp"
 
-Entropy::Entropy(unsigned seed)
-  : seed(seed),
-    generator(std::default_random_engine(seed))
-{}
 
-Entropy::Entropy()
-  : Entropy(std::chrono::system_clock::now().time_since_epoch().count())
-{}
-
-namespace
-{
-unsigned create_seed(unsigned seed)
+void Entropy::reset_seed(unsigned seed)
 {
   if (seed == 0) {
-    return std::chrono::system_clock::now().time_since_epoch().count();
+    this->seed = std::chrono::system_clock::now().time_since_epoch().count();
+  } else {
+    this->seed = seed;
   }
 
-  return seed;
-}
+  generator.seed(this->seed);
 }
 
+Entropy::Entropy(unsigned seed)
+{
+  reset_seed(seed);
+}
+
+Entropy::Entropy()
+  : Entropy(0)
+{}
+
 Entropy::Entropy(const Configuration &conf)
-  : Entropy(create_seed(conf.seed))
+  : Entropy(conf.seed)
 {}

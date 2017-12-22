@@ -6,9 +6,11 @@
 
 class Entropy
 {
+  unsigned seed;
   Entropy(unsigned seed);
 public:
-  const unsigned seed;
+  void reset_seed(unsigned seed = 0);
+  unsigned get_seed() const { return seed; };
   std::default_random_engine generator;
 
   Entropy();

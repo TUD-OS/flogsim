@@ -68,6 +68,9 @@ If you are overwelmed with number of messages, you can either disable
 them using `-c` flag, or only show specific nodes using `--messages`
 flag.
 
+If you run the simulator in repeat mode (makes only sense with failure
+injections), trace log get additional prefix to mark run number.
+
 # Fault injection experiments
 
 Simulating fault injection experiments (FIE) requires significant

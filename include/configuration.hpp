@@ -10,6 +10,7 @@ struct Configuration
   std::string results_format;
   // Id of the experiment parameters
   std::string id;
+  unsigned repeat;
 
   bool verbose;
   int64_t limit;

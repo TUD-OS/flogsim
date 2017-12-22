@@ -34,7 +34,7 @@ void TablePrinter::results(Timeline &timeline, FaultInjector &faults)
             << "FinishedNodes," << finished << std::endl
             << "UnreachedNodes," << unreached << std::endl
             << "MsgTask," << MsgTask::issued() << std::endl
-            << "FaultInjectorSeed," << entropy.seed << std::endl
+            << "FaultInjectorSeed," << entropy.get_seed() << std::endl
             << "FailedNodeList," << faults << std::endl;
 
   if (conf.verbose) {
@@ -83,7 +83,7 @@ void CsvPrinter::results(Timeline &timeline, FaultInjector &)
             << finished << ","
             << unreached << ","
             << MsgTask::issued() << ","
-            << entropy.seed;
+            << entropy.get_seed();
 
   if (conf.verbose) {
     std::cout << ","
@@ -125,7 +125,7 @@ void CsvIdPrinter::results(Timeline &timeline, FaultInjector &)
             << finished << ","
             << unreached << ","
             << MsgTask::issued() << ","
-            << entropy.seed;
+            << entropy.get_seed();
 
   if (conf.verbose) {
     std::cout << ","

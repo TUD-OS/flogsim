@@ -28,31 +28,41 @@ int main(int argc, char *argv[])
 
   auto printer = ResultsPrinter::create();
 
-  auto faults = FaultInjector::create();
+  printer->intro();
 
-  Timeline timeline;
+  for (unsigned i = 0; i < conf.repeat; i++) {
+    entropy.reset_seed(conf.seed);
+    Counter::reset_counters();
 
-  try {
-    printer->intro();
-    auto coll = Collective({0}, faults.get());
+    Timeline timeline;
+    auto faults = FaultInjector::create();
 
-    coll.run(timeline, CollectiveRegistry::create(coll.reached_nodes));
+    try {
+      auto coll = Collective({0}, faults.get());
 
-    printer->results(timeline, *faults.get());
-  } catch (const std::exception &e) {
-    std::cerr << "Caught an exception: " << e.what() << std::endl;
-    std::cerr << "Initial environment: " << conf << std::endl;
-    std::cerr << "Faults: " << *faults << std::endl;
-  }
+      coll.run(timeline, CollectiveRegistry::create(coll.reached_nodes));
 
-  if (!conf.log_prefix.empty()) {
-    auto trace_filename = conf.log_prefix + ".trace.csv";
-    std::ofstream trace_log(trace_filename);
-    trace_log << timeline;
+      printer->results(timeline, *faults.get());
+    } catch (const std::exception &e) {
+      std::cerr << "Caught an exception: " << e.what() << std::endl;
+      std::cerr << "Initial environment: " << conf << std::endl;
+      std::cerr << "Faults: " << *faults << std::endl;
+    }
 
-    auto model_filename = conf.log_prefix + ".model.csv";
-    std::ofstream model_log(model_filename);
-    model_log << model;
+    if (!conf.log_prefix.empty()) {
+      std::string iter("");
+      if (conf.repeat > 1) {
+        iter = "." + std::to_string(i);
+      }
+
+      auto trace_filename = conf.log_prefix + iter + ".trace.csv";
+      std::ofstream trace_log(trace_filename);
+      trace_log << timeline;
+
+      auto model_filename = conf.log_prefix + ".model.csv";
+      std::ofstream model_log(model_filename);
+      model_log << model;
+    }
   }
 
   return 0;
