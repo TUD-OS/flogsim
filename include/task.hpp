@@ -9,6 +9,7 @@
 #include "model.hpp"
 #include "sequence.hpp"
 #include "tag.hpp"
+#include "counter.hpp"
 
 class TaskQueue;
 
@@ -129,15 +130,15 @@ template<typename CHILD>
 class TaskCounted : public Task
 {
 protected:
-  static int &get_counter()
+  static auto &counter()
   {
-    static int counter;
+    static Counter counter;
     return counter;
   }
 
-  static int &get_rescheduled()
+  static auto &rescheduled()
   {
-    static int rescheduled;
+    static Counter rescheduled;
     return rescheduled;
   }
 
@@ -148,7 +149,7 @@ public:
 
   static auto make_task_attime(auto *task, Time time)
   {
-    get_rescheduled()++;
+    rescheduled().inc();
     typedef typename std::remove_cv<
       typename std::remove_pointer<typeof(task)>::type>::type task_t;
     return std::make_unique<task_t>(task->seq(), task->tag(), time,
@@ -158,20 +159,20 @@ public:
   template<class ...Args>
   static std::unique_ptr<CHILD> make_from_task(const Task *task, Args... args)
   {
-    get_counter() ++;
+    counter().inc();
     return std::make_unique<CHILD>(task->seq(), task->tag(), args...);
   }
 
   static std::unique_ptr<CHILD> make_from_task(Task *task)
   {
-    get_counter() ++;
+    counter().inc();
     return std::make_unique<CHILD>(task);
   }
 
   template<class ...Args>
   static std::unique_ptr<CHILD> make_new(Args... args)
   {
-    get_counter() ++;
+    counter().inc();
     return std::make_unique<CHILD>(Sequence::next(), args...);
   }
 
@@ -187,12 +188,12 @@ public:
 
   static int issued()
   {
-    return get_counter();
+    return counter().get();
   }
 
   static int reschedules()
   {
-    return get_rescheduled();
+    return rescheduled().get();
   }
 };
 
