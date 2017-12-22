@@ -24,3 +24,10 @@ public:
   void intro() override;
   void results(Timeline &timeline, FaultInjector &faults) override;
 };
+
+class CsvIdPrinter : public ResultsPrinter
+{
+public:
+  void intro() override;
+  void results(Timeline &timeline, FaultInjector &faults) override;
+};

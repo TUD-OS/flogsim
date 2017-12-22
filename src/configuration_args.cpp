@@ -41,8 +41,11 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
      po::value<std::string>(&log_prefix)->value_name("PREFIX"),
      "Where to store the logs. Adds suffixes '.model.csv' and '.trace.csv' to the output files.")
     ("results-format",
-     po::value<std::string>()->value_name("NAME"),
-     "Format to print out runtime results. Allowed values: tables, csv.")
+     po::value<std::string>()->value_name("NAME")->default_value("tables"),
+     "Format to print out runtime results. Allowed values: tables, csv, csv-id.")
+    ("id",
+     po::value<std::string>(&id)->value_name("ID"),
+     "Id of the experiment. Used together with 'csv-id' format.")
     ("time_limit",
      po::value<int64_t>(&limit)->value_name("TIME"),
      "When to stop the simulation.")
@@ -129,14 +132,34 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     limit = INT64_MAX;
   }
 
+  // Check specification for results format
+  bool need_id = false;
   if (args.count("results-format")) {
     results_format = args["results-format"].as<std::string>();
-    if (results_format != "table" && results_format != "csv") {
+    if (results_format == "table") {
+      // OK
+    } else if (results_format == "csv") {
+      // OK
+    } else if (results_format == "csv-id") {
+      if (args.count("id")) {
+        // OK
+        need_id = true;
+      } else {
+        std::cerr << "Format 'csv-id' expects the user "
+                  << "to provide an experiment id (--id)." << std::endl;
+        throw po::validation_error(po::validation_error::invalid_option_value);
+      }
+    } else {
       std::cerr << "Unknown output format: " << results_format << std::endl;
       throw po::validation_error(po::validation_error::invalid_option_value);
     }
   } else {
     results_format = "table";
+  }
+
+  if (args.count("id") && !need_id) {
+    std::cerr << "Unexpected parameter --id." << std::endl;
+    throw po::validation_error(po::validation_error::invalid_option_value);
   }
 
   if (args.count("help")) {

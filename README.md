@@ -40,8 +40,15 @@ Example usage
 
 ## Result printing
 
-Please note that output formats (table and csv) print slightly
-different information. The reason for that is purely practical.
+Please note that output formats print slightly different
+information. The reason for that is purely practical.
+
+Format 'csv' prints the results in a form of csv table. List of failed
+nodes is not printed in this format.
+
+Format 'csv-id' allows to save on experiment description. Instead the
+user is expected to provide additional token, which identifies the
+experiment as parameter '--id'.
 
 # Visualisation
 

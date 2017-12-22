@@ -14,6 +14,8 @@ std::unique_ptr<ResultsPrinter> ResultsPrinter::create()
     return std::make_unique<TablePrinter>();
   } else if (conf.results_format == "csv") {
     return std::make_unique<CsvPrinter>();
+  } else if (conf.results_format == "csv-id") {
+    return std::make_unique<CsvIdPrinter>();
   } else {
     throw std::invalid_argument("Desired format does not exist:" +
                                 conf.results_format);
@@ -76,6 +78,48 @@ void CsvPrinter::results(Timeline &timeline, FaultInjector &faults)
             << conf.parallelism << ","
             << conf.priority << ","
             << conf.F << ","
+            << timeline.get_total_time() << ","
+            << failed << ","
+            << finished << ","
+            << unreached << ","
+            << MsgTask::issued() << ","
+            << entropy.seed;
+
+  if (conf.verbose) {
+    std::cout << ","
+              << RecvStartTask::reschedules() << ","
+              << RecvEndTask::reschedules() << ","
+              << SendStartTask::reschedules() << ","
+              << SendEndTask::reschedules() << ","
+              << IdleTask::reschedules();
+  }
+
+  std::cout << std::endl;
+}
+
+void CsvIdPrinter::intro()
+{
+  auto &conf = Globals::get().conf();
+  std::cout << "id,"
+            << "TotalRuntime,FailedNodes,FinishedNodes,UnreachedNodes,"
+            << "MsgTask,FaultInjectorSeed";
+
+  if (conf.verbose) {
+    std::cout << ",ReschRecvStartTask,ReschRecvEndTask,"
+              << "ReschSendStartTask,ReschSendEndTask,ReschIdleTask";
+  }
+
+  std::cout << std::endl;
+}
+
+void CsvIdPrinter::results(Timeline &timeline, FaultInjector &)
+{
+  auto &conf = Globals::get().conf();
+  auto &entropy = Globals::get().entropy();
+
+  auto [failed, finished, unreached] = timeline.node_stat();
+
+  std::cout << conf.id << ","
             << timeline.get_total_time() << ","
             << failed << ","
             << finished << ","
