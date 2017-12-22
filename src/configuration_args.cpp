@@ -6,6 +6,7 @@
 #include <boost/program_options.hpp>
 
 #include "configuration_args.hpp"
+#include "collective_registry.hpp"
 
 namespace po = boost::program_options;
 
@@ -104,8 +105,7 @@ po::options_description create_options_description(ConfigurationArgs &conf)
   po::options_description collectives("Collectives options");
   collectives.add_options()
     ("coll",
-     po::value<std::string>(&conf.collective)->
-     default_value("binary_bcast")->value_name("NAME"),
+     po::value<std::string>(&conf.collective)->value_name("NAME"),
      "Type of collective to model")
     ("karity,k",
      po::value<int>(&conf.k)->default_value(2)->value_name("NUM"),
@@ -122,6 +122,27 @@ po::options_description create_options_description(ConfigurationArgs &conf)
 
 void validate_options(ConfigurationArgs &conf, po::variables_map &args)
 {
+  // Check collective parameter
+  const auto coll_list = CollectiveRegistry::list();
+  if (!args.count("coll")) {
+    std::cerr << "Missing --coll parameter." << std::endl;
+    throw po::validation_error(po::validation_error::invalid_option_value);
+  } else if (conf.collective == "list") {
+    std::cout << "List of collectives:" << std::endl;
+    for (const auto &coll : coll_list) {
+      std::cout << "  " << coll << std::endl;
+    }
+    exit( EXIT_SUCCESS );
+    // no return
+  } else {
+    auto search_result = std::find(coll_list.cbegin(), coll_list.cend(),
+                                   conf.collective);
+    if (search_result == coll_list.end()) {
+      std::cerr << "Unknown collective specified in --coll parameter." << std::endl;
+      throw po::validation_error(po::validation_error::invalid_option_value);
+    }
+  }
+
   if (!args.count("log")) {
     assert(log_prefix == "");
   }
