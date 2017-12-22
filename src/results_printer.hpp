@@ -17,3 +17,10 @@ class TablePrinter : public ResultsPrinter
 public:
   void results(Timeline &timeline, FaultInjector &faults) override;
 };
+
+class CsvPrinter : public ResultsPrinter
+{
+public:
+  void intro() override;
+  void results(Timeline &timeline, FaultInjector &faults) override;
+};
