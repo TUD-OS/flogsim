@@ -27,7 +27,9 @@ add `-DUNIT_TESTS=ON` to cmake configuration.
 
 Use "--help"
 
-Possible parameters for --faults are "none" and "uniform"
+Possible parameters for --faults are "none" and "uniform". If you want
+explicitly specify list of failed nodes pass the node ids in comma
+separated list, like `--faults 1,4,7`.
 
 Possible parameters for --collective are "binary_bcast" and
 "correctedtree_bcast"
@@ -35,7 +37,7 @@ Possible parameters for --collective are "binary_bcast" and
 Example usage
 
 ```bash
-./flogsim --P 128 --o 1 --L 4 --faults uniform --F 4 --coll correctedtree_bcast --help
+./flogsim --P 128 --o 1 --L 4 --faults uniform --F 4 --coll correctedtree_bcast
 ```
 
 ## Result printing
