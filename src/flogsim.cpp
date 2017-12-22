@@ -11,6 +11,7 @@
 #include "task.hpp"
 #include "task_queue.hpp"
 #include "globals.hpp"
+#include "collective_registry.hpp"
 
 #include "configuration_args.hpp"
 #include "results_printer.hpp"

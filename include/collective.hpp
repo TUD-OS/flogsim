@@ -63,27 +63,3 @@ public:
   // configuration.
   static std::unique_ptr<Collective> create();
 };
-
-class CollectiveRegistry
-{
-public:
-  typedef std::function<std::unique_ptr<Phase>(ReachedNodes&)> create_fun_t;
-
-  static void declare(create_fun_t &create_fun, const std::string_view &name);
-  static std::unique_ptr<Phase> create(ReachedNodes &reached_nodes);
-
-private:
-  std::map<std::string_view, create_fun_t> data;
-  static CollectiveRegistry &get();
-};
-
-class CollectiveRegistrator
-{
-  using create_fun_t = CollectiveRegistry::create_fun_t;
-public:
-
-  CollectiveRegistrator(create_fun_t create_fun, const char name[])
-  {
-    CollectiveRegistry::declare(create_fun, name);
-  }
-};

@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "collective.hpp"
+#include "collective_registry.hpp"
 #include "phase.hpp"
 
 #include "phase/gossip.hpp"
