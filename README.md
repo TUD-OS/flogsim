@@ -38,6 +38,11 @@ Example usage
 ./flogsim --P 128 --o 1 --L 4 --faults uniform --F 4 --coll correctedtree_bcast --help
 ```
 
+## Result printing
+
+Please note that output formats (table and csv) print slightly
+different information. The reason for that is purely practical.
+
 # Visualisation
 
 You can use `../script/plot_trace.R` script to visualize generated
