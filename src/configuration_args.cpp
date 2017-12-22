@@ -128,6 +128,7 @@ ConfigurationArgs::ConfigurationArgs(int argc, char *argv[])
     assert(log_prefix == "");
   }
 
+  // Set default value for time limit
   if (!args.count("time_limit")) {
     limit = INT64_MAX;
   }
