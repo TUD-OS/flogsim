@@ -102,7 +102,6 @@ Be aware that the scripts were written with SLURM in mind.
 # TODO
 
   - [ ] Write tests
-  - [ ] Add list of failed nodes to the command line interface
   - [ ] Add various finishing events: All done, All received, etc.
   - [ ] Add ceil(L/g) network capacity limit
 
