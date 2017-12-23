@@ -146,10 +146,6 @@ void validate_options(ConfigurationArgs &conf, po::variables_map &args)
     }
   }
 
-  if (!args.count("log")) {
-    assert(log_prefix == "");
-  }
-
   // Set default value for time limit
   if (!args.count("time_limit")) {
     conf.limit = INT64_MAX;
