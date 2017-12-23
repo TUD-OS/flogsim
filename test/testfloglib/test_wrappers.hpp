@@ -19,6 +19,8 @@ struct RunParams
   int param_P;
   // Arity
   int param_k;
+  // How many processors each node has
+  unsigned param_parallel;
   // Timelimit
   int param_limit;
   // Parameter for entropy seed
@@ -78,6 +80,12 @@ struct RunParams
     return *this;
   }
 
+  auto &parallel(int parallel)
+  {
+    param_parallel = parallel;
+    return *this;
+  }
+
   auto &limit(int limit)
   {
     param_limit = limit;
@@ -117,6 +125,7 @@ struct RunParams
       param_g(1),
       param_P(1),
       param_k(1),
+      param_parallel(1),
       param_limit(0),
       param_seed(368),
       expect_runtime(0),
@@ -174,7 +183,7 @@ public:
     if (param.param_limit == 0) {
       param.param_limit = param.expect_runtime + 10;
     }
-    auto conf = Configuration(param.param_k, param.param_limit).
+    auto conf = Configuration(param.param_k, param.param_parallel, param.param_limit).
       LogP(param.param_L,
            param.param_o,
            param.param_g,
