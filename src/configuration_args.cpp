@@ -53,6 +53,9 @@ po::options_description create_options_description(ConfigurationArgs &conf)
     ("repeat,r",
      po::value<unsigned>(&conf.repeat)->value_name("NUM")->default_value(1),
      "How many times we should repeat the experiment.")
+    ("no-header",
+     po::value<bool>(&conf.no_header)->implicit_value(true),
+     "Should the printer omit the header. This option is relevant if header exists.")
     ("time_limit",
      po::value<int64_t>(&conf.limit)->value_name("TIME"),
      "When to stop the simulation.")

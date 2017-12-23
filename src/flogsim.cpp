@@ -29,7 +29,9 @@ int main(int argc, char *argv[])
 
   auto printer = ResultsPrinter::create();
 
-  printer->intro();
+  if (!conf.no_header) {
+    printer->intro();
+  }
 
   for (unsigned i = 0; i < conf.repeat; i++) {
     entropy.reset_seed(conf.seed);

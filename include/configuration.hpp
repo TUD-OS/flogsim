@@ -11,6 +11,7 @@ struct Configuration
   // Id of the experiment parameters
   std::string id;
   unsigned repeat;
+  bool no_header;
 
   bool verbose;
   int64_t limit;
