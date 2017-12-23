@@ -45,8 +45,8 @@ po::options_description create_options_description(ConfigurationArgs &conf)
      po::value<std::string>(&conf.log_prefix)->value_name("PREFIX"),
      "Where to store the logs. Adds suffixes '.model.csv' and '.trace.csv' to the output files.")
     ("results-format",
-     po::value<std::string>()->value_name("NAME")->default_value("tables"),
-     "Format to print out runtime results. Allowed values: tables, csv, csv-id.")
+     po::value<std::string>()->value_name("NAME")->default_value("table"),
+     "Format to print out runtime results. Allowed values: table, csv, csv-id.")
     ("id",
      po::value<std::string>(&conf.id)->value_name("ID"),
      "Id of the experiment. Used together with 'csv-id' format.")
