@@ -74,6 +74,28 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<Exclusive>(std::make_unique<KAryTree<true>>(rn)).
+          add_phase<CheckedCorrection<true>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+        "phased_checked_corrected_kary_bcast"
+          },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<KAryTree<true>>().
+          add_phase<CheckedCorrection<false>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "checked_corrected_kary_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
           add_phase<Exclusive>(std::make_unique<BinomialTree>(rn)).
           add_phase<CheckedCorrection<true>>();
 
