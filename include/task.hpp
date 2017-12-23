@@ -262,6 +262,9 @@ public:
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
 };
 
+// This task is delivered, when a node can send once again. One does
+// not have to schedule receives. See IdleTracker::deliver_task for
+// more detail.
 class IdleTask : public TaskCounted<IdleTask>
 {
   virtual TaskPriority task_priority() const { return TaskPriority::IDLE; }

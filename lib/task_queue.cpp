@@ -89,9 +89,15 @@ void TaskQueue::IdleTracker::deliver_tasks(TaskQueue &tq, Timeline &tl)
       continue;
     }
 
-    Time est = tl.per_cpu_time[node].cpu_events.earliest_start_time();
-    if (est > tq.current_time) {
-      // Something is running right now
+    Time cpu_est = tl.per_cpu_time[node].cpu_events.earliest_start_time();
+    if (cpu_est > tq.current_time) {
+      // Something is running on a cpu right now
+      continue;
+    }
+
+    Time send_est = tl.per_cpu_time[node].send_gaps.earliest_start_time();
+    if (send_est > tq.current_time) {
+      // Something is busy sending right now
       continue;
     }
 
