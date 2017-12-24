@@ -142,6 +142,19 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BinomialTree>().
+          add_phase<Gossip>().
+          add_phase<CheckedCorrection<false>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "checked_gossip_corrected_binomial_bcast"
+    },
+
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
           add_phase<Gossip>().
           add_phase<OpportunisticCorrection<true>>();
 
