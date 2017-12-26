@@ -26,7 +26,7 @@ Phase::Result Gossip::post_sends(const int sender, TaskQueue &tq)
   std::uniform_int_distribution<int> distribution(0, num_nodes() - 2);
   int receiver = distribution(generator);
 
-  if (receiver == sender) {
+  if (receiver >= sender) {
     receiver++;
   }
 
