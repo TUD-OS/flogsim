@@ -24,6 +24,12 @@ public:
       return std::move(*this);
     }
 
+    Phases &&add_phase(PhasePtr &&phase)
+    {
+      phases.push_back(std::move(phase));
+      return std::move(*this);
+    }
+
     Phases(ReachedNodes &reached_nodes)
       : reached_nodes(reached_nodes)
     {}
