@@ -117,6 +117,20 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
+        auto correction = std::make_unique<CheckedCorrection<false>>(rn);
+        correction->throttled();
+
+        auto phases = Combiner::Phases(rn).
+          add_phase<BinomialTree>().
+          add_phase(std::move(correction));
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "throttled_checked_corrected_binomial_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
         auto phases = Combiner::Phases(rn).
           add_phase<OptimalTree>().
           add_phase<CheckedCorrection<false>>();
