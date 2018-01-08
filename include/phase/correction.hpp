@@ -48,11 +48,24 @@ class CheckedCorrection : public Correction
 
   std::vector<Ring> left;
   std::vector<Ring> right;
+  std::vector<bool> is_now_left;
 
+  bool is_throttling;
+
+  int get_dir(int node_id);
+  bool should_skip(TaskQueue&, Ring&, int);
   Phase::Result post_message(TaskQueue &tq, int node_id);
 public:
   CheckedCorrection(ReachedNodes &reached_nodes);
 
+  // Sets throttled to true
+  CheckedCorrection &throttled()
+  {
+    is_throttling = true;
+    return *this;
+  }
+
+  virtual Phase::Result dispatch(const TimerTask&, TaskQueue &tq, int node_id) override;
   virtual Phase::Result dispatch(const InitTask&, TaskQueue &tq, int node_id) override;
   virtual Phase::Result dispatch(const IdleTask&, TaskQueue &tq, int node_id) override;
   virtual Phase::Result dispatch(const RecvEndTask&, TaskQueue &tq, int node_id) override;

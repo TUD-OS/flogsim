@@ -79,9 +79,57 @@ template<bool send_over_root>
 CheckedCorrection<send_over_root>::CheckedCorrection(
   ReachedNodes &reached_nodes)
   : Correction(reached_nodes),
-    left{unsigned(this->num_nodes())},
-    right{unsigned(left.size())}
+    left(this->num_nodes()),
+    right(left.size()),
+    is_now_left(left.size()),
+    is_throttling(false)
 {
+}
+
+// This function should decide which direction we are sending to
+template<bool send_over_root>
+int CheckedCorrection<send_over_root>::get_dir(int node_id)
+{
+  Ring &left = this->left[node_id];
+  Ring &right = this->right[node_id];
+
+  // If we are throttling, we should only flip the direction
+  if (is_throttling) {
+    bool is_left = this->is_now_left[node_id];
+    this->is_now_left[node_id].flip();
+    return is_left ? DIR_LEFT : DIR_RIGHT;
+  }
+
+  // If we are not throttling, check what direction is not done. If
+  // neither is, pick the one where we sent less messages
+  if ((left.offset < left.min_recv) && (right.offset < right.min_recv)) {
+    return ((left.offset <= right.offset) ? DIR_LEFT : DIR_RIGHT);
+  } else {
+    // Here one of the directions is done, so we just pick another one
+    return ((left.offset < left.min_recv) ? DIR_LEFT : DIR_RIGHT);
+  }
+}
+
+template<bool send_over_root>
+bool CheckedCorrection<send_over_root>::should_skip(
+  TaskQueue &tq, Ring &ring, int node_id)
+{
+  if (!is_throttling) {
+    assert((ring.offset < ring.min_recv) &&
+           "Throttling is off. The ring expected to be active");
+    return false;
+  }
+
+  // If ring is active, do not skip the slot
+  if (ring.offset < ring.min_recv) {
+    return false;
+  }
+
+  // If yes skip some time
+  auto &model = Globals::get().model();
+  auto o = model.o;
+  tq.schedule(TimerTask::make_new(tq.now() + o, node_id));
+  return true;
 }
 
 template<bool send_over_root>
@@ -109,18 +157,13 @@ CheckedCorrection<send_over_root>::post_message(
     return Phase::Result::DONE_PHASE;
   }
 
-  int dir;
-  // If we are not done in both directions pick the one where we sent
-  // less messages
-  if ((left.offset < left.min_recv) && (right.offset < right.min_recv)) {
-    dir = ((left.offset <= right.offset) ? DIR_LEFT : DIR_RIGHT);
-  } else {
-    // Here one of the directions is done, so we just pick another one
-    dir = ((left.offset < left.min_recv) ? DIR_LEFT : DIR_RIGHT);
-  }
+  int dir = this->get_dir(node_id);
 
   Ring &send_dir = dir == DIR_LEFT ? left : right;
 
+  if (this->should_skip(tq, send_dir, node_id)) {
+    return Phase::Result::ONGOING;
+  }
   // Record next offset
   send_dir.offset += 1;
 
@@ -148,6 +191,15 @@ CheckedCorrection<send_over_root>::post_message(
   }
 
   return Phase::Result::ONGOING;
+}
+
+template<bool send_over_root>
+Phase::Result
+CheckedCorrection<send_over_root>::dispatch(
+  const TimerTask&, TaskQueue &tq, int node_id)
+{
+  tq.schedule(IdleTask::make_new(node_id));
+  return Result::ONGOING;
 }
 
 template<bool send_over_root>
