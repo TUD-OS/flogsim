@@ -129,6 +129,10 @@ OptimalTree::OptimalTree(ReachedNodes &reached_nodes)
   send_to.resize(num_nodes());
   for (int i = 0; i < static_cast<int>(nodes.size()); i++) {
     auto &cur = nodes[i];
+    if (cur.label > end_of_phase) {
+      end_of_phase = cur.label;
+    }
+
     if (cur.parent != i) {
       send_to[cur.parent].push_back(i);
     }
@@ -169,4 +173,10 @@ OptimalTree::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
   } else {
     return Result::DONE_COLL;
   }
+}
+
+Time
+OptimalTree::deadline() const
+{
+  return end_of_phase;
 }

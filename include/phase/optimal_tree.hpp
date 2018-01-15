@@ -4,6 +4,7 @@
 
 class OptimalTree : public Tree
 {
+  Time end_of_phase;
   std::vector<std::vector<int>> send_to;
   void post_sends(const int sender, TaskQueue &tq) const;
 public:
@@ -11,4 +12,6 @@ public:
 
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const RecvEndTask& t, TaskQueue &tq, int node_id) override;
+
+  virtual Time deadline() const override;
 };

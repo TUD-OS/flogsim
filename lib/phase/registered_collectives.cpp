@@ -143,6 +143,17 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<Exclusive>(std::make_unique<OptimalTree>(rn)).
+          add_phase<CheckedCorrection<true>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "phased_checked_corrected_optimal_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
           add_phase<OptimalTree>().
           add_phase<Gossip>().
           add_phase<CheckedCorrection<false>>();
