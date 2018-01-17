@@ -26,7 +26,22 @@ struct Time : public Integer<Time>
 
   friend Time operator*(const int a, const Time &other)
   {
-    return other * a;
+    return Time(a * other.time);
+  }
+
+  friend Time operator-(const int a, const Time &other)
+  {
+    return Time(a - other.time);
+  }
+
+  friend Time operator+(const int a, const Time &other)
+  {
+    return Time(a + other.time);
+  }
+
+  Time operator*(const Time &other) const
+  {
+    return Time(time * other.time);
   }
 
   Time operator+(const Time &other) const
