@@ -7,6 +7,7 @@
 #include "phase/gossip.hpp"
 #include "phase/kary_tree.hpp"
 #include "phase/binomial_tree.hpp"
+#include "phase/lame_tree.hpp"
 #include "phase/optimal_tree.hpp"
 
 #include "phase/exclusive.hpp"
@@ -127,6 +128,28 @@ std::vector<CollectiveRegistrator> _{
         return std::make_unique<Combiner>(std::move(phases));
       },
       "throttled_checked_corrected_binomial_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<LameTree>().
+          add_phase<CheckedCorrection<false>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "checked_corrected_lame_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<Exclusive>(std::make_unique<LameTree>(rn)).
+          add_phase<CheckedCorrection<true>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "phased_checked_corrected_lame_bcast"
     },
     {
       [](ReachedNodes &rn)
