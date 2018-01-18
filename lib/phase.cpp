@@ -26,6 +26,11 @@ Result Phase::dispatch(const SendEndTask &, TaskQueue &, int)
   return Result::ONGOING;
 }
 
+Result Phase::dispatch(const FinishTask &, TaskQueue &, int)
+{
+  return Result::ONGOING;
+}
+
 Time Phase::deadline() const
 {
   return Time::max(); // infinite/unpredictable runtime

@@ -13,6 +13,7 @@ class IdleTask;
 class TimerTask;
 class RecvEndTask;
 class SendEndTask;
+class FinishTask;
 
 /* Interface of a collective phase for a single node
  *
@@ -46,6 +47,7 @@ public:
   virtual Result dispatch(const TimerTask &, TaskQueue &, int);
   virtual Result dispatch(const RecvEndTask &, TaskQueue &, int);
   virtual Result dispatch(const SendEndTask &, TaskQueue &, int);
+  virtual Result dispatch(const FinishTask &, TaskQueue &, int);
 
   // maximum time after which the phase will finish, i.e. report 'DONE_*'
   virtual Time deadline() const;

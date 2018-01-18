@@ -77,8 +77,9 @@ void Collective::accept(const MsgTask&, TaskQueue&)
 {
 }
 
-void Collective::accept(const FinishTask&, TaskQueue&)
+void Collective::accept(const FinishTask& t, TaskQueue& tq)
 {
+  forward(t, tq, t.sender());
 }
 
 void Collective::accept(const FailureTask&, TaskQueue&)

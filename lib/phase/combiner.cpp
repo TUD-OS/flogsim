@@ -79,6 +79,16 @@ Result Combiner::dispatch(const SendEndTask &t, TaskQueue &tq, int node_id)
   return forward(t, tq, node_id);
 }
 
+Result Combiner::dispatch(const FinishTask &t, TaskQueue &tq, int node_id)
+{
+  for (auto &phase : phases) {
+    [[maybe_unused]] Result res;
+    res = phase->dispatch(t, tq, node_id);
+    assert(res == Result::ONGOING);
+  }
+  return Result::ONGOING;
+}
+
 Time Combiner::deadline() const
 {
   Time length{0};
