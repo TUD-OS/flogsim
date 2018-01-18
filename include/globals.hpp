@@ -3,6 +3,9 @@
 #include "configuration.hpp"
 #include "model.hpp"
 #include "entropy.hpp"
+#include "metrics.hpp"
+
+#include <memory>
 
 class Model;
 
@@ -29,8 +32,16 @@ public:
     return *_entropy;
   }
 
+  Metrics &metrics() const
+  {
+    return Metrics::get();
+  }
+
   Globals()
-    : initialized(false), _conf(nullptr), _model(nullptr), _entropy(nullptr)
+    : initialized(false),
+      _conf(nullptr),
+      _model(nullptr),
+      _entropy(nullptr)
   {}
   Globals(const Configuration *conf, const Model *model, Entropy *entropy)
     : initialized(true), _conf(conf), _model(model), _entropy(entropy)
