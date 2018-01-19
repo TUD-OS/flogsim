@@ -163,7 +163,7 @@ public:
     return std::make_unique<CHILD>(task->seq(), task->tag(), args...);
   }
 
-  static std::unique_ptr<CHILD> make_from_task(Task *task)
+  static std::unique_ptr<CHILD> make_from_task(const Task *task)
   {
     counter().inc();
     return std::make_unique<CHILD>(task);

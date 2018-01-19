@@ -5,12 +5,16 @@
 class Tree : public Phase
 {
 protected:
-  const bool exit_on_early_correction;
+  bool exit_on_early_correction = true;
 
 public:
-  Tree(ReachedNodes &reached_nodes, bool exit_on_corr = true)
-    : Phase(reached_nodes), exit_on_early_correction(exit_on_corr)
+  Tree(ReachedNodes &reached_nodes)
+    : Phase(reached_nodes)
   {
+  }
+
+  void forward_unexpected() {
+    exit_on_early_correction = false;
   }
 
   Result dispatch(const FinishTask &, TaskQueue &, int) override final;

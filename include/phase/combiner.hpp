@@ -45,7 +45,8 @@ private:
   PhaseVec phases;
   std::vector<size_t> cur_phase;
 
-  Result forward(const auto &t, TaskQueue &tq, const int node_id);
+  template <typename TASK>
+  Result forward(const TASK &t, TaskQueue &tq, const int node_id);
 
 public:
   Combiner(Phases &&phases);

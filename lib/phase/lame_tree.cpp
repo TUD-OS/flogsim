@@ -102,7 +102,7 @@ Time LameTree::latency_at_node(int id, int t) const
   // vector of size time(t) of vectors of size num_nodes()
   static std::vector<std::vector<Time>> cache;
 
-  while (cache.size() <= t) {
+  while (cache.size() <= static_cast<size_t>(t)) {
     // Need to create cache for new time slot
     cache.push_back(std::vector<Time>(num_nodes()));
   }

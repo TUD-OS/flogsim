@@ -26,6 +26,9 @@ Result Exclusive::forward(const auto &t, TaskQueue &tq, const int node_id)
     case Result::DONE_COLL:
       break;
 
+    case Result::DONE_FORWARD:
+      throw std::invalid_argument("Exclusive phase trying to forward");
+
     case Result::DONE_PHASE: // delay nodes that finish the phase early
     {
       res = Result::ONGOING;

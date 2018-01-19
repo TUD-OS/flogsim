@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <assert.h>
+#include <type_traits>
 
 #include "task.hpp"
 #include "task_queue.hpp"
@@ -7,7 +8,8 @@
 
 using Result = Phase::Result;
 
-Result Combiner::forward(const auto &t, TaskQueue &tq, const int node_id)
+template <typename TASK>
+Result Combiner::forward(const TASK &t, TaskQueue &tq, const int node_id)
 {
   size_t &node_cur_phase = cur_phase[node_id];
   if (node_cur_phase >= phases.size()) {
@@ -29,9 +31,14 @@ Result Combiner::forward(const auto &t, TaskQueue &tq, const int node_id)
       if (node_cur_phase < phases.size()) {
         tq.schedule(InitTask::make_new(tq.now(), node_id));
 
-        // ... and forward current task
+        // ... and forward current message
         if (res == Result::DONE_FORWARD) {
-          tq.schedule(InitTask::make_from_task(t));
+          if constexpr (std::is_same<TASK, RecvEndTask>::value){
+            tq.schedule(TASK::make_from_task(&t, t.start(), t.sender(), t.receiver()));
+          }
+          else {
+            assert(false && "Trying to forward something not a message");
+          }
         }
       }
       break;
