@@ -129,11 +129,17 @@ class TaskQueue
     current_time = absolute;
   }
 
+  Timeline *timeline_ptr;
   FaultInjector *fault_injector;
 public:
   void mark_nonidle(int node)
   {
     idle.mark_nonidle(node);
+  }
+
+  const Timeline &timeline() const
+  {
+    return *timeline_ptr;
   }
 
   const FaultInjector &faults() const

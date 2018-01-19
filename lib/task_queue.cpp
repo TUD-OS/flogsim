@@ -30,6 +30,8 @@ std::ostream &operator<<(std::ostream &os, std::shared_ptr<Task> t)
 
 void TaskQueue::run(Collective &coll, Timeline &timeline)
 {
+  timeline_ptr = &timeline;
+
   auto &conf = Globals::get().conf();
   while (!empty() || idle.is_pending()) {
     if (conf.verbose) {
