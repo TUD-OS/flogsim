@@ -85,11 +85,11 @@ KAryTree<interleave>::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
   reached_nodes[node_id] = true;
   post_sends(node_id, tq);
 
-  if (t.tag() == Tag::TREE) {
-    return Result::DONE_PHASE;
-  } else {
-    return Result::DONE_COLL;
-  }
+  return (t.tag() == Tag::TREE ?
+                     Result::DONE_PHASE :
+                     (exit_on_early_correction ?
+                       Result::DONE_COLL :
+                       Result::DONE_FORWARD));
 }
 
 template <bool interleave>

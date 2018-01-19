@@ -6,8 +6,8 @@ class BinomialTree : public Tree
 {
   void post_sends(const int sender, TaskQueue &tq) const;
 public:
-  BinomialTree(ReachedNodes &reached_nodes)
-    : Tree(reached_nodes)
+  BinomialTree(ReachedNodes &reached_nodes, bool exit_on_corr = true)
+    : Tree(reached_nodes, exit_on_corr)
   {
   }
 

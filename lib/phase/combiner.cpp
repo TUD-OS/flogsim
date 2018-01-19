@@ -21,12 +21,18 @@ Result Combiner::forward(const auto &t, TaskQueue &tq, const int node_id)
     case Result::ONGOING:
       break;
 
-    case Result::DONE_PHASE:
+    case Result::DONE_PHASE: [[fallthrough]]
+    case Result::DONE_FORWARD:
       ++node_cur_phase; // switch to next phase
 
-      // init next phase for this node
+      // init next phase for this node...
       if (node_cur_phase < phases.size()) {
         tq.schedule(InitTask::make_new(tq.now(), node_id));
+
+        // ... and forward current task
+        if (res == Result::DONE_FORWARD) {
+          tq.schedule(InitTask::make_from_task(t));
+        }
       }
       break;
 
@@ -36,7 +42,7 @@ Result Combiner::forward(const auto &t, TaskQueue &tq, const int node_id)
   }
 
   if (node_cur_phase < phases.size()) {
-    assert(res == Result::DONE_PHASE || res == Result::ONGOING);
+    assert(res == Result::DONE_PHASE || res == Result::ONGOING || res == Result::DONE_FORWARD);
     res = Result::ONGOING; // we actually still have more work to do
   }
 

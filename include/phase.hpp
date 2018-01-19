@@ -31,9 +31,10 @@ protected:
 public:
   enum class Result
   {
-    ONGOING    = 1,
-    DONE_PHASE = 2,
-    DONE_COLL  = 3,
+    ONGOING,      // phase continues to run
+    DONE_PHASE,   // phase done, run next phase (if any)
+    DONE_FORWARD, // phase done, run next phase and forward last message to it
+    DONE_COLL,    // phase done, ignore any following phases and quit collective
   };
 
   Phase(ReachedNodes &reached_nodes)

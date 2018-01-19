@@ -116,8 +116,8 @@ std::vector<Node> compute_opt_tree(Time L, Time o, Time g, int num_nodes)
 
 // OptimalTree
 
-OptimalTree::OptimalTree(ReachedNodes &reached_nodes)
-  : Tree(reached_nodes)
+OptimalTree::OptimalTree(ReachedNodes &reached_nodes, bool corr_after_corr)
+  : Tree(reached_nodes, corr_after_corr)
 {
   auto &model = Globals::get().model();
   auto L = model.L;
@@ -165,14 +165,13 @@ Phase::Result
 OptimalTree::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   reached_nodes[node_id] = true;
-
   post_sends(node_id, tq);
 
-  if (t.tag() == Tag::TREE) {
-    return Result::DONE_PHASE;
-  } else {
-    return Result::DONE_COLL;
-  }
+  return (t.tag() == Tag::TREE ?
+                     Result::DONE_PHASE :
+                     (exit_on_early_correction ?
+                       Result::DONE_COLL :
+                       Result::DONE_FORWARD));
 }
 
 Time
