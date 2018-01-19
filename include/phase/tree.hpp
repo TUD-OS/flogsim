@@ -9,4 +9,6 @@ public:
     : Phase(reached_nodes)
   {
   }
+
+  Result dispatch(const FinishTask &, TaskQueue &, int) override final;
 };
