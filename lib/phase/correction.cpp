@@ -264,6 +264,34 @@ CheckedCorrection<send_over_root>::dispatch(
   return Result::ONGOING;
 }
 
+template<bool send_over_root>
+Phase::Result
+CheckedCorrection<send_over_root>::dispatch(
+  const FinishTask &, TaskQueue &, int node_id)
+{
+  // Everybody except root skips this task
+  if (!node_id) {
+    return Result::ONGOING;
+  }
+
+  auto &metrics = Globals::get().metrics();
+
+  int recv_left = 0, recv_right = 0, missing_around = 0;
+  for (int i = 0; i < num_nodes(); i++) {
+    Ring &left = this->left[node_id];
+    Ring &right = this->right[node_id];
+
+    recv_left = std::max(recv_left, left.min_recv);
+    recv_right = std::max(recv_right, right.min_recv);
+    missing_around = std::max(recv_left + recv_right, missing_around);
+  }
+
+  metrics["CorrectedGapLeft"] = recv_left - 1;
+  metrics["CorrectedGapRight"] = recv_right - 1;
+  metrics["CorrectedGap"] = missing_around - 2;
+  return Result::ONGOING;
+
+}
 
 template class CheckedCorrection<true>;
 template class CheckedCorrection<false>;
