@@ -86,3 +86,9 @@ Exclusive::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   return forward(t, tq, node_id);
 }
+
+Result
+Exclusive::dispatch(const FinishTask &t, TaskQueue &tq, int node_id)
+{
+  return forward(t, tq, node_id);
+}
