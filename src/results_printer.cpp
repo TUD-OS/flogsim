@@ -6,6 +6,25 @@
 #include "timeline.hpp"
 #include "results_printer.hpp"
 
+
+void ResultsPrinter::print_header()
+{
+  auto &metrics = Globals::get().metrics();
+
+  for (auto it = metrics.cbegin(); it != metrics.cend(); it++) {
+    std::cout << "," << it->first;
+  }
+}
+
+void ResultsPrinter::print_metrics()
+{
+  auto &metrics = Globals::get().metrics();
+
+  for (auto it = metrics.cbegin(); it != metrics.cend(); it++) {
+    std::cout << "," << it->second;
+  }
+}
+
 std::unique_ptr<ResultsPrinter> ResultsPrinter::create()
 {
   auto &conf = Globals::get().conf();
@@ -19,6 +38,17 @@ std::unique_ptr<ResultsPrinter> ResultsPrinter::create()
   } else {
     throw std::invalid_argument("Desired format does not exist:" +
                                 conf.results_format);
+  }
+}
+
+void TablePrinter::print_metrics()
+{
+  auto &metrics = Globals::get().metrics();
+
+  for (auto it = metrics.cbegin(); it != metrics.cend(); it++) {
+    std::cout << it->first
+              << "," << it->second
+              << std::endl;
   }
 }
 
@@ -37,6 +67,8 @@ void TablePrinter::results(Timeline &timeline, FaultInjector &faults)
             << "FaultInjectorSeed," << entropy.get_seed() << std::endl
             << "FailedNodeList," << faults << std::endl;
 
+  print_metrics();
+
   if (conf.verbose) {
     std::cout << "ReschRecvStartTask," << RecvStartTask::reschedules() << std::endl
               << "ReschRecvEndTask," << RecvEndTask::reschedules() << std::endl
@@ -52,6 +84,8 @@ void CsvPrinter::intro()
   std::cout << "L,o,g,P,k,COLL,parallel,prio,F,"
             << "TotalRuntime,FailedNodes,FinishedNodes,UnreachedNodes,"
             << "MsgTask,FaultInjectorSeed";
+
+  print_header();
 
   if (conf.verbose) {
     std::cout << ",ReschRecvStartTask,ReschRecvEndTask,"
@@ -85,6 +119,8 @@ void CsvPrinter::results(Timeline &timeline, FaultInjector &)
             << MsgTask::issued() << ","
             << entropy.get_seed();
 
+  print_metrics();
+
   if (conf.verbose) {
     std::cout << ","
               << RecvStartTask::reschedules() << ","
@@ -103,6 +139,8 @@ void CsvIdPrinter::intro()
   std::cout << "id,"
             << "TotalRuntime,FailedNodes,FinishedNodes,UnreachedNodes,"
             << "MsgTask,FaultInjectorSeed";
+
+  print_header();
 
   if (conf.verbose) {
     std::cout << ",ReschRecvStartTask,ReschRecvEndTask,"
@@ -126,6 +164,8 @@ void CsvIdPrinter::results(Timeline &timeline, FaultInjector &)
             << unreached << ","
             << MsgTask::issued() << ","
             << entropy.get_seed();
+
+  print_metrics();
 
   if (conf.verbose) {
     std::cout << ","

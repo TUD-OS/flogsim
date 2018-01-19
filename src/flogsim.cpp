@@ -29,10 +29,6 @@ int main(int argc, char *argv[])
 
   auto printer = ResultsPrinter::create();
 
-  if (!conf.no_header) {
-    printer->intro();
-  }
-
   for (unsigned i = 0; i < conf.repeat; i++) {
     entropy.reset_seed(conf.seed);
     Counter::reset_counters();
@@ -44,6 +40,10 @@ int main(int argc, char *argv[])
       auto coll = Collective({0}, faults.get());
 
       coll.run(timeline, CollectiveRegistry::create(coll.reached_nodes));
+
+      if ((i == 0) && (!conf.no_header)) {
+        printer->intro();
+      }
 
       printer->results(timeline, *faults.get());
     } catch (const std::exception &e) {

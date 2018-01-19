@@ -5,6 +5,9 @@ class FaultInjector;
 
 class ResultsPrinter
 {
+protected:
+  virtual void print_header();
+  virtual void print_metrics();
 public:
   virtual void intro() {}
   virtual void results(Timeline &timeline, FaultInjector &faults) = 0;
@@ -14,6 +17,7 @@ public:
 
 class TablePrinter : public ResultsPrinter
 {
+  void print_metrics() override;
 public:
   void results(Timeline &timeline, FaultInjector &faults) override;
 };
