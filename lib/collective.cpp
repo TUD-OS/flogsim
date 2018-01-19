@@ -19,12 +19,15 @@ Collective::Collective(FaultInjector *faults)
 Collective::Collective(std::initializer_list<int> selected,
                        FaultInjector *faults)
   : done_nodes(Globals::get().model().P),
+    coloured_nodes(Globals::get().model().P),
     reached_nodes(Globals::get().model().P),
     faults(faults)
 {
   for (auto i : selected) {
     reached_nodes[i] = true;
   }
+
+  coloured_nodes[0] = true;
 }
 
 void Collective::forward(const auto &t, TaskQueue &tq, const int node_id)
@@ -71,6 +74,11 @@ void Collective::accept(const RecvEndTask& t, TaskQueue &tq)
 {
   const int node_id = t.receiver();
   forward(t, tq, node_id);
+
+  if (!coloured_nodes[node_id]) {
+    coloured_time = std::max(tq.now(), coloured_time);
+    coloured_nodes[node_id] = true;
+  }
 }
 
 void Collective::accept(const MsgTask&, TaskQueue&)
@@ -80,6 +88,10 @@ void Collective::accept(const MsgTask&, TaskQueue&)
 void Collective::accept(const FinishTask& t, TaskQueue& tq)
 {
   forward(t, tq, t.sender());
+
+  auto &metrics = Globals::get().metrics();
+
+  metrics["ColouringTime"] = coloured_time.get();
 }
 
 void Collective::accept(const FailureTask&, TaskQueue&)

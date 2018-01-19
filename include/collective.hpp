@@ -36,6 +36,10 @@ private:
 
   std::unique_ptr<Phase> phase;
   ReachedNodes done_nodes;
+  // Vector of nodes marked as coloured. Collective gathers statistics
+  // when every node becomes coloured.
+  ReachedNodes coloured_nodes;
+  Time coloured_time = Time(0);
 public:
   ReachedNodes reached_nodes;
   FaultInjector *faults;
