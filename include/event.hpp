@@ -136,7 +136,9 @@ struct EventQueue
 private:
   struct EventThread
   {
-    std::deque<T> events;
+    using EventDeque = std::deque<T>;
+    typedef typename EventDeque::const_iterator const_iterator;
+    EventDeque events;
 
     friend std::ostream &operator<<(std::ostream &os, const EventThread &ef)
     {
@@ -178,7 +180,78 @@ private:
     }
   };
 
-  std::vector<EventThread> queue;
+  using EventGroup = std::vector<EventThread>;
+
+  class EventRange
+  {
+    const EventGroup &queue;
+  public:
+    EventRange(const EventGroup &queue)
+      : queue(queue)
+    {}
+
+    class const_iterator : public std::iterator<std::forward_iterator_tag,T>
+    {
+      const EventGroup &queue;
+      typename EventGroup::const_iterator thread;
+      typename EventThread::const_iterator event;
+      bool done;
+
+    public:
+      static const_iterator cend(const EventGroup &queue)
+      {
+        const_iterator it(queue);
+        it.done = true;
+        return it;
+      }
+
+      const_iterator(const EventGroup &queue)
+        : queue(queue), thread(queue.cbegin()),
+          event(thread->events.cbegin()),
+          done(false)
+      {
+      }
+
+      const_iterator &operator++()
+      {
+        if (event != thread->events.cend()) {
+          event++;
+        } else {
+          thread++;
+          if (thread != queue.cend()) {
+            event = thread->events.cbegin();
+          } else {
+            done = true;
+          }
+        }
+        return *this;
+      }
+
+      bool operator==(const const_iterator &other) const
+      {
+        if (other.done && done && &other.queue == &queue) {
+          return true;
+        }
+        return ((&other.queue == &queue)
+                && (&other.thread == &thread)
+                && (&other.event == &event));
+      }
+
+      bool operator!=(const const_iterator &other) const
+      {
+        return !(*this == other);
+      }
+
+      const T &operator*() const
+      {
+        return *event;
+      }
+    };
+    const_iterator begin() { return const_iterator(queue); }
+    const_iterator end() { return const_iterator::cend(queue); }
+  };
+
+  EventGroup queue;
 
   // Returns index of the thread, which allows earliest time
   auto which_earlist_start_time() const
@@ -193,6 +266,11 @@ private:
                             EventThread::compare_ends);
   }
 public:
+  EventRange events()
+  {
+    return EventRange(queue);
+  }
+
   friend std::ostream &operator<<(std::ostream &os, const EventQueue &eq)
   {
     std::copy(eq.queue.begin(), eq.queue.end(),
