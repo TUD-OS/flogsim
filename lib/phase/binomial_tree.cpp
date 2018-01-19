@@ -36,8 +36,6 @@ Time binomial_runtime(Time L, Time o, Time g, int P)
 
 void BinomialTree::post_sends(const int sender, TaskQueue &tq) const
 {
-  reached_nodes[sender] = true;
-
   for (int lvl = get_lvl(sender); lvl <= get_lvl(num_nodes()); lvl++) {
     int receiver = sender + (1 << lvl);
 
@@ -66,6 +64,7 @@ BinomialTree::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 Phase::Result
 BinomialTree::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
+  reached_nodes[node_id] = true;
   post_sends(node_id, tq);
 
   return (t.tag() == Tag::TREE ?

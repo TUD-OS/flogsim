@@ -70,7 +70,7 @@ void Collective::accept(const RecvStartTask&, TaskQueue&)
 {
 }
 
-void Collective::accept(const RecvEndTask& t, TaskQueue &tq)
+void Collective::accept(const RecvEndTask &t, TaskQueue &tq)
 {
   const int node_id = t.receiver();
   forward(t, tq, node_id);
@@ -85,7 +85,7 @@ void Collective::accept(const MsgTask&, TaskQueue&)
 {
 }
 
-void Collective::accept(const FinishTask& t, TaskQueue& tq)
+void Collective::accept(const FinishTask &t, TaskQueue &tq)
 {
   forward(t, tq, t.sender());
 
