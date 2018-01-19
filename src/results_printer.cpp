@@ -57,8 +57,6 @@ void TablePrinter::results(Timeline &timeline, FaultInjector &faults)
   auto &conf = Globals::get().conf();
   auto &entropy = Globals::get().entropy();
 
-  std::cout << "TotalRuntime," << timeline.get_total_time() << std::endl;
-
   auto [failed, finished, unreached] = timeline.node_stat();
   std::cout << "FailedNodes," << failed << std::endl
             << "FinishedNodes," << finished << std::endl
@@ -82,7 +80,7 @@ void CsvPrinter::intro()
 {
   auto &conf = Globals::get().conf();
   std::cout << "L,o,g,P,k,COLL,parallel,prio,F,"
-            << "TotalRuntime,FailedNodes,FinishedNodes,UnreachedNodes,"
+            << "FailedNodes,FinishedNodes,UnreachedNodes,"
             << "MsgTask,FaultInjectorSeed";
 
   print_header();
@@ -112,7 +110,6 @@ void CsvPrinter::results(Timeline &timeline, FaultInjector &)
             << conf.parallelism << ","
             << conf.priority << ","
             << conf.F << ","
-            << timeline.get_total_time() << ","
             << failed << ","
             << finished << ","
             << unreached << ","
@@ -137,7 +134,7 @@ void CsvIdPrinter::intro()
 {
   auto &conf = Globals::get().conf();
   std::cout << "id,"
-            << "TotalRuntime,FailedNodes,FinishedNodes,UnreachedNodes,"
+            << "FailedNodes,FinishedNodes,UnreachedNodes,"
             << "MsgTask,FaultInjectorSeed";
 
   print_header();
@@ -158,7 +155,6 @@ void CsvIdPrinter::results(Timeline &timeline, FaultInjector &)
   auto [failed, finished, unreached] = timeline.node_stat();
 
   std::cout << conf.id << ","
-            << timeline.get_total_time() << ","
             << failed << ","
             << finished << ","
             << unreached << ","

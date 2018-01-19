@@ -66,6 +66,8 @@ void TaskQueue::run(Collective &coll, Timeline &timeline)
       break;
     }
   }
+
+  timeline.store_metrics();
 }
 
 std::unique_ptr<Task> TaskQueue::pop()

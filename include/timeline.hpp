@@ -80,6 +80,8 @@ public:
     return {failed, finished, unreached};
   }
 
+  void store_metrics();
+
   friend std::ostream &operator<<(std::ostream &os, const Timeline &tl)
   {
     os << "CPU," << CpuTimeline::header() << '\n';
