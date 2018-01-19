@@ -1,5 +1,9 @@
 # Compilation
 
+On Taurus load the required packages (order is important!):
+```module load r cmake boost/1.65.1-gnu7.1 gcc
+```
+
 ```bash
 mkdir build
 cd build
