@@ -2,7 +2,7 @@
 
 #include "tree.hpp"
 
-class LameTree : public Tree
+class LameTree : public Tree<LameTree>
 {
   void post_sends(const int sender, TaskQueue &tq);
   // Table with cached ready to send count values

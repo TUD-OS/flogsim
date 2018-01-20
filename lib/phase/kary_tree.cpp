@@ -46,15 +46,13 @@ int get_lvl(int sender, int arity)
 }
 } // end anon namespace
 
-template <bool interleave>
 void
-KAryTree<interleave>::post_sends(const int sender, TaskQueue &tq) const
+KAryTree::post_sends(const int sender, TaskQueue &tq) const
 {
   const int lvl = get_lvl(sender, arity);
 
   for (size_t child = 1; child <= arity; ++child) {
-    int receiver = interleave ? (sender + child * std::pow(arity, lvl))
-                              : (arity * sender + child);
+    int receiver = sender + child * std::pow(arity, lvl);
 
     if (receiver < num_nodes()) {
       tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
@@ -62,9 +60,8 @@ KAryTree<interleave>::post_sends(const int sender, TaskQueue &tq) const
   }
 }
 
-template <bool interleave>
 Result
-KAryTree<interleave>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
+KAryTree::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   if(!reached_nodes[node_id]) {
     return Result::ONGOING;
@@ -78,9 +75,8 @@ KAryTree<interleave>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
   return Result::DONE_PHASE;
 }
 
-template <bool interleave>
 Result
-KAryTree<interleave>::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
+KAryTree::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   reached_nodes[node_id] = true;
   post_sends(node_id, tq);
@@ -92,9 +88,8 @@ KAryTree<interleave>::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
                        Result::DONE_FORWARD));
 }
 
-template <bool interleave>
 Time
-KAryTree<interleave>::deadline() const
+KAryTree::deadline() const
 {
   auto &model = Globals::get().model();
   auto L = model.L;
@@ -103,7 +98,3 @@ KAryTree<interleave>::deadline() const
 
   return Time{calc_runtime(L, o, g, num_nodes(), arity)};
 }
-
-// explicit instantiation
-template class KAryTree<true>;
-template class KAryTree<false>;

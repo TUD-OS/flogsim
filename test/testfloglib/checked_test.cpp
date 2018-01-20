@@ -17,7 +17,7 @@ TEST_P(CheckedCorrectedKaryTreeBroadcast, Runtime)
     [](ReachedNodes& rn)
     {
       auto phases = Combiner::Phases(rn).
-        add_phase<KAryTree<true>>().
+        add_phase<KAryTree>().
         add_phase<CheckedCorrection<false>>();
 
       return std::make_unique<Combiner>(std::move(phases));

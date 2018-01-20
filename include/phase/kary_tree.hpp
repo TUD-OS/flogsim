@@ -1,15 +1,15 @@
 #pragma once
+
 #include "tree.hpp"
 
-template <bool interleave>
-class KAryTree : public Tree
+class KAryTree : public Tree<KAryTree>
 {
   const size_t arity;
   void post_sends(const int sender, TaskQueue &tq) const;
 
 public:
-  KAryTree(ReachedNodes &reached_nodes, bool exit_on_corr = true)
-    : Tree(reached_nodes, exit_on_corr),
+  KAryTree(ReachedNodes &reached_nodes)
+    : Tree<KAryTree>(reached_nodes),
       arity(Globals::get().conf().k)
   {
   }

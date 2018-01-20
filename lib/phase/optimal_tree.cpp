@@ -116,8 +116,8 @@ std::vector<Node> compute_opt_tree(Time L, Time o, Time g, int num_nodes)
 
 // OptimalTree
 
-OptimalTree::OptimalTree(ReachedNodes &reached_nodes, bool corr_after_corr)
-  : Tree(reached_nodes, corr_after_corr)
+OptimalTree::OptimalTree(ReachedNodes &reached_nodes)
+  : Tree(reached_nodes)
 {
   auto &model = Globals::get().model();
   auto L = model.L;

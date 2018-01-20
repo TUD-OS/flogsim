@@ -13,7 +13,7 @@ TEST_P(KaryTreeTests, Runtime)
   do_test(
     [](ReachedNodes& rn)
     {
-      return std::make_unique<KAryTree<true>>(rn);
+      return std::make_unique<KAryTree>(rn);
     });
 }
 

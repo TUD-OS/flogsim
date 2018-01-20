@@ -2,12 +2,12 @@
 
 #include "tree.hpp"
 
-class BinomialTree : public Tree
+class BinomialTree : public Tree<BinomialTree>
 {
   void post_sends(const int sender, TaskQueue &tq) const;
 public:
-  BinomialTree(ReachedNodes &reached_nodes, bool exit_on_corr = true)
-    : Tree(reached_nodes, exit_on_corr)
+  BinomialTree(ReachedNodes &reached_nodes)
+    : Tree(reached_nodes)
   {
   }
 

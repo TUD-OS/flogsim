@@ -22,7 +22,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<KAryTree<true>>(rn);
+        return std::make_unique<KAryTree>(rn);
       },
       "kary_bcast"
     },
@@ -75,18 +75,18 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<Exclusive>(std::make_unique<KAryTree<true>>(rn)).
+          add_phase<Exclusive>(std::make_unique<KAryTree>(rn)).
           add_phase<CheckedCorrection<true>>();
 
         return std::make_unique<Combiner>(std::move(phases));
       },
         "phased_checked_corrected_kary_bcast"
-          },
+    },
     {
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<KAryTree<true>>().
+          add_phase<KAryTree>().
           add_phase<CheckedCorrection<false>>();
 
         return std::make_unique<Combiner>(std::move(phases));
