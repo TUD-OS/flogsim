@@ -133,7 +133,7 @@ if (opt$options$cpu_only != TRUE) {
                               arrow = arrow.type, inherit.aes = FALSE)
     } else {
         p <- p + geom_segment(data = messages[From %in% interesting.nodes | To %in% interesting.nodes],
-                              aes(x = From + 0.05, yend = To + 0.05, x = Start, xend = End, col = Tag),
+                              aes(y = From + 0.25, yend = To + 0.25, x = Start, xend = End, col = Tag),
                               arrow = arrow.type, inherit.aes = FALSE) +
             ggtitle("Highlighted nodes:", subtitle = paste(interesting.nodes, collapse = ", "))
     }
