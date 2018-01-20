@@ -5,6 +5,7 @@
 #include "task_queue.hpp"
 #include "phase/correction.hpp"
 
+using Result = Phase::Result;
 
 Correction::Correction(ReachedNodes &reached_nodes)
   : Phase(reached_nodes)
@@ -16,51 +17,72 @@ Correction::Correction(ReachedNodes &reached_nodes)
 }
 
 
-template<bool send_over_root>
-OpportunisticCorrection<send_over_root>::OpportunisticCorrection(
+template<bool send_over_root, bool optimised>
+OpportunisticCorrection<send_over_root, optimised>::OpportunisticCorrection(
   ReachedNodes &reached_nodes)
-  : Correction(reached_nodes), max_dist(Globals::get().conf().k)
+  : Correction(reached_nodes),
+    sent_dist(this->num_nodes()), max_dist(Globals::get().conf().k)
 {
   assert(max_dist < this->num_nodes() && "Nonsensical correction distance");
 }
 
-template<bool send_over_root>
-Phase::Result
-OpportunisticCorrection<send_over_root>::dispatch(
-  const InitTask &, TaskQueue &tq, int node_id)
+template<bool send_over_root, bool optimised>
+Result
+OpportunisticCorrection<send_over_root, optimised>::dispatch(
+  const InitTask &, TaskQueue &, int)
+{
+  return Result::ONGOING;
+}
+
+template<bool send_over_root, bool optimised>
+Result
+OpportunisticCorrection<send_over_root, optimised>::dispatch(
+  const IdleTask &, TaskQueue &tq, int node_id)
 {
   if(!reached_nodes[node_id]) {
     return Result::ONGOING;
   }
 
-  // all reached nodes send out correction messages
-  for (int offset = 1; offset <= max_dist; ++offset) {
-    int receiver = node_id - offset;
+  assert(sent_dist[node_id] <= max_dist && "Should have stopped correction");
 
-    if (send_over_root) {
-      receiver = (receiver + this->num_nodes()) % this->num_nodes();
-    }
+  // reached nodes send out correction messages, one by one
+  int receiver = node_id - ++sent_dist[node_id];
 
-    if (receiver >= 0) {
-      tq.schedule(SendStartTask::make_new(Tag::RING_LEFT, tq.now(), node_id, receiver));
-    }
+  if constexpr (send_over_root) {
+    receiver = (receiver + this->num_nodes()) % this->num_nodes();
   }
 
-  return Phase::Result::DONE_PHASE;
+  if (receiver >= 0) {
+    tq.schedule(SendStartTask::make_new(Tag::RING_LEFT, tq.now(), node_id, receiver));
+  }
+
+  return (sent_dist[node_id] < max_dist ?
+          Result::DONE_PHASE :
+          Result::ONGOING);
 }
 
-template<bool send_over_root>
-Phase::Result
-OpportunisticCorrection<send_over_root>::dispatch(
-  const RecvEndTask &, TaskQueue &, int node_id)
+template<bool send_over_root, bool optimised>
+Result
+OpportunisticCorrection<send_over_root, optimised>::dispatch(
+  const RecvEndTask &t, TaskQueue &, int node_id)
 {
   this->reached_nodes[node_id] = true;
-  return Phase::Result::ONGOING;
+
+  if constexpr (optimised) {
+    // do not send to nodes the one who sent to us will cover anyway
+    const int dist = t.sender() - node_id;
+    const int remain = max_dist - dist;
+    sent_dist[node_id] = remain;
+
+    if (sent_dist[node_id] == 0) { return Result::ONGOING; }
+  }
+
+  return Result::ONGOING;
 }
 
-template<bool send_over_root>
+template<bool send_over_root, bool optimised>
 Time
-OpportunisticCorrection<send_over_root>::deadline() const
+OpportunisticCorrection<send_over_root, optimised>::deadline() const
 {
   auto &model = Globals::get().model();
   auto o = model.o;
@@ -70,8 +92,12 @@ OpportunisticCorrection<send_over_root>::deadline() const
 }
 
 // explicit instantiation
-template class OpportunisticCorrection<true>;
-template class OpportunisticCorrection<false>;
+template class OpportunisticCorrection<true,true>;
+template class OpportunisticCorrection<true,false>;
+template class OpportunisticCorrection<false,true>;
+template class OpportunisticCorrection<false,false>;
+
+
 
 // CheckedCorrection
 
@@ -133,7 +159,7 @@ bool CheckedCorrection<send_over_root>::should_skip(
 }
 
 template<bool send_over_root>
-Phase::Result
+Result
 CheckedCorrection<send_over_root>::post_message(
   TaskQueue &tq, int node_id)
 {
@@ -149,12 +175,12 @@ CheckedCorrection<send_over_root>::post_message(
   // directions, i. e. check if we are done
   if ((left.offset >= left.min_recv) &&
       (right.offset >= right.min_recv)) {
-    return Phase::Result::DONE_PHASE;
+    return Result::DONE_PHASE;
   }
 
   // Also need to check if we reached this node from opposite direction
   if (left.offset + right.offset >= P) {
-    return Phase::Result::DONE_PHASE;
+    return Result::DONE_PHASE;
   }
 
   int dir = this->get_dir(node_id);
@@ -162,7 +188,7 @@ CheckedCorrection<send_over_root>::post_message(
   Ring &send_dir = dir == DIR_LEFT ? left : right;
 
   if (this->should_skip(tq, send_dir, node_id)) {
-    return Phase::Result::ONGOING;
+    return Result::ONGOING;
   }
   // Record next offset
   send_dir.offset += 1;
@@ -190,11 +216,11 @@ CheckedCorrection<send_over_root>::post_message(
                                         tq.now(), node_id, receiver));
   }
 
-  return Phase::Result::ONGOING;
+  return Result::ONGOING;
 }
 
 template<bool send_over_root>
-Phase::Result
+Result
 CheckedCorrection<send_over_root>::dispatch(
   const TimerTask&, TaskQueue &tq, int node_id)
 {
@@ -203,7 +229,7 @@ CheckedCorrection<send_over_root>::dispatch(
 }
 
 template<bool send_over_root>
-Phase::Result
+Result
 CheckedCorrection<send_over_root>::dispatch(
   const InitTask&, TaskQueue &tq, int node_id)
 {
@@ -216,7 +242,7 @@ CheckedCorrection<send_over_root>::dispatch(
 }
 
 template<bool send_over_root>
-Phase::Result
+Result
 CheckedCorrection<send_over_root>::dispatch(
   const IdleTask&, TaskQueue &tq, int node_id)
 {
@@ -224,13 +250,13 @@ CheckedCorrection<send_over_root>::dispatch(
 }
 
 template<bool send_over_root>
-Phase::Result
+Result
 CheckedCorrection<send_over_root>::dispatch(
   const RecvEndTask &t, TaskQueue&, int node_id)
 {
   if (!this->reached_nodes[node_id]) {
     this->reached_nodes[node_id] = true;
-    return Phase::Result::DONE_PHASE;
+    return Result::DONE_PHASE;
   }
 
   Ring &left = this->left[node_id];
@@ -252,11 +278,11 @@ CheckedCorrection<send_over_root>::dispatch(
     default:
       break;
   }
-  return Phase::Result::ONGOING;
+  return Result::ONGOING;
 }
 
 template<bool send_over_root>
-Phase::Result
+Result
 CheckedCorrection<send_over_root>::dispatch(
   const SendEndTask &, TaskQueue &tq, int node_id)
 {
@@ -265,7 +291,7 @@ CheckedCorrection<send_over_root>::dispatch(
 }
 
 template<bool send_over_root>
-Phase::Result
+Result
 CheckedCorrection<send_over_root>::dispatch(
   const FinishTask &, TaskQueue &, int node_id)
 {

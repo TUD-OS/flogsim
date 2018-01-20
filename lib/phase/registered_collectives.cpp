@@ -53,7 +53,7 @@ std::vector<CollectiveRegistrator> _{
       {
         auto phases = Combiner::Phases(rn).
           add_phase<Exclusive>(std::make_unique<BinomialTree>(rn)).
-          add_phase<OpportunisticCorrection<false>>();
+          add_phase<OpportunisticCorrection<false, false>>();
 
         return std::make_unique<Combiner>(std::move(phases));
       },
@@ -63,14 +63,35 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<Exclusive>(std::make_unique<BinomialTree>(rn)).
+          add_phase<OpportunisticCorrection<false, true>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "phased_optimised_corrected_binomial_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
           add_phase<BinomialTree>().
-          add_phase<OpportunisticCorrection<false>>();
+          add_phase<OpportunisticCorrection<false, false>>();
 
         return std::make_unique<Combiner>(std::move(phases));
       },
       "corrected_binomial_bcast"
     },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<BinomialTree>().
+          add_phase<OpportunisticCorrection<false, true>>();
 
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "optimised_corrected_binomial_bcast"
+    },
     {
       [](ReachedNodes &rn)
       {
@@ -204,11 +225,22 @@ std::vector<CollectiveRegistrator> _{
       {
         auto phases = Combiner::Phases(rn).
           add_phase<Gossip>().
-          add_phase<OpportunisticCorrection<true>>();
+          add_phase<OpportunisticCorrection<true, false>>();
 
         return std::make_unique<Combiner>(std::move(phases));
       },
       "opportunistic_corrected_gossip_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<Gossip>().
+          add_phase<OpportunisticCorrection<true, true>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "optimised_opportunistic_corrected_gossip_bcast"
     },
     {
       [](ReachedNodes &rn)
