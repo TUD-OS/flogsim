@@ -55,6 +55,7 @@ public:
   Task(const TaskData &task_data)
     : TaskData(task_data)
   {}
+  virtual ~Task(){}
 
   Sequence seq() const { return _seq; }
   Tag tag() const { return _tag; }

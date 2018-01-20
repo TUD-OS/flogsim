@@ -9,7 +9,7 @@
 #include "fault_injector.hpp"
 #include "task.hpp"
 
-#include <boost/heap/fibonacci_heap.hpp>
+#include <boost/heap/pairing_heap.hpp>
 
 class Collective;
 class FaultInjector;
@@ -18,31 +18,34 @@ class TaskQueue
 {
   struct Queue
   {
-    typedef std::unique_ptr<Task> queue_item_t;
-    typedef std::vector<queue_item_t> item_t;
+    typedef Task* queue_item_t;
 
-    static bool queue_item_compare(const queue_item_t &first, const queue_item_t &second)
+    struct Compare
     {
-      return (*second) < (*first);
-    }
+      bool operator()(const queue_item_t &first, const queue_item_t &second) const
+      {
+        return (*second) < (*first);
+      }
+    };
+
+    typedef boost::heap::pairing_heap<queue_item_t,
+                                      boost::heap::compare<Compare>> queue_t;
 
     bool empty() const
     {
       return items.empty();
     }
 
-    template<class... Args>
-    void emplace_back(Args&&... args)
+    void emplace_back(std::unique_ptr<Task> task)
     {
-      items.emplace_back(std::forward<Args>(args)...);
-      std::push_heap(items.begin(), items.end(), queue_item_compare);
+      Task *ptr = task.release();
+      items.push(ptr);
     }
 
     auto pop()
     {
-      std::pop_heap(items.begin(), items.end(), queue_item_compare);
-      std::unique_ptr<Task> item = std::move(items.back());
-      items.pop_back();
+      std::unique_ptr<Task> item(items.top());
+      items.pop();
       return std::move(item);
     }
 
@@ -58,16 +61,24 @@ class TaskQueue
 
     const auto &top() const
     {
-      return *items.front().get();
+      return *items.top();
     }
 
     Queue()
     {
-      items.reserve(Globals::get().model().P);
+      // items.reserve(Globals::get().model().P);
+    }
+
+    ~Queue()
+    {
+      for (auto task: items) {
+        delete task;
+      }
     }
   private:
-    item_t items;
+    queue_t items;
   };
+
   Queue queue;
 
   Time current_time;
@@ -77,6 +88,7 @@ class TaskQueue
     if (queue.empty()) {
       return true;
     }
+    // return time != queue.top().start();
     return time != queue.top().start();
   }
 
