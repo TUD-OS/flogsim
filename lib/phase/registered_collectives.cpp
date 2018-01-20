@@ -117,6 +117,20 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
+        auto tree = std::make_unique<KAryTree>(rn);
+        tree->forward_unexpected_message();
+
+        auto phases = Combiner::Phases(rn).
+          add_phase(std::move(tree)).
+          add_phase<CheckedCorrection<false>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "checked_always_corrected_kary_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
         auto phases = Combiner::Phases(rn).
           add_phase<Exclusive>(std::make_unique<BinomialTree>(rn)).
           add_phase<CheckedCorrection<true>>();
@@ -135,6 +149,20 @@ std::vector<CollectiveRegistrator> _{
         return std::make_unique<Combiner>(std::move(phases));
       },
       "checked_corrected_binomial_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto tree = std::make_unique<BinomialTree>(rn);
+        tree->forward_unexpected_message();
+
+        auto phases = Combiner::Phases(rn).
+          add_phase(std::move(tree)).
+          add_phase<CheckedCorrection<false>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "checked_always_corrected_binomial_bcast"
     },
     {
       [](ReachedNodes &rn)
@@ -164,6 +192,20 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
+        auto tree = std::make_unique<LameTree>(rn);
+        tree->forward_unexpected_message();
+
+        auto phases = Combiner::Phases(rn).
+          add_phase(std::move(tree)).
+          add_phase<CheckedCorrection<false>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "checked_always_corrected_lame_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
         auto phases = Combiner::Phases(rn).
           add_phase<Exclusive>(std::make_unique<LameTree>(rn)).
           add_phase<CheckedCorrection<true>>();
@@ -182,6 +224,20 @@ std::vector<CollectiveRegistrator> _{
         return std::make_unique<Combiner>(std::move(phases));
       },
       "checked_corrected_optimal_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto tree = std::make_unique<OptimalTree>(rn);
+        tree->forward_unexpected_message();
+
+        auto phases = Combiner::Phases(rn).
+          add_phase(std::move(tree)).
+          add_phase<CheckedCorrection<false>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "checked_always_corrected_optimal_bcast"
     },
     {
       [](ReachedNodes &rn)
