@@ -125,7 +125,7 @@ p <- ggplot(trace.df[!(variable %in% c("CpuEvent", "Finish", "Failure"))],
     scale_fill_manual(name = "Event type", breaks=breaks, labels=labels, values = event.variables) +
     scale_y_continuous(breaks = minor.breaks, labels = minor.breaks, limits = c(0, max(model.df$P)))
 
-arrow.type <- arrow(type = 'closed', angle = 15, length = unit(0.03, "npc"))
+arrow.type <- arrow(type = 'closed', angle = 15, length = unit(0.01, "npc"))
 if (opt$options$cpu_only != TRUE) {
     if (is.null(interesting.nodes)) {
         p <- p + geom_segment(data = messages,
