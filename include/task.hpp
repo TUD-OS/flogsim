@@ -39,17 +39,45 @@ public:
 
 enum class TaskPriority : int
 {
-  RECEIVER = 3,
-  NORMAL = 4,
-  SENDER = 5,
-  IDLE   = 6,
-  FINISH = 7,
+  RECEIVER    = 3,
+  RECEIVE_END = 4,
+  NORMAL      = 5,
+  INIT        = 6,
+  SENDER      = 7,
+  SEND_END    = 8,
+  IDLE        = 9,
+  FINISH      = 10,
 };
 
 class Task : public TaskData
 {
-  virtual TaskPriority task_priority() const { return TaskPriority::NORMAL; }
 public:
+  virtual TaskPriority task_priority() const { return TaskPriority::NORMAL; }
+
+  static bool is_init(const Task& task)
+  {
+    return task.task_priority() == TaskPriority::INIT;
+  }
+
+  static bool is_receive_start(const Task& task)
+  {
+    return task.task_priority() == TaskPriority::RECEIVER;
+  }
+
+  static bool is_send_start(const Task& task)
+  {
+    return task.task_priority() == TaskPriority::SENDER;
+  }
+
+  static bool is_idle(const Task& task)
+  {
+    return task.task_priority() == TaskPriority::IDLE;
+  }
+
+  static bool is_finish(const Task& task)
+  {
+    return task.task_priority() == TaskPriority::FINISH;
+  }
 
   Task(const Task &other) = default;
   Task(const TaskData &task_data)
@@ -213,7 +241,7 @@ public:
 
 class RecvEndTask : public TaskCounted<RecvEndTask>
 {
-  virtual TaskPriority task_priority() const { return TaskPriority::RECEIVER; }
+  virtual TaskPriority task_priority() const { return TaskPriority::RECEIVE_END; }
 public:
   RecvEndTask(const RecvEndTask &other) = default;
 
@@ -251,7 +279,7 @@ public:
 
 class SendEndTask : public TaskCounted<SendEndTask>
 {
-  virtual TaskPriority task_priority() const { return TaskPriority::SENDER; }
+  virtual TaskPriority task_priority() const { return TaskPriority::SEND_END; }
 public:
   SendEndTask(const SendEndTask &other) = default;
 
@@ -321,6 +349,7 @@ public:
 
 class InitTask : public TaskCounted<InitTask>
 {
+  virtual TaskPriority task_priority() const { return TaskPriority::INIT; }
 public:
 
   InitTask(Sequence seq, Time time, int sender) :

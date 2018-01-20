@@ -91,24 +91,30 @@ void ListFaults::print(std::ostream &os) const
 Fault ListFaults::failure(Task *task)
 {
   auto &conf = Globals::get().conf();
-  if ((dynamic_cast<RecvStartTask*>(task) != nullptr) ||
-      (dynamic_cast<InitTask*>(task) != nullptr)) {
-    if (std::find(failed_nodes.begin(), failed_nodes.end(),
-                  task->receiver()) != failed_nodes.end()) {
-      if (conf.verbose) {
-        std::cout << "Drop receive task " << *task << std::endl;
+
+  switch (task->task_priority()) {
+    case TaskPriority::RECEIVER:
+    case TaskPriority::INIT:
+      if (std::find(failed_nodes.begin(), failed_nodes.end(),
+                    task->receiver()) != failed_nodes.end()) {
+        if (conf.verbose) {
+          std::cout << "Drop receive task " << *task << std::endl;
+        }
+        return Fault::FAILURE;
       }
-      return Fault::FAILURE;
-    }
-  } else if ((dynamic_cast<SendStartTask*>(task) != nullptr) ||
-             (dynamic_cast<FinishTask*>(task) != nullptr)) {
-    if (std::find(failed_nodes.begin(), failed_nodes.end(),
-                  task->sender()) != failed_nodes.end()) {
-      if (conf.verbose) {
-        std::cout << "Drop " << task->type() << *task << std::endl;
+      break;
+    case TaskPriority::SENDER:
+    case TaskPriority::FINISH:
+      if (std::find(failed_nodes.begin(), failed_nodes.end(),
+                    task->sender()) != failed_nodes.end()) {
+        if (conf.verbose) {
+          std::cout << "Drop " << task->type() << *task << std::endl;
+        }
+        return Fault::SKIP;
       }
-      return Fault::SKIP;
-    }
+      break;
+    default:
+      break;
   }
   return Fault::OK;
 }

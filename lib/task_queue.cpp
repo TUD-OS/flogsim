@@ -5,7 +5,7 @@
 
 void TaskQueue::schedule(std::unique_ptr<Task> task)
 {
-  if (dynamic_cast<IdleTask *>(task.get()) != nullptr) {
+  if (Task::is_idle(*task)) {
     if (!idle.pending[task->sender()]) {
       idle.count ++;
     }
@@ -75,7 +75,7 @@ std::unique_ptr<Task> TaskQueue::pop()
   assert(!queue.empty() && "Queue is empty, but there is an attempt to pop.");
   auto item = queue.pop();
 
-  if (dynamic_cast<FinishTask *>(item.get()) == nullptr) {
+  if (!Task::is_finish(*item)) {
     progress(item->start());
   }
   return std::move(item);
