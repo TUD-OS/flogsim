@@ -296,7 +296,7 @@ CheckedCorrection<send_over_root>::dispatch(
   const FinishTask &, TaskQueue &, int node_id)
 {
   // Everybody except root skips this task
-  if (!node_id) {
+  if (node_id) {
     return Result::ONGOING;
   }
 
