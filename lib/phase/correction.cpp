@@ -303,19 +303,25 @@ CheckedCorrection<send_over_root>::dispatch(
 
   auto &metrics = Globals::get().metrics();
 
-  int recv_left = 0, recv_right = 0, missing_around = 0;
+  int recv_left = -1, recv_right = -1, missing_around = -1;
   for (int i = 0; i < num_nodes(); i++) {
     Ring &left = this->left[node_id];
     Ring &right = this->right[node_id];
 
-    recv_left = std::max(recv_left, left.min_recv);
-    recv_right = std::max(recv_right, right.min_recv);
+    if (left.min_recv == std::numeric_limits<int>::max() ||
+        right.min_recv == std::numeric_limits<int>::max()) {
+      // The node did not participate in the correction, skip it
+      continue;
+    }
+
+    recv_left = std::max(recv_left, left.min_recv - 1);
+    recv_right = std::max(recv_right, right.min_recv - 1);
     missing_around = std::max(recv_left + recv_right, missing_around);
   }
 
-  metrics["CorrectedGapLeft"] = recv_left - 1;
-  metrics["CorrectedGapRight"] = recv_right - 1;
-  metrics["CorrectedGap"] = missing_around - 2;
+  metrics["CorrectedGapLeft"] = recv_left;
+  metrics["CorrectedGapRight"] = recv_right;
+  metrics["CorrectedGap"] = missing_around;
   return Result::ONGOING;
 
 }
