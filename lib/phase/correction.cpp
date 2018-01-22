@@ -29,8 +29,9 @@ OpportunisticCorrection<send_over_root, optimised>::OpportunisticCorrection(
 template<bool send_over_root, bool optimised>
 Result
 OpportunisticCorrection<send_over_root, optimised>::dispatch(
-  const InitTask &, TaskQueue &, int)
+  const InitTask &, TaskQueue &tq, int node_id)
 {
+  tq.schedule(IdleTask::make_new(node_id));
   return Result::ONGOING;
 }
 
@@ -56,15 +57,18 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
     tq.schedule(SendStartTask::make_new(Tag::RING_LEFT, tq.now(), node_id, receiver));
   }
 
-  return (sent_dist[node_id] < max_dist ?
-          Result::DONE_PHASE :
-          Result::ONGOING);
+  if (sent_dist[node_id] >= max_dist) {
+    return Result::DONE_PHASE;
+  } else {
+    tq.schedule(IdleTask::make_new(node_id));
+    return Result::ONGOING;
+  }
 }
 
 template<bool send_over_root, bool optimised>
 Result
 OpportunisticCorrection<send_over_root, optimised>::dispatch(
-  const RecvEndTask &t, TaskQueue &, int node_id)
+  const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   this->reached_nodes[node_id] = true;
 
@@ -72,11 +76,14 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
     // do not send to nodes the one who sent to us will cover anyway
     const int dist = t.sender() - node_id;
     const int remain = max_dist - dist;
-    sent_dist[node_id] = remain;
+    sent_dist[node_id] = std::max(sent_dist[node_id], remain);
 
-    if (sent_dist[node_id] == 0) { return Result::ONGOING; }
+    if (sent_dist[node_id] <= 0) {
+      return Result::DONE_PHASE;
+    }
   }
 
+  tq.schedule(IdleTask::make_new(node_id));
   return Result::ONGOING;
 }
 
