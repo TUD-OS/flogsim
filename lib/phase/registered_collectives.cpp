@@ -57,7 +57,7 @@ std::vector<CollectiveRegistrator> _{
 
         return std::make_unique<Combiner>(std::move(phases));
       },
-      "phased_corrected_binomial_bcast"
+      "phased_opportunistic_corrected_binomial_bcast"
     },
     {
       [](ReachedNodes &rn)

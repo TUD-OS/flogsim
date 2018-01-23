@@ -49,19 +49,22 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
   // coloured nodes send out correction messages, one by one
   // Hint: prefer the direction that is less advanced
   int receiver;
+  Tag tag;
 
   if (sent_dist[node_id].left <= sent_dist[node_id].right) {
-    receiver = node_id - ++sent_dist[node_id].left;
+    receiver = node_id - ++sent_dist[node_id].left; // send left
+    tag = Tag::RING_LEFT;
   } else {
-    receiver = node_id + ++sent_dist[node_id].right;
+    receiver = node_id + ++sent_dist[node_id].right; // send right
+    tag = Tag::RING_RIGHT;
   }
 
   if constexpr (send_over_root) {
-    receiver = (receiver + this->num_nodes()) % this->num_nodes();
+    receiver = (receiver + num_nodes()) % num_nodes();
   }
 
   if (receiver >= 0 && receiver < num_nodes()) {
-    tq.schedule(SendStartTask::make_new(Tag::RING_LEFT, tq.now(), node_id, receiver));
+    tq.schedule(SendStartTask::make_new(tag, tq.now(), node_id, receiver));
   }
 
   if (sent_dist[node_id].left >= max_dist && sent_dist[node_id].right >= max_dist) {
@@ -77,20 +80,28 @@ Result
 OpportunisticCorrection<send_over_root, optimised>::dispatch(
   const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
-  this->reached_nodes[node_id] = true;
+  reached_nodes[node_id] = true;
 
   if constexpr (optimised) {
-    // do not send to nodes the one who sent to us will cover anyway
+    // do not send to nodes the one who sent to us has covered or will cover
+    //
+    // example: k=3, 5 gets correction from 3 => 3 + 4 done; 6 will be done by 3
 
     switch (t.tag()) {
       case Tag::RING_RIGHT: {
         const int dist = (node_id - t.sender() + num_nodes()) % num_nodes();
-        sent_dist[node_id].right = std::max(sent_dist[node_id].right, dist);
+        const int remain = max_dist - dist;
+
+        sent_dist[node_id].right = std::max(sent_dist[node_id].right, remain);
+        sent_dist[node_id].left  = std::max(sent_dist[node_id].left, dist);
         break;
       }
       case Tag::RING_LEFT: {
         const int dist = (t.sender() - node_id + num_nodes()) % num_nodes();
-        sent_dist[node_id].left = std::max(sent_dist[node_id].left, dist);
+        const int remain = max_dist - dist;
+
+        sent_dist[node_id].left  = std::max(sent_dist[node_id].left, remain);
+        sent_dist[node_id].right = std::max(sent_dist[node_id].right, dist);
         break;
       }
       default:
