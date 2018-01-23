@@ -22,7 +22,7 @@ OpportunisticCorrection<send_over_root, optimised>::OpportunisticCorrection(
   ReachedNodes &reached_nodes)
   : Correction(reached_nodes),
     sent_dist(num_nodes()),
-    max_dist(Globals::get().conf().k)
+    max_dist(Globals::get().conf().d)
 {
   assert(max_dist < num_nodes() && "Nonsensical correction distance");
 }

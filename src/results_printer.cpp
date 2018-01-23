@@ -79,7 +79,7 @@ void TablePrinter::results(Timeline &timeline, FaultInjector &faults)
 void CsvPrinter::intro()
 {
   auto &conf = Globals::get().conf();
-  std::cout << "L,o,g,P,k,COLL,parallel,prio,F,"
+  std::cout << "L,o,g,P,k,d,COLL,parallel,prio,F,"
             << "FailedNodes,FinishedNodes,UnreachedNodes,"
             << "MsgTask,FaultInjectorSeed";
 
@@ -106,6 +106,7 @@ void CsvPrinter::results(Timeline &timeline, FaultInjector &)
             << model.g << ","
             << model.P << ","
             << conf.k << ","
+            << conf.d << ","
             << conf.collective << ","
             << conf.parallelism << ","
             << conf.priority << ","

@@ -113,6 +113,9 @@ po::options_description create_options_description(ConfigurationArgs &conf)
     ("karity,k",
      po::value<int>(&conf.k)->default_value(2)->value_name("NUM"),
      "K-arity of the tree")
+    ("distance,d",
+     po::value<int>(&conf.d)->default_value(4)->value_name("NUM"),
+     "Distance for opportunistic correction")
     ("seed",
      po::value<unsigned>(&conf.seed)->default_value(0)->value_name("NUM"),
      "Seed for the entropy source. Value 0 tells the simulator to generate "

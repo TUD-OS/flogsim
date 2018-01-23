@@ -27,6 +27,7 @@ struct Configuration
   // Collectives parameters
   std::string collective;
   int k;
+  int d;
   int parallelism;
   class Priority
   {
