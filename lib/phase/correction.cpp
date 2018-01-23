@@ -93,7 +93,7 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
         const int remain = max_dist - dist;
 
         sent_dist[node_id].right = std::max(sent_dist[node_id].right, remain);
-        sent_dist[node_id].left  = std::max(sent_dist[node_id].left, dist);
+        sent_dist[node_id].left  = max_dist;
         break;
       }
       case Tag::RING_LEFT: {
@@ -101,7 +101,7 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
         const int remain = max_dist - dist;
 
         sent_dist[node_id].left  = std::max(sent_dist[node_id].left, remain);
-        sent_dist[node_id].right = std::max(sent_dist[node_id].right, dist);
+        sent_dist[node_id].right = max_dist;
         break;
       }
       default:
