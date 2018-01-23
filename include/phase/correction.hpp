@@ -22,12 +22,12 @@ public:
 template<bool send_over_root, bool optimised>
 class OpportunisticCorrection : public Correction
 {
-  struct SendState
+  struct SendDist
   {
     int left;
     int right;
   };
-  std::vector<SendState> send_state; // how many nodes have already gotten correction
+  std::vector<SendDist> sent_dist; // how many nodes have already gotten correction
   const int max_dist; // maximum distance to cover
 
 public:

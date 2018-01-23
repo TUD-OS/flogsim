@@ -21,10 +21,10 @@ template<bool send_over_root, bool optimised>
 OpportunisticCorrection<send_over_root, optimised>::OpportunisticCorrection(
   ReachedNodes &reached_nodes)
   : Correction(reached_nodes),
-    send_state(this->num_nodes()),
+    sent_dist(num_nodes()),
     max_dist(Globals::get().conf().k)
 {
-  assert(max_dist < this->num_nodes() && "Nonsensical correction distance");
+  assert(max_dist < num_nodes() && "Nonsensical correction distance");
 }
 
 template<bool send_over_root, bool optimised>
@@ -41,22 +41,30 @@ Result
 OpportunisticCorrection<send_over_root, optimised>::dispatch(
   const IdleTask &, TaskQueue &tq, int node_id)
 {
+  // we cannot do anything unless we are coloured
   if(!reached_nodes[node_id]) {
     return Result::ONGOING;
   }
 
-  // reached nodes send out correction messages, one by one
-  int receiver = node_id - ++sent_dist[node_id];
+  // coloured nodes send out correction messages, one by one
+  // Hint: prefer the direction that is less advanced
+  int receiver;
+
+  if (sent_dist[node_id].left <= sent_dist[node_id].right) {
+    receiver = node_id - ++sent_dist[node_id].left;
+  } else {
+    receiver = node_id + ++sent_dist[node_id].right;
+  }
 
   if constexpr (send_over_root) {
     receiver = (receiver + this->num_nodes()) % this->num_nodes();
   }
 
-  if (receiver >= 0) {
+  if (receiver >= 0 && receiver < num_nodes()) {
     tq.schedule(SendStartTask::make_new(Tag::RING_LEFT, tq.now(), node_id, receiver));
   }
 
-  if (sent_dist[node_id] >= max_dist) {
+  if (sent_dist[node_id].left >= max_dist && sent_dist[node_id].right >= max_dist) {
     return Result::DONE_PHASE;
   } else {
     tq.schedule(IdleTask::make_new(node_id));
@@ -72,29 +80,24 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
   this->reached_nodes[node_id] = true;
 
   if constexpr (optimised) {
-// do not send to nodes the one who sent to us will cover anyway
-      int dist;
+    // do not send to nodes the one who sent to us will cover anyway
 
-      int *max_covered;
-      switch (t.tag()) {
-        case Tag::RING_RIGHT:
-          max_covered = &send_state[node_id];
-          dist = (P + node_id - t.sender()) % P;
-          break;
-        case Tag::RING_LEFT:
-          max_covered = &send_state[node_id];
-          dist = (P + t.sender() - node_id) % P;
-          break;
-        default:
-          break;
+    switch (t.tag()) {
+      case Tag::RING_RIGHT: {
+        const int dist = (node_id - t.sender() + num_nodes()) % num_nodes();
+        sent_dist[node_id].right = std::max(sent_dist[node_id].right, dist);
+        break;
       }
+      case Tag::RING_LEFT: {
+        const int dist = (t.sender() - node_id + num_nodes()) % num_nodes();
+        sent_dist[node_id].left = std::max(sent_dist[node_id].left, dist);
+        break;
+      }
+      default:
+        break;
+    }
 
-      assert(*max_covered <= max_dist && "Should have stopped correction");
-      *max_covered = std::max(*max_covered, dist);
-
-      sent_dist[node_id] = std::max(sent_dist[node_id], remain);
-
-    if (sent_dist[node_id] <= 0) {
+    if (sent_dist[node_id].left >= max_dist && sent_dist[node_id].right >= max_dist) {
       return Result::DONE_PHASE;
     }
   }
