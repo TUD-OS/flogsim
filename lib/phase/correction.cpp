@@ -342,8 +342,8 @@ CheckedCorrection<send_over_root>::dispatch(
 
   int recv_left = -1, recv_right = -1, missing_around = -1;
   for (int i = 0; i < num_nodes(); i++) {
-    Ring &left = this->left[node_id];
-    Ring &right = this->right[node_id];
+    Ring &left = this->left[i];
+    Ring &right = this->right[i];
 
     if (left.min_recv == std::numeric_limits<int>::max() ||
         right.min_recv == std::numeric_limits<int>::max()) {
