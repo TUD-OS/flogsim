@@ -36,6 +36,13 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
+        return std::make_unique<LameTree>(rn);
+      },
+      "lame_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
         return std::make_unique<OptimalTree>(rn);
       },
       "optimal_bcast"
