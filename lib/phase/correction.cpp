@@ -271,7 +271,7 @@ CheckedCorrection<send_over_root>::dispatch(
   const InitTask&, TaskQueue &tq, int node_id)
 {
   if (reached_nodes[node_id]) {
-    // We were not reached in previous phase, we declare that we want
+    // We were reached in previous phase, we declare that we want
     // to participate in the correction
     tq.schedule(IdleTask::make_new(node_id));
   }
