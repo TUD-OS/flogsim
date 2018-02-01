@@ -16,6 +16,17 @@ Correction::Correction(ReachedNodes &reached_nodes)
          && "No reached node");
 }
 
+Result
+Correction::dispatch(const InitTask&, TaskQueue &tq, int node_id)
+{
+  if (reached_nodes[node_id]) {
+    // We were reached in previous phase, we declare that we want
+    // to participate in the correction
+    tq.schedule(IdleTask::make_new(node_id));
+  }
+  return Result::ONGOING;
+}
+
 
 template<bool send_over_root, bool optimised>
 OpportunisticCorrection<send_over_root, optimised>::OpportunisticCorrection(
@@ -25,15 +36,6 @@ OpportunisticCorrection<send_over_root, optimised>::OpportunisticCorrection(
     max_dist(Globals::get().conf().d)
 {
   assert(max_dist < num_nodes() && "Nonsensical correction distance");
-}
-
-template<bool send_over_root, bool optimised>
-Result
-OpportunisticCorrection<send_over_root, optimised>::dispatch(
-  const InitTask &, TaskQueue &tq, int node_id)
-{
-  tq.schedule(IdleTask::make_new(node_id));
-  return Result::ONGOING;
 }
 
 template<bool send_over_root, bool optimised>
@@ -262,19 +264,6 @@ CheckedCorrection<send_over_root>::dispatch(
   const TimerTask&, TaskQueue &tq, int node_id)
 {
   tq.schedule(IdleTask::make_new(node_id));
-  return Result::ONGOING;
-}
-
-template<bool send_over_root>
-Result
-CheckedCorrection<send_over_root>::dispatch(
-  const InitTask&, TaskQueue &tq, int node_id)
-{
-  if (reached_nodes[node_id]) {
-    // We were reached in previous phase, we declare that we want
-    // to participate in the correction
-    tq.schedule(IdleTask::make_new(node_id));
-  }
   return Result::ONGOING;
 }
 
