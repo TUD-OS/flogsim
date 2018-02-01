@@ -14,6 +14,10 @@ protected:
     DIR_RIGHT = 1,
   };
 
+  std::vector<bool> correction_participant;
+  /** Child class calls this to confirm a node participating in
+      correction */
+  void confirm_correction(int node_id);
 public:
   Correction(ReachedNodes &reached_nodes);
 

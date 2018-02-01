@@ -7,8 +7,13 @@
 
 using Result = Phase::Result;
 
+void Correction::confirm_correction(int node_id) {
+  correction_participant[node_id] = true;
+}
+
 Correction::Correction(ReachedNodes &reached_nodes)
-  : Phase(reached_nodes)
+  : Phase(reached_nodes),
+    correction_participant(num_nodes())
 {
   assert(std::any_of(reached_nodes.begin(),
                      reached_nodes.end(),
@@ -67,6 +72,7 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
 
   if (receiver >= 0 && receiver < num_nodes()) {
     tq.schedule(SendStartTask::make_new(tag, tq.now(), node_id, receiver));
+    confirm_correction(node_id);
   }
 
   if (sent_dist[node_id].left >= max_dist && sent_dist[node_id].right >= max_dist) {
@@ -254,6 +260,7 @@ CheckedCorrection<send_over_root>::post_message(
     tq.schedule(SendStartTask::make_new(Tag::RING_RIGHT,
                                         tq.now(), node_id, receiver));
   }
+  confirm_correction(node_id);
 
   return Result::ONGOING;
 }
@@ -343,6 +350,10 @@ CheckedCorrection<send_over_root>::dispatch(
     recv_left = std::max(recv_left, left.min_recv - 1);
     recv_right = std::max(recv_right, right.min_recv - 1);
     missing_around = std::max(recv_left + recv_right, missing_around);
+
+    if (correction_participant[node_id]) {
+      metrics["CorrectionParticipants"] += 1;
+    }
   }
 
   metrics["CorrectedGapLeft"] = recv_left;
