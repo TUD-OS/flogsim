@@ -49,7 +49,7 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
   const IdleTask &, TaskQueue &tq, int node_id)
 {
   // we cannot do anything unless we are coloured
-  if(!reached_nodes[node_id]) {
+  if (!reached_nodes[node_id]) {
     return Result::ONGOING;
   }
 
@@ -59,10 +59,10 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
   Tag tag;
 
   if (sent_dist[node_id].left <= sent_dist[node_id].right) {
-    receiver = node_id - ++sent_dist[node_id].left; // send left
+    receiver = node_id - ++sent_dist[node_id].left;  // send left
     tag = Tag::RING_LEFT;
   } else {
-    receiver = node_id + ++sent_dist[node_id].right; // send right
+    receiver = node_id + ++sent_dist[node_id].right;  // send right
     tag = Tag::RING_RIGHT;
   }
 
@@ -75,7 +75,8 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
     confirm_correction(node_id);
   }
 
-  if (sent_dist[node_id].left >= max_dist && sent_dist[node_id].right >= max_dist) {
+  if (sent_dist[node_id].left >= max_dist
+      && sent_dist[node_id].right >= max_dist) {
     return Result::DONE_PHASE;
   } else {
     tq.schedule(IdleTask::make_new(node_id));
@@ -116,7 +117,8 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
         break;
     }
 
-    if (sent_dist[node_id].left >= max_dist && sent_dist[node_id].right >= max_dist) {
+    if (sent_dist[node_id].left >= max_dist
+        && sent_dist[node_id].right >= max_dist) {
       return Result::DONE_PHASE;
     }
   }
@@ -133,14 +135,14 @@ OpportunisticCorrection<send_over_root, optimised>::deadline() const
   auto o = model.o;
   auto g = model.g;
 
-  return o + (max_dist - 1) * std::max(o,g);
+  return o + (max_dist - 1) * std::max(o, g);
 }
 
 // explicit instantiation
-template class OpportunisticCorrection<true,true>;
-template class OpportunisticCorrection<true,false>;
-template class OpportunisticCorrection<false,true>;
-template class OpportunisticCorrection<false,false>;
+template class OpportunisticCorrection<true, true>;
+template class OpportunisticCorrection<true, false>;
+template class OpportunisticCorrection<false, true>;
+template class OpportunisticCorrection<false, false>;
 
 
 
@@ -242,7 +244,8 @@ CheckedCorrection<send_over_root>::post_message(
   // to check if we are going to send in the first place.
   int receiver = (node_id + send_dir.offset * dir + P) % P;
   if (!send_over_root) {
-    if ((dir == DIR_LEFT && receiver == P - 1) || (dir == DIR_RIGHT && receiver == 0)) {
+    if ((dir == DIR_LEFT && receiver == P - 1)
+        || (dir == DIR_RIGHT && receiver == 0)) {
       // We are actually trying to send over run, although we shouldn't
       // So, instead of sending over root send in opposite direction
       send_dir.min_recv = 1;
@@ -360,7 +363,6 @@ CheckedCorrection<send_over_root>::dispatch(
   metrics["CorrectedGapRight"] = recv_right;
   metrics["CorrectedGap"] = missing_around;
   return Result::ONGOING;
-
 }
 
 template class CheckedCorrection<true>;
