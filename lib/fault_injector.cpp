@@ -142,7 +142,6 @@ UniformFaults::UniformFaults()
 {
   F = Globals::get().conf().F;
 
-  std::cout << robust_nodes.size() << std::endl;
   if (F + static_cast<int>(robust_nodes.size()) >= P) {
     throw std::invalid_argument("Can't simulate a collective. "
                                 "There is at most one alive node.");
