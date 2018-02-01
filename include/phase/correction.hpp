@@ -39,10 +39,10 @@ class OpportunisticCorrection : public Correction
 public:
   OpportunisticCorrection(ReachedNodes &reached_nodes);
 
-  virtual Phase::Result dispatch(const IdleTask &, TaskQueue &tq, int node_id) override;
-  virtual Phase::Result dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id) override;
+  Phase::Result dispatch(const IdleTask &, TaskQueue &tq, int node_id) override;
+  Phase::Result dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id) override;
 
-  virtual Time deadline() const override;
+  Time deadline() const override;
 };
 
 template<bool send_over_root>
@@ -77,9 +77,9 @@ public:
     return *this;
   }
 
-  virtual Phase::Result dispatch(const TimerTask&, TaskQueue &tq, int node_id) override;
-  virtual Phase::Result dispatch(const IdleTask&, TaskQueue &tq, int node_id) override;
-  virtual Phase::Result dispatch(const RecvEndTask&, TaskQueue &tq, int node_id) override;
-  virtual Phase::Result dispatch(const SendEndTask&, TaskQueue &tq, int node_id) override;
-  virtual Phase::Result dispatch(const FinishTask&, TaskQueue &tq, int node_id) override;
+  Phase::Result dispatch(const TimerTask&, TaskQueue&, int node_id) override;
+  Phase::Result dispatch(const IdleTask&, TaskQueue&, int node_id) override;
+  Phase::Result dispatch(const RecvEndTask&, TaskQueue&, int node_id) override;
+  Phase::Result dispatch(const SendEndTask&, TaskQueue&, int node_id) override;
+  Phase::Result dispatch(const FinishTask&, TaskQueue&, int node_id) override;
 };
