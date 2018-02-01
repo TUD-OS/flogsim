@@ -33,8 +33,10 @@ class OpportunisticCorrection : public Correction
     int left;
     int right;
   };
-  std::vector<SendDist> sent_dist; // how many nodes have already gotten correction
-  const int max_dist; // maximum distance to cover
+  std::vector<SendDist> sent_dist;  // how many nodes have already
+                                    // gotten correction
+  const int left_dist;  // maximum distance to cover to the left
+  const int right_dist;  // maximum distance to cover to the right
 
 public:
   OpportunisticCorrection(ReachedNodes &reached_nodes);

@@ -38,9 +38,12 @@ OpportunisticCorrection<send_over_root, optimised>::OpportunisticCorrection(
   ReachedNodes &reached_nodes)
   : Correction(reached_nodes),
     sent_dist(num_nodes()),
-    max_dist(Globals::get().conf().d)
+    left_dist(Globals::get().conf().d / 2),
+    right_dist(Globals::get().conf().d - left_dist)
 {
-  assert(max_dist < num_nodes() && "Nonsensical correction distance");
+  if (left_dist + right_dist >= num_nodes()) {
+    throw std::invalid_argument("Nonsensical correction distance");
+  }
 }
 
 template<bool send_over_root, bool optimised>
@@ -75,8 +78,8 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
     confirm_correction(node_id);
   }
 
-  if (sent_dist[node_id].left >= max_dist
-      && sent_dist[node_id].right >= max_dist) {
+  if (sent_dist[node_id].left >= left_dist
+      && sent_dist[node_id].right >= right_dist) {
     return Result::DONE_PHASE;
   } else {
     tq.schedule(IdleTask::make_new(node_id));
@@ -99,26 +102,26 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
     switch (t.tag()) {
       case Tag::RING_RIGHT: {
         const int dist = (node_id - t.sender() + num_nodes()) % num_nodes();
-        const int remain = max_dist - dist;
+        const int remain = left_dist - dist;
 
         sent_dist[node_id].right = std::max(sent_dist[node_id].right, remain);
-        sent_dist[node_id].left  = max_dist;
+        sent_dist[node_id].left  = left_dist;
         break;
       }
       case Tag::RING_LEFT: {
         const int dist = (t.sender() - node_id + num_nodes()) % num_nodes();
-        const int remain = max_dist - dist;
+        const int remain = right_dist - dist;
 
         sent_dist[node_id].left  = std::max(sent_dist[node_id].left, remain);
-        sent_dist[node_id].right = max_dist;
+        sent_dist[node_id].right = right_dist;
         break;
       }
       default:
         break;
     }
 
-    if (sent_dist[node_id].left >= max_dist
-        && sent_dist[node_id].right >= max_dist) {
+    if (sent_dist[node_id].left >= left_dist
+        && sent_dist[node_id].right >= right_dist) {
       return Result::DONE_PHASE;
     }
   }
@@ -135,7 +138,7 @@ OpportunisticCorrection<send_over_root, optimised>::deadline() const
   auto o = model.o;
   auto g = model.g;
 
-  return o + (max_dist - 1) * std::max(o, g);
+  return o + (left_dist + right_dist - 1) * std::max(o, g);
 }
 
 // explicit instantiation
