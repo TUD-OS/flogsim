@@ -21,6 +21,7 @@ struct Configuration
 
   // Fault injector parametrs
   std::string fault_injector = "none";
+  std::string robust_nodes = "0";
   int F;
   unsigned seed;
 
@@ -88,7 +89,8 @@ struct Configuration
        << "seed = " << conf.seed << ", "
        << "Parallelism = " << conf.parallelism << ", "
        << "Priority = " << conf.priority << ", "
-       << "fault_injector = " << conf.fault_injector;
+       << "fault_injector = " << conf.fault_injector << ", "
+       << "robust_nodes = " << conf.robust_nodes;
     return os;
   }
 

@@ -121,14 +121,41 @@ Fault ListFaults::failure(Task *task)
 
 // UniformFaults
 
+std::set<int>
+UniformFaults::parse_robust_nodes(const std::string &robust_nodes_str)
+{
+  std::set<int> robust_nodes;
+  std::stringstream ss(robust_nodes_str);
+
+  int node_id;
+  while (ss >> node_id) {
+    char ch;
+    ss >> ch;
+    robust_nodes.insert(node_id);
+  }
+  return robust_nodes;
+}
+
 UniformFaults::UniformFaults()
-  : ListFaults()
+  : ListFaults(),
+    robust_nodes(parse_robust_nodes(Globals::get().conf().robust_nodes))
 {
   F = Globals::get().conf().F;
+
+  std::cout << robust_nodes.size() << std::endl;
+  if (F + static_cast<int>(robust_nodes.size()) >= P) {
+    throw std::invalid_argument("Can't simulate a collective. "
+                                "There is at most one alive node.");
+  }
+
   // Probably not the most efficient way, but the easiest way to
   // achive uniformity
   failed_nodes.reserve(P);
   for (int i = 0; i < P; i++) {
+    if (robust_nodes.find(i) != robust_nodes.end()) {
+      // The node is considered to be too robust to fail
+      continue;
+    }
     failed_nodes.push_back(i);
   }
 

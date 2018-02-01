@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <set>
 
 #include "model.hpp"
 
@@ -85,6 +86,8 @@ public:
 
 class UniformFaults : public ListFaults
 {
+  std::set<int> robust_nodes;
+  std::set<int> parse_robust_nodes(const std::string &robust_nodes_str);
 public:
   UniformFaults();
 

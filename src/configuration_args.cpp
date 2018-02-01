@@ -98,6 +98,10 @@ po::options_description create_options_description(ConfigurationArgs &conf)
      po::value<std::string>(&conf.fault_injector)->
      default_value("none")->value_name("NAME"),
      "Type of fault injector")
+    ("robust",
+     po::value<std::string>(&conf.robust_nodes)->
+     default_value("0")->value_name("LIST"),
+     "List of nodes which do not fail")
     ("fault-count,F",
      po::value<int>(&conf.F)->default_value(0)->value_name("NUM"),
      "Number of faults")
