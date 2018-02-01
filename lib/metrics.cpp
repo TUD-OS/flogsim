@@ -14,3 +14,10 @@ Metrics &Metrics::get()
   static Metrics metrics;
   return metrics;
 }
+
+void Metrics::reset_metrics()
+{
+  for (auto metric_ptr : Metrics::get().map) {
+    metric_ptr.second = 0;
+  }
+}

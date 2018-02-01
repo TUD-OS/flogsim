@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
   for (unsigned i = 0; i < conf.repeat; i++) {
     entropy.reset_seed(conf.seed);
     Counter::reset_counters();
+    Metrics::reset_metrics();
 
     Timeline timeline;
     auto faults = FaultInjector::create();

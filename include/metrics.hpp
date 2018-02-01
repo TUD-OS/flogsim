@@ -30,4 +30,7 @@ public:
   {
     return map.cend();
   }
+
+  /** Reset know metrics */
+  static void reset_metrics();
 };
