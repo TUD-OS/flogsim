@@ -131,6 +131,26 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
 }
 
 template<bool send_over_root, bool optimised>
+Phase::Result
+OpportunisticCorrection<send_over_root, optimised>::dispatch(
+  const FinishTask &, TaskQueue &, int node_id)
+{
+  // Everybody except root skips this task
+  if (node_id) {
+    return Result::ONGOING;
+  }
+
+  auto &metrics = Globals::get().metrics();
+
+  for (int i = 0; i < num_nodes(); i++) {
+    if (correction_participant[i]) {
+      metrics["CorrectionParticipants"] += 1;
+    }
+  }
+  return Result::ONGOING;
+}
+
+template<bool send_over_root, bool optimised>
 Time
 OpportunisticCorrection<send_over_root, optimised>::deadline() const
 {

@@ -43,6 +43,7 @@ public:
 
   Phase::Result dispatch(const IdleTask &, TaskQueue &tq, int node_id) override;
   Phase::Result dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id) override;
+  Phase::Result dispatch(const FinishTask&, TaskQueue&, int node_id) override;
 
   Time deadline() const override;
 };
