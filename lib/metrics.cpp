@@ -17,7 +17,9 @@ Metrics &Metrics::get()
 
 void Metrics::reset_metrics()
 {
-  for (auto metric_ptr : Metrics::get().map) {
-    metric_ptr.second = 0;
+  auto &map = Metrics::get().map;
+  for (auto [k, v] : map) {
+    (void) v;
+    map[k] = 0;
   }
 }
