@@ -357,9 +357,7 @@ CheckedCorrection<send_over_root>::dispatch(
     recv_right = std::max(recv_right, right.min_recv - 1);
     missing_around = std::max(recv_left + recv_right, missing_around);
 
-    if (correction_participant[node_id]) {
-      metrics["CorrectionParticipants"] += 1;
-    }
+    metrics["CorrectionParticipants"] += 1;
   }
 
   metrics["CorrectedGapLeft"] = recv_left;
