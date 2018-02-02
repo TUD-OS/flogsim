@@ -11,7 +11,9 @@ class TaskQueue;
 class InitTask;
 class IdleTask;
 class TimerTask;
+class RecvStartTask;
 class RecvEndTask;
+class SendStartTask;
 class SendEndTask;
 class FinishTask;
 
@@ -46,7 +48,9 @@ public:
   virtual Result dispatch(const InitTask &, TaskQueue &, int) = 0;
   virtual Result dispatch(const IdleTask &, TaskQueue &, int);
   virtual Result dispatch(const TimerTask &, TaskQueue &, int);
+  virtual Result dispatch(const RecvStartTask &, TaskQueue &, int);
   virtual Result dispatch(const RecvEndTask &, TaskQueue &, int);
+  virtual Result dispatch(const SendStartTask &, TaskQueue &, int);
   virtual Result dispatch(const SendEndTask &, TaskQueue &, int);
   virtual Result dispatch(const FinishTask &, TaskQueue &, int);
 

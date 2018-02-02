@@ -54,7 +54,9 @@ public:
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const IdleTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const TimerTask &t, TaskQueue &tq, int node_id) override;
+  virtual Result dispatch(const RecvStartTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id) override;
+  virtual Result dispatch(const SendStartTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const SendEndTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const FinishTask &t, TaskQueue &tq, int node_id) override;
 

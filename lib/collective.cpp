@@ -62,12 +62,14 @@ void Collective::accept(const SendEndTask &t, TaskQueue &tq)
   forward(t, tq, t.sender());
 }
 
-void Collective::accept(const SendStartTask&, TaskQueue&)
+void Collective::accept(const SendStartTask &t, TaskQueue &tq)
 {
+  forward(t, tq, t.sender());
 }
 
-void Collective::accept(const RecvStartTask&, TaskQueue&)
+void Collective::accept(const RecvStartTask &t, TaskQueue &tq)
 {
+  forward(t, tq, t.sender());
 }
 
 void Collective::accept(const RecvEndTask &t, TaskQueue &tq)
