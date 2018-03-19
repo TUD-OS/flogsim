@@ -90,11 +90,11 @@ LameTree::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   post_sends(node_id, tq);
 
-  if (t.tag() == Tag::TREE) {
-    return Result::DONE_PHASE;
-  } else {
-    return Result::DONE_COLL;
-  }
+  return (t.tag() == Tag::TREE ?
+                     Result::DONE_PHASE :
+                     (exit_on_early_correction ?
+                       Result::DONE_COLL :
+                       Result::DONE_FORWARD));
 }
 
 Time LameTree::latency_at_node(int id, int t) const
