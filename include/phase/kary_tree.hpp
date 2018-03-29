@@ -14,7 +14,5 @@ public:
   {
   }
 
-  virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
-
   virtual Time deadline() const override;
 };

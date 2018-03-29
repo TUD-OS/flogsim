@@ -67,22 +67,6 @@ void LameTree::post_sends(const int sender, TaskQueue &tq) const
   }
 }
 
-Phase::Result
-LameTree::dispatch(const InitTask &, TaskQueue &tq, int node_id)
-{
-  if(!reached_nodes[node_id]) {
-    return Result::ONGOING;
-  }
-
-  const int root [[maybe_unused]] = 0;
-  assert(node_id == root && "SimpleTree init on non-root node");
-  assert(reached_nodes[root] && "Root unreached in tree");
-
-  post_sends(node_id, tq);
-
-  return Result::DONE_PHASE;
-}
-
 Time LameTree::latency_at_node(int id, int t) const
 {
   // vector of size time(t) of vectors of size num_nodes()

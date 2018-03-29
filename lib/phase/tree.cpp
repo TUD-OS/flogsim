@@ -10,6 +10,23 @@
 
 using Result = Phase::Result;
 
+
+template <typename CHILD>
+Result Tree<CHILD>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
+{
+  if(!reached_nodes[node_id]) {
+    return Result::ONGOING;
+  }
+
+  const int root [[maybe_unused]] = 0;
+  assert(node_id == root && "SimpleTree init on non-root node");
+  assert(reached_nodes[root] && "Root unreached in tree");
+
+  post_sends(node_id, tq);
+
+  return Result::DONE_PHASE;
+}
+
 template <typename CHILD>
 Result Tree<CHILD>::dispatch(const FinishTask &, TaskQueue &tq, int node_id)
 {

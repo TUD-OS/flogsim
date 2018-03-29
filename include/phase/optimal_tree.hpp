@@ -10,7 +10,5 @@ class OptimalTree : public Tree<OptimalTree>
 public:
   OptimalTree(ReachedNodes &reached_nodes);
 
-  virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
-
   virtual Time deadline() const override;
 };

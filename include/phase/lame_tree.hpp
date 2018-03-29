@@ -21,8 +21,6 @@ public:
   {
   }
 
-  virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
-
   Time __latency_at_node(int id, int i) const;
   Time latency_at_node(int id, int i) const;
   virtual Time deadline() const override;

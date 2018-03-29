@@ -147,20 +147,6 @@ void OptimalTree::post_sends(const int sender, TaskQueue &tq) const
   }
 }
 
-Phase::Result
-OptimalTree::dispatch(const InitTask &, TaskQueue &tq, int node_id)
-{
-  if(!reached_nodes[node_id]) {
-    return Result::ONGOING;
-  }
-
-  assert(node_id == 0 && "Tree init on non-root node");
-
-  post_sends(node_id, tq);
-
-  return Result::DONE_PHASE;
-}
-
 Time
 OptimalTree::deadline() const
 {

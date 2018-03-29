@@ -20,6 +20,7 @@ public:
     return *static_cast<CHILD *>(this);
   }
 
+  Result dispatch(const InitTask&, TaskQueue&, int node_id) override final;
   Result dispatch(const FinishTask&, TaskQueue&, int node_id) override final;
   Result dispatch(const RecvEndTask&, TaskQueue&, int node_id) override final;
 };
