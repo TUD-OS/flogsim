@@ -53,10 +53,8 @@ int LameTree::start(int id) const
   // Not reached
 }
 
-void LameTree::post_sends(const int sender, TaskQueue &tq)
+void LameTree::post_sends(const int sender, TaskQueue &tq) const
 {
-  reached_nodes[sender] = true;
-
   int lvl = start(sender);
   while (true) {
     int receiver = sender + ready_to_send(lvl + k - 1);
@@ -83,18 +81,6 @@ LameTree::dispatch(const InitTask &, TaskQueue &tq, int node_id)
   post_sends(node_id, tq);
 
   return Result::DONE_PHASE;
-}
-
-Phase::Result
-LameTree::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
-{
-  post_sends(node_id, tq);
-
-  return (t.tag() == Tag::TREE ?
-                     Result::DONE_PHASE :
-                     (exit_on_early_correction ?
-                       Result::DONE_COLL :
-                       Result::DONE_FORWARD));
 }
 
 Time LameTree::latency_at_node(int id, int t) const

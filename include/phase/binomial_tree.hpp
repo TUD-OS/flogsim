@@ -4,7 +4,7 @@
 
 class BinomialTree : public Tree<BinomialTree>
 {
-  void post_sends(const int sender, TaskQueue &tq) const;
+  void post_sends(const int sender, TaskQueue &tq) const override final;
 public:
   BinomialTree(ReachedNodes &reached_nodes)
     : Tree(reached_nodes)
@@ -12,7 +12,6 @@ public:
   }
 
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
-  virtual Result dispatch(const RecvEndTask& t, TaskQueue &tq, int node_id) override;
 
   virtual Time deadline() const override;
 };

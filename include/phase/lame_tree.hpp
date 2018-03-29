@@ -4,7 +4,7 @@
 
 class LameTree : public Tree<LameTree>
 {
-  void post_sends(const int sender, TaskQueue &tq);
+  void post_sends(const int sender, TaskQueue &tq) const override final;
   // Table with cached ready to send count values
   mutable std::vector<int> rts_cache;
   int k;
@@ -22,7 +22,6 @@ public:
   }
 
   virtual Result dispatch(const InitTask &t, TaskQueue &tq, int node_id) override;
-  virtual Result dispatch(const RecvEndTask& t, TaskQueue &tq, int node_id) override;
 
   Time __latency_at_node(int id, int i) const;
   Time latency_at_node(int id, int i) const;

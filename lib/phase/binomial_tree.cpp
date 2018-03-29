@@ -61,19 +61,6 @@ BinomialTree::dispatch(const InitTask &, TaskQueue &tq, int node_id)
   return Result::DONE_PHASE;
 }
 
-Phase::Result
-BinomialTree::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
-{
-  reached_nodes[node_id] = true;
-  post_sends(node_id, tq);
-
-  return (t.tag() == Tag::TREE ?
-                     Result::DONE_PHASE :
-                     (exit_on_early_correction ?
-                       Result::DONE_COLL :
-                       Result::DONE_FORWARD));
-}
-
 Time BinomialTree::deadline() const
 {
   auto &model = Globals::get().model();

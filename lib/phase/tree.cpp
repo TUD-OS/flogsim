@@ -34,6 +34,19 @@ Result Tree<CHILD>::dispatch(const FinishTask &, TaskQueue &tq, int node_id)
   return Result::ONGOING;
 }
 
+template <typename CHILD>
+Result Tree<CHILD>::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
+{
+  reached_nodes[node_id] = true;
+  post_sends(node_id, tq);
+
+  return (t.tag() == Tag::TREE ?
+                     Result::DONE_PHASE :
+                     (exit_on_early_correction ?
+                       Result::DONE_COLL :
+                       Result::DONE_FORWARD));
+}
+
 // explicit instantiation
 template class Tree<LameTree>;
 template class Tree<KAryTree>;
