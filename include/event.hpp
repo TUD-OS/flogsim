@@ -214,16 +214,22 @@ private:
 
       const_iterator &operator++()
       {
+        // Simple case within thread
+        ++ event;
         if (event != thread->events.cend()) {
-          event++;
-        } else {
-          thread++;
-          if (thread != queue.cend()) {
-            event = thread->events.cbegin();
-          } else {
-            done = true;
+          return *this;
+        }
+
+        // Need to switch thread
+        while (++thread != queue.cend()) {
+          event = thread->events.cbegin();
+          if (event != thread->events.cend()) {
+            return *this;
           }
         }
+
+        // Completely done
+        done = true;
         return *this;
       }
 
