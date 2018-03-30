@@ -4,7 +4,7 @@
 #include "globals.hpp"
 #include "task_queue.hpp"
 
-#include "phase/kary_tree.hpp"
+#include "topology/kary.hpp"
 
 using Result = Phase::Result;
 
@@ -46,22 +46,26 @@ int get_lvl(int sender, int arity)
 }
 } // end anon namespace
 
-void
-KAryTree::post_sends(const int sender, TaskQueue &tq) const
+KAry::KAry(int num_nodes, NodeOrder order) :
+  Topology(num_nodes, order),
+  arity(Globals::get().conf().k)
 {
-  const int lvl = get_lvl(sender, arity);
+  assert(order == NodeOrder::INTERLEAVED);
 
-  for (size_t child = 1; child <= arity; ++child) {
-    int receiver = sender + child * std::pow(arity, lvl);
+  for (int sender = 0; sender < num_nodes; sender++) {
+    const int lvl = get_lvl(sender, arity);
+    for (size_t child = 1; child <= arity; ++child) {
+      int receiver = sender + child * std::pow(arity, lvl);
 
-    if (receiver < num_nodes()) {
-      tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
+      if (receiver < num_nodes) {
+        add_edge(sender, receiver);
+      }
     }
   }
 }
 
 Time
-KAryTree::deadline() const
+KAry::deadline() const
 {
   auto &model = Globals::get().model();
   auto L = model.L;

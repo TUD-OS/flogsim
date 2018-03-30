@@ -1,10 +1,9 @@
 #pragma once
 
-#include "tree.hpp"
+#include "topology/topology.hpp"
 
-class LameTree : public Tree<LameTree>
+class Lame : public Topology
 {
-  void post_sends(const int sender, TaskQueue &tq) const override final;
   // Table with cached ready to send count values
   mutable std::vector<int> rts_cache;
   int k;
@@ -15,11 +14,7 @@ class LameTree : public Tree<LameTree>
   // As start from the paper, compute initial t for a node
   int start(int id) const;
 public:
-  LameTree(ReachedNodes &reached_nodes)
-    : Tree(reached_nodes),
-      k(Globals::get().conf().k)
-  {
-  }
+  Lame(int num_nodes, NodeOrder order);
 
   Time __latency_at_node(int id, int i) const;
   Time latency_at_node(int id, int i) const;

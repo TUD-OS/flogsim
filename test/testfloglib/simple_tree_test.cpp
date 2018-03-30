@@ -2,7 +2,8 @@
 
 #include "test_wrappers.hpp"
 
-#include "phase/kary_tree.hpp"
+#include "phase/tree.hpp"
+#include "topology/kary.hpp"
 
 namespace
 {
@@ -13,7 +14,7 @@ TEST_P(KaryTreeTests, Runtime)
   do_test(
     [](ReachedNodes& rn)
     {
-      return std::make_unique<KAryTree>(rn);
+      return std::make_unique<Tree<KAry>>(rn);
     });
 }
 

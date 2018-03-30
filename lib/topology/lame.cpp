@@ -2,13 +2,13 @@
 #include <cmath>
 
 #include "task_queue.hpp"
-#include "phase/lame_tree.hpp"
+#include "topology/lame.hpp"
 
 #include <map>
 
-// LameTree
+// Lame
 
-int LameTree::compute_l_max(int n) const
+int Lame::compute_l_max(int n) const
 {
   if (n == 0)
     return 0;
@@ -17,7 +17,7 @@ int LameTree::compute_l_max(int n) const
   return 1 + compute_l_max(n - offs);
 }
 
-int LameTree::ready_to_send(int t) const
+int Lame::ready_to_send(int t) const
 {
   if (t < 0) {
     return 0;
@@ -39,7 +39,7 @@ int LameTree::ready_to_send(int t) const
   return rts_cache[idx];
 }
 
-int LameTree::start(int id) const
+int Lame::start(int id) const
 {
   if (id == 0) {
     return 0;
@@ -53,21 +53,27 @@ int LameTree::start(int id) const
   // Not reached
 }
 
-void LameTree::post_sends(const int sender, TaskQueue &tq) const
+Lame::Lame(int num_nodes, NodeOrder order) :
+  Topology(num_nodes, order),
+  k(Globals::get().conf().k)
 {
-  int lvl = start(sender);
-  while (true) {
-    int receiver = sender + ready_to_send(lvl + k - 1);
-    if (receiver >= num_nodes()) {
-      break;
-    }
+  assert(order == NodeOrder::INTERLEAVED);
 
-    tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
-    lvl ++;
+  for (int sender = 0; sender < num_nodes; sender++) {
+    int lvl = start(sender);
+    while (true) {
+      int receiver = sender + ready_to_send(lvl + k - 1);
+      if (receiver >= num_nodes) {
+        break;
+      }
+
+      add_edge(sender, receiver);
+      lvl ++;
+    }
   }
 }
 
-Time LameTree::latency_at_node(int id, int t) const
+Time Lame::latency_at_node(int id, int t) const
 {
   // vector of size time(t) of vectors of size num_nodes()
   static std::vector<std::vector<Time>> cache;
@@ -100,7 +106,7 @@ Time LameTree::latency_at_node(int id, int t) const
 // Returns a latency at node *id*, who is about to send i-th message
 // This is a recursive implementation, for what I try to find a closed
 // form. For now it is good enough.
-Time LameTree::__latency_at_node(int id, int t) const
+Time Lame::__latency_at_node(int id, int t) const
 {
   auto &model = Globals::get().model();
   auto L = model.L;
@@ -127,7 +133,7 @@ Time LameTree::__latency_at_node(int id, int t) const
   return std::max(local, remote);
 }
 
-Time LameTree::deadline() const
+Time Lame::deadline() const
 {
   auto L_an = latency_at_node(0, 0);
   return L_an;

@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include "task_queue.hpp"
-#include "phase/binomial_tree.hpp"
+#include "topology/binomial.hpp"
 
 namespace
 {
@@ -32,20 +32,23 @@ Time binomial_runtime(Time L, Time o, Time g, int P)
 
 }
 
-// BinomialTree
-
-void BinomialTree::post_sends(const int sender, TaskQueue &tq) const
+Binomial::Binomial(int num_nodes, NodeOrder order)
+  : Topology(num_nodes, order)
 {
-  for (int lvl = get_lvl(sender); lvl <= get_lvl(num_nodes()); lvl++) {
-    int receiver = sender + (1 << lvl);
+  assert(order == NodeOrder::INTERLEAVED);
 
-    if (receiver < num_nodes()) {
-      tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
+  for (int sender = 0; sender < num_nodes; sender++) {
+    for (int lvl = get_lvl(sender); lvl <= get_lvl(num_nodes); lvl++) {
+      int receiver = sender + (1 << lvl);
+
+      if (receiver < num_nodes) {
+        add_edge(sender, receiver);
+      }
     }
   }
 }
 
-Time BinomialTree::deadline() const
+Time Binomial::deadline() const
 {
   auto &model = Globals::get().model();
   auto L = model.L;

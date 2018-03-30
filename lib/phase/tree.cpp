@@ -1,18 +1,27 @@
 #include "phase/tree.hpp"
 
 // required for explicit template instantiation
-#include "phase/kary_tree.hpp"
-#include "phase/binomial_tree.hpp"
-#include "phase/optimal_tree.hpp"
-#include "phase/lame_tree.hpp"
+#include "topology/kary.hpp"
+#include "topology/binomial.hpp"
+#include "topology/optimal.hpp"
+#include "topology/lame.hpp"
 
 #include "task_queue.hpp"
 
 using Result = Phase::Result;
 
 
-template <typename CHILD>
-Result Tree<CHILD>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
+template<typename T>
+void Tree<T>::post_sends(const int sender, TaskQueue &tq) const
+{
+  for (int receiver: topology.peers(sender)) {
+    assert (receiver < num_nodes());
+    tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
+  }
+}
+
+template<typename T>
+Result Tree<T>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
 {
   if(!reached_nodes[node_id]) {
     return Result::ONGOING;
@@ -27,8 +36,8 @@ Result Tree<CHILD>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
   return Result::DONE_PHASE;
 }
 
-template <typename CHILD>
-Result Tree<CHILD>::dispatch(const FinishTask &, TaskQueue &tq, int node_id)
+template<typename T>
+Result Tree<T>::dispatch(const FinishTask &, TaskQueue &tq, int node_id)
 {
   // Goal is to record end of root
   if (node_id == 0) {
@@ -51,8 +60,8 @@ Result Tree<CHILD>::dispatch(const FinishTask &, TaskQueue &tq, int node_id)
   return Result::ONGOING;
 }
 
-template <typename CHILD>
-Result Tree<CHILD>::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
+template<typename T>
+Result Tree<T>::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
   reached_nodes[node_id] = true;
   post_sends(node_id, tq);
@@ -65,7 +74,7 @@ Result Tree<CHILD>::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 }
 
 // explicit instantiation
-template class Tree<LameTree>;
-template class Tree<KAryTree>;
-template class Tree<OptimalTree>;
-template class Tree<BinomialTree>;
+template class Tree<Lame>;
+template class Tree<KAry>;
+template class Tree<Optimal>;
+template class Tree<Binomial>;

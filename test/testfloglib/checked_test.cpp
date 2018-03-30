@@ -2,7 +2,8 @@
 
 #include "test_wrappers.hpp"
 
-#include "phase/kary_tree.hpp"
+#include "phase/tree.hpp"
+#include "topology/kary.hpp"
 #include "phase/exclusive.hpp"
 #include "phase/combiner.hpp"
 #include "phase/correction.hpp"
@@ -17,7 +18,7 @@ TEST_P(CheckedCorrectedKaryTreeBroadcast, Runtime)
     [](ReachedNodes& rn)
     {
       auto phases = Combiner::Phases(rn).
-        add_phase<KAryTree>().
+        add_phase<Tree<KAry>>().
         add_phase<CheckedCorrection<false>>();
 
       return std::make_unique<Combiner>(std::move(phases));

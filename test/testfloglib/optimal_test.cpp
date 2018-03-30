@@ -2,7 +2,8 @@
 
 #include "test_wrappers.hpp"
 
-#include "phase/optimal_tree.hpp"
+#include "phase/tree.hpp"
+#include "topology/optimal.hpp"
 #include "phase/combiner.hpp"
 #include "phase/correction.hpp"
 
@@ -16,7 +17,7 @@ TEST_P(CheckedCorrectedOptimalTreeBroadcast, Runtime)
     [](ReachedNodes& rn)
     {
       auto phases = Combiner::Phases(rn).
-        add_phase<OptimalTree>().
+        add_phase<Tree<Optimal>>().
         add_phase<CheckedCorrection<false>>();
 
       return std::make_unique<Combiner>(std::move(phases));

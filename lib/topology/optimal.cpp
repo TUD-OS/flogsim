@@ -3,7 +3,7 @@
 
 #include "task_queue.hpp"
 
-#include "phase/optimal_tree.hpp"
+#include "topology/optimal.hpp"
 
 // Implementation of optimal tree broadcast from Section 2 "Optimal
 // Broadcast and Summation in the LogP Model", Karp et. al.
@@ -114,41 +114,34 @@ std::vector<Node> compute_opt_tree(Time L, Time o, Time g, int num_nodes)
 
 }
 
-// OptimalTree
+// Optimal
 
-OptimalTree::OptimalTree(ReachedNodes &reached_nodes)
-  : Tree(reached_nodes)
+Optimal::Optimal(int num_nodes, NodeOrder order)
+  : Topology(num_nodes, order)
 {
+  assert(order == NodeOrder::INTERLEAVED);
+
   auto &model = Globals::get().model();
   auto L = model.L;
   auto o = model.o;
   auto g = model.g;
 
-  std::vector<Node> nodes = compute_opt_tree(L, o, g, num_nodes());
+  std::vector<::Node> nodes = compute_opt_tree(L, o, g, num_nodes);
 
-  send_to.resize(num_nodes());
-  for (int i = 0; i < static_cast<int>(nodes.size()); i++) {
-    auto &cur = nodes[i];
+  for (int receiver = 0; receiver < num_nodes; receiver++) {
+    auto &cur = nodes[receiver];
     if (cur.label > end_of_phase) {
       end_of_phase = cur.label;
     }
 
-    if (cur.parent != i) {
-      send_to[cur.parent].push_back(i);
+    if (cur.parent != receiver) {
+      add_edge(cur.parent, receiver);
     }
   }
 }
 
-void OptimalTree::post_sends(const int sender, TaskQueue &tq) const
-{
-  const auto &my_send_to = send_to[sender];
-  for (auto receiver : my_send_to) {
-    tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
-  }
-}
-
 Time
-OptimalTree::deadline() const
+Optimal::deadline() const
 {
   return end_of_phase;
 }

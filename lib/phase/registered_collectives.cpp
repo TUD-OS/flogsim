@@ -5,10 +5,7 @@
 #include "phase.hpp"
 
 #include "phase/gossip.hpp"
-#include "phase/kary_tree.hpp"
-#include "phase/binomial_tree.hpp"
-#include "phase/lame_tree.hpp"
-#include "phase/optimal_tree.hpp"
+#include "phase/tree.hpp"
 
 #include "phase/exclusive.hpp"
 #include "phase/combiner.hpp"
@@ -22,28 +19,28 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<KAryTree>(rn);
+        return std::make_unique<Tree<KAry>>(rn);
       },
       "kary_bcast"
     },
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<BinomialTree>(rn);
+        return std::make_unique<Tree<Binomial>>(rn);
       },
       "binomial_bcast"
     },
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<LameTree>(rn);
+        return std::make_unique<Tree<Lame>>(rn);
       },
       "lame_bcast"
     },
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<OptimalTree>(rn);
+        return std::make_unique<Tree<Optimal>>(rn);
       },
       "optimal_bcast"
     },
@@ -59,7 +56,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<Exclusive>(std::make_unique<BinomialTree>(rn)).
+          add_phase<Exclusive>(std::make_unique<Tree<Binomial>>(rn)).
           add_phase<OpportunisticCorrection<false, false>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -70,7 +67,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<Exclusive>(std::make_unique<BinomialTree>(rn)).
+          add_phase<Exclusive>(std::make_unique<Tree<Binomial>>(rn)).
           add_phase<OpportunisticCorrection<false, true>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -81,7 +78,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<BinomialTree>().
+          add_phase<Tree<Binomial>>().
           add_phase<OpportunisticCorrection<false, false>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -92,7 +89,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<BinomialTree>().
+          add_phase<Tree<Binomial>>().
           add_phase<OpportunisticCorrection<false, true>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -103,7 +100,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<Exclusive>(std::make_unique<KAryTree>(rn)).
+          add_phase<Exclusive>(std::make_unique<Tree<KAry>>(rn)).
           add_phase<CheckedCorrection<true>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -114,7 +111,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<KAryTree>().
+          add_phase<Tree<KAry>>().
           add_phase<CheckedCorrection<false>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -124,7 +121,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<KAryTree>(rn);
+        auto tree = std::make_unique<Tree<KAry>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -139,7 +136,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<Exclusive>(std::make_unique<BinomialTree>(rn)).
+          add_phase<Exclusive>(std::make_unique<Tree<Binomial>>(rn)).
           add_phase<CheckedCorrection<true>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -150,7 +147,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<BinomialTree>().
+          add_phase<Tree<Binomial>>().
           add_phase<CheckedCorrection<false>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -160,7 +157,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<BinomialTree>(rn);
+        auto tree = std::make_unique<Tree<Binomial>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -178,7 +175,7 @@ std::vector<CollectiveRegistrator> _{
         correction->throttled();
 
         auto phases = Combiner::Phases(rn).
-          add_phase<BinomialTree>().
+          add_phase<Tree<Binomial>>().
           add_phase(std::move(correction));
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -189,7 +186,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<LameTree>().
+          add_phase<Tree<Lame>>().
           add_phase<CheckedCorrection<false>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -199,7 +196,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<LameTree>(rn);
+        auto tree = std::make_unique<Tree<Lame>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -214,7 +211,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<Exclusive>(std::make_unique<LameTree>(rn)).
+          add_phase<Exclusive>(std::make_unique<Tree<Lame>>(rn)).
           add_phase<CheckedCorrection<true>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -225,7 +222,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<OptimalTree>().
+          add_phase<Tree<Optimal>>().
           add_phase<CheckedCorrection<false>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -235,7 +232,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<OptimalTree>(rn);
+        auto tree = std::make_unique<Tree<Optimal>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -249,7 +246,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<OptimalTree>(rn);
+        auto tree = std::make_unique<Tree<Optimal>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -264,7 +261,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<Exclusive>(std::make_unique<OptimalTree>(rn)).
+          add_phase<Exclusive>(std::make_unique<Tree<Optimal>>(rn)).
           add_phase<CheckedCorrection<true>>();
 
         return std::make_unique<Combiner>(std::move(phases));
@@ -275,7 +272,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<OptimalTree>().
+          add_phase<Tree<Optimal>>().
           add_phase<Gossip>().
           add_phase<CheckedCorrection<false>>();
 
@@ -288,7 +285,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
-          add_phase<BinomialTree>().
+          add_phase<Tree<Binomial>>().
           add_phase<Gossip>().
           add_phase<CheckedCorrection<false>>();
 
@@ -300,7 +297,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<KAryTree>(rn);
+        auto tree = std::make_unique<Tree<KAry>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -314,7 +311,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<KAryTree>(rn);
+        auto tree = std::make_unique<Tree<KAry>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -328,7 +325,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<BinomialTree>(rn);
+        auto tree = std::make_unique<Tree<Binomial>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -342,7 +339,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<BinomialTree>(rn);
+        auto tree = std::make_unique<Tree<Binomial>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -356,7 +353,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<LameTree>(rn);
+        auto tree = std::make_unique<Tree<Lame>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -370,7 +367,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<LameTree>(rn);
+        auto tree = std::make_unique<Tree<Lame>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -384,7 +381,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<OptimalTree>(rn);
+        auto tree = std::make_unique<Tree<Optimal>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -398,7 +395,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<OptimalTree>(rn);
+        auto tree = std::make_unique<Tree<Optimal>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -413,7 +410,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<KAryTree>(rn);
+        auto tree = std::make_unique<Tree<KAry>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -427,7 +424,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<KAryTree>(rn);
+        auto tree = std::make_unique<Tree<KAry>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -441,7 +438,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<BinomialTree>(rn);
+        auto tree = std::make_unique<Tree<Binomial>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -455,7 +452,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<BinomialTree>(rn);
+        auto tree = std::make_unique<Tree<Binomial>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -469,7 +466,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<LameTree>(rn);
+        auto tree = std::make_unique<Tree<Lame>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -483,7 +480,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<LameTree>(rn);
+        auto tree = std::make_unique<Tree<Lame>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -497,7 +494,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<OptimalTree>(rn);
+        auto tree = std::make_unique<Tree<Optimal>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
@@ -511,7 +508,7 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        auto tree = std::make_unique<OptimalTree>(rn);
+        auto tree = std::make_unique<Tree<Optimal>>(rn);
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
