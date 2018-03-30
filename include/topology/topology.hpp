@@ -43,5 +43,5 @@ class Topology {
       return direction_down ? nodes[sender].children : nodes[sender].parents;
     }
 
-    virtual Time deadline() const = 0;
+    Time deadline() const;
 };

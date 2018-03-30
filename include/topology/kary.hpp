@@ -8,6 +8,4 @@ class KAry : public Topology
 
 public:
   KAry(int num_nodes, NodeOrder order);
-
-  virtual Time deadline() const override;
 };

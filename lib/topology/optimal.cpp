@@ -139,9 +139,3 @@ Optimal::Optimal(int num_nodes, NodeOrder order)
     }
   }
 }
-
-Time
-Optimal::deadline() const
-{
-  return end_of_phase;
-}

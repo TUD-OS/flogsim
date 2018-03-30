@@ -63,14 +63,3 @@ KAry::KAry(int num_nodes, NodeOrder order) :
     }
   }
 }
-
-Time
-KAry::deadline() const
-{
-  auto &model = Globals::get().model();
-  auto L = model.L;
-  auto o = model.o;
-  auto g = model.g;
-
-  return Time{calc_runtime(L, o, g, num_nodes(), arity)};
-}

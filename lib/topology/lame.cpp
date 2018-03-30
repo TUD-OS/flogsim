@@ -132,25 +132,3 @@ Time Lame::__latency_at_node(int id, int t) const
 
   return std::max(local, remote);
 }
-
-Time Lame::deadline() const
-{
-  auto L_an = latency_at_node(0, 0);
-  return L_an;
-
-  auto &model = Globals::get().model();
-  auto L = model.L;
-  auto o = model.o;
-  [[maybe_unused]] auto g = model.g;
-
-  assert(o == g && "Model is expected to have o == g");
-  // Maximum number of hops in the tree
-  int height = compute_l_max(num_nodes());
-  // Number of messages a root sends
-  auto m_root = start(num_nodes() - 1) - k + 1;
-  // Left over factor
-  std::cout << "height = " << height << "  m_root = " << m_root << std::endl;
-  Time L_rest(std::max(0L, (height - 1) * (L.get() - k + 2 * o.get())));
-  std::cout << "fixed = " << o * (m_root + 1) + L << std::endl;
-  return o * (m_root + 1) + L + L_rest;
-}
