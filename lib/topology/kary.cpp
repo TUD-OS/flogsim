@@ -53,9 +53,20 @@ KAry::KAry(int num_nodes, NodeOrder order) :
   assert(order == NodeOrder::INTERLEAVED);
 
   for (int sender = 0; sender < num_nodes; sender++) {
-    const int lvl = get_lvl(sender, arity);
     for (size_t child = 1; child <= arity; ++child) {
-      int receiver = sender + child * std::pow(arity, lvl);
+      int receiver = -1;
+
+      switch (order) {
+        case NodeOrder::INTERLEAVED: {
+          const int lvl = get_lvl(sender, arity);
+          receiver = sender + child * std::pow(arity, lvl);
+          break;
+        }
+        case NodeOrder::INORDER: {
+          receiver = arity * sender + child;
+          break;
+        }
+      }
 
       if (receiver < num_nodes) {
         add_edge(sender, receiver);
