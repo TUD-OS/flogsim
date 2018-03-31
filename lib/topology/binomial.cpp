@@ -35,15 +35,40 @@ Time binomial_runtime(Time L, Time o, Time g, int P)
 Binomial::Binomial(int num_nodes, NodeOrder order)
   : Topology(num_nodes, order)
 {
-  assert(order == NodeOrder::INTERLEAVED);
-
   for (int sender = 0; sender < num_nodes; sender++) {
-    for (int lvl = get_lvl(sender); lvl <= get_lvl(num_nodes); lvl++) {
-      int receiver = sender + (1 << lvl);
+    switch (order) {
+      case NodeOrder::INTERLEAVED: {
+        for (int lvl = get_lvl(sender); lvl <= get_lvl(num_nodes); lvl++) {
+          int receiver = sender + (1 << lvl);
 
-      if (receiver < num_nodes) {
-        add_edge(sender, receiver);
+          if (receiver < num_nodes) {
+            add_edge(sender, receiver);
+          }
+        }
       }
+      break;
+      case NodeOrder::INORDER: {
+        int mask = 1;
+        // We create a vector first, because we want to create edges in
+        // opposite order, so that the nodes sending more messages get a
+        // messages earlier
+        std::vector<int> receivers;
+        while (mask < num_nodes) {
+          int receiver = sender ^ mask;
+          if (receiver < sender) {
+            break;
+          } else if (receiver < num_nodes) {
+            receivers.push_back(receiver);
+          }
+          mask <<= 1;
+        }
+
+        // Push in opposite direction
+        for (int i = receivers.size(); i > 0; i--) {
+          add_edge(sender, receivers[i-1]);
+        }
+      }
+      break;
     }
   }
 }

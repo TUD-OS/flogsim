@@ -159,6 +159,19 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
+        auto tree = std::make_unique<Tree<Binomial>>(rn, NodeOrder::INORDER);
+
+        auto phases = Combiner::Phases(rn).
+          add_phase<Exclusive>(std::move(tree)).
+          add_phase<CheckedCorrection<true>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "phased_checked_corrected_binomial_inorder_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
         auto phases = Combiner::Phases(rn).
           add_phase<Tree<Binomial>>().
           add_phase<CheckedCorrection<false>>();
