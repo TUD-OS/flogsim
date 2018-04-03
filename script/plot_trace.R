@@ -85,7 +85,8 @@ levels(trace.df$Tag) <- c(
     "right_ring"="Right",
     "left_ring"="Left",
     "gossip"="Gossip",
-    "tree"="Tree"
+    "tree"="Tree",
+    "gather" = "Gather"
     )
 
 ## End of CpuEvent is start of latency

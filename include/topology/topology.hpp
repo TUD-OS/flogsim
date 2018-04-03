@@ -39,8 +39,12 @@ class Topology {
       return *this;
     }
 
-    const std::vector<int> &peers(int sender) const {
+    const std::vector<int> &receivers(int sender) const {
       return direction_down ? nodes[sender].children : nodes[sender].parents;
+    }
+
+    const std::vector<int> &senders(int receiver) const {
+      return direction_down ? nodes[receiver].parents : nodes[receiver].children;
     }
 
     Time deadline() const;

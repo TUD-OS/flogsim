@@ -6,6 +6,7 @@
 
 #include "phase/gossip.hpp"
 #include "phase/tree.hpp"
+#include "phase/gather.hpp"
 
 #include "phase/exclusive.hpp"
 #include "phase/combiner.hpp"
