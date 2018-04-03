@@ -45,6 +45,52 @@ std::vector<CollectiveRegistrator> _{
       },
       "optimal_bcast"
     },
+
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<Tree<KAry>>().
+          add_phase<Gather<KAry>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "ack_kary_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<Tree<Binomial>>().
+          add_phase<Gather<Binomial>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "ack_binomial_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<Tree<Lame>>().
+          add_phase<Gather<Lame>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "ack_lame_bcast"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<Tree<Optimal>>().
+          add_phase<Gather<Optimal>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "ack_optimal_bcast"
+    },
+
     {
       [](ReachedNodes &rn)
       {
