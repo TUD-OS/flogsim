@@ -20,7 +20,7 @@ COMBINATIONS="$COMBINATIONS "$(eval echo "$ALL_COLL+$ALL_L+$ALL_P+$ALL_PAR+$ALL_
 
 ALL_COLL="{optimized_opportunistic_corrected_kary_bcast,optimized_opportunistic_corrected_binomial_bcast,optimized_opportunistic_corrected_optimal_bcast}"
 ALL_K="4"
-ALL_D="{2,4}"
+ALL_D="{1,2,4,8}"
 COMBINATIONS="$COMBINATIONS "$(eval echo "$ALL_COLL+$ALL_L+$ALL_P+$ALL_PAR+$ALL_K+$ALL_D")
 
 ALL_COLL="optimized_opportunistic_corrected_lame_bcast"
