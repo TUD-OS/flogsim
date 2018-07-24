@@ -44,5 +44,5 @@ struct Integer
   }
 
 private:
-	auto _get() const { return (*static_cast<const T*>(this)).get(); }
+  auto _get() const { return (*static_cast<const T*>(this)).get(); }
 };
