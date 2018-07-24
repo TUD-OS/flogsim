@@ -19,7 +19,7 @@ Gather<T>::Gather(ReachedNodes &reached_nodes, NodeOrder order)
   topology.lookup_up();
 
   for (size_t receiver = 0; receiver < to_receive.size(); receiver++) {
-    to_receive[receiver] = topology.senders(receiver).size();
+    to_receive[receiver] = topology.senders(Rank(receiver)).size();
   }
 }
 
@@ -33,10 +33,10 @@ Result Gather<T>::post_sends(const int sender, TaskQueue &tq) {
   // ... or already sent everything
   assert(to_receive[sender] == 0 && "Shouldn't try to send at this point");
 
-  for (int receiver : topology.receivers(sender)) {
-    assert(receiver < num_nodes());
-    tq.schedule(
-        SendStartTask::make_new(Tag::GATHER, tq.now(), sender, receiver));
+  for (Rank receiver : topology.receivers(Rank(sender))) {
+    assert(receiver.get() < num_nodes());
+    tq.schedule(SendStartTask::make_new(Tag::GATHER, tq.now(),
+					sender, receiver.get()));
   }
 
   to_receive[sender]--;

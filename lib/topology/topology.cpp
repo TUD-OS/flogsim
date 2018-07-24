@@ -35,7 +35,7 @@ Time Topology::deadline() const
       // Compute message arrival time
       Time completion = cur.time + L + std::max(o, g);
       total = std::max(total, completion);
-      wave.push(Ready{child, completion});
+      wave.push(Ready{child.get(), completion});
     }
   }
 

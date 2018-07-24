@@ -14,9 +14,9 @@ using Result = Phase::Result;
 template<typename T>
 void Tree<T>::post_sends(const int sender, TaskQueue &tq) const
 {
-  for (int receiver: topology.receivers(sender)) {
-    assert (receiver < num_nodes());
-    tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver));
+  for (Rank receiver: topology.receivers(Rank(sender))) {
+    assert (receiver.get() < num_nodes());
+    tq.schedule(SendStartTask::make_new(Tag::TREE, tq.now(), sender, receiver.get()));
   }
 }
 

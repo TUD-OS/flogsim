@@ -69,7 +69,7 @@ KAry::KAry(int num_nodes, NodeOrder order) :
       }
 
       if (receiver < num_nodes) {
-        add_edge(sender, receiver);
+        add_edge(Rank(sender), Rank(receiver));
       }
     }
   }

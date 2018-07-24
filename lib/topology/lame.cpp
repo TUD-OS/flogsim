@@ -67,7 +67,7 @@ Lame::Lame(int num_nodes, NodeOrder order) :
         break;
       }
 
-      add_edge(sender, receiver);
+      add_edge(Rank(sender), Rank(receiver));
       lvl ++;
     }
   }

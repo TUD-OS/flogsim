@@ -42,7 +42,7 @@ Binomial::Binomial(int num_nodes, NodeOrder order)
           int receiver = sender + (1 << lvl);
 
           if (receiver < num_nodes) {
-            add_edge(sender, receiver);
+            add_edge(Rank(sender), Rank(receiver));
           }
         }
       }
@@ -65,7 +65,7 @@ Binomial::Binomial(int num_nodes, NodeOrder order)
 
         // Push in opposite direction
         for (int i = receivers.size(); i > 0; i--) {
-          add_edge(sender, receivers[i-1]);
+          add_edge(Rank(sender), Rank(receivers[i-1]));
         }
       }
       break;

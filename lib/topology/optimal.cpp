@@ -135,7 +135,7 @@ Optimal::Optimal(int num_nodes, NodeOrder order)
     }
 
     if (cur.parent != receiver) {
-      add_edge(cur.parent, receiver);
+      add_edge(Rank(cur.parent), Rank(receiver));
     }
   }
 }

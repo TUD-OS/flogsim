@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "time.hpp"
+#include "rank.hpp"
 
 enum class NodeOrder {
   INORDER,
@@ -11,8 +12,8 @@ enum class NodeOrder {
 
 class Topology {
   struct Node {
-    std::vector<int> children;
-    std::vector<int> parents;
+    std::vector<Rank> children;
+    std::vector<Rank> parents;
   };
 
   std::vector<Node> nodes;
@@ -20,9 +21,9 @@ class Topology {
   bool direction_down = true;
   NodeOrder order;
   protected:
-    void add_edge(int sender, int receiver) {
-      nodes[sender].children.push_back(receiver);
-      nodes[receiver].parents.push_back(sender);
+    void add_edge(Rank sender, Rank receiver) {
+      nodes[sender.get()].children.push_back(receiver);
+      nodes[receiver.get()].parents.push_back(sender);
     }
 
     int num_nodes() const { return nodes.size(); }
@@ -39,12 +40,12 @@ class Topology {
       return *this;
     }
 
-    const std::vector<int> &receivers(int sender) const {
-      return direction_down ? nodes[sender].children : nodes[sender].parents;
+    const std::vector<Rank> &receivers(Rank sender) const {
+      return direction_down ? nodes[sender.get()].children : nodes[sender.get()].parents;
     }
 
-    const std::vector<int> &senders(int receiver) const {
-      return direction_down ? nodes[receiver].parents : nodes[receiver].children;
+    const std::vector<Rank> &senders(Rank receiver) const {
+      return direction_down ? nodes[receiver.get()].parents : nodes[receiver.get()].children;
     }
 
     Time deadline() const;
