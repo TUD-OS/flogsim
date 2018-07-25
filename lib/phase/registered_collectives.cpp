@@ -6,6 +6,7 @@
 
 #include "phase/gossip.hpp"
 #include "phase/tree.hpp"
+#include "phase/multitree.hpp"
 #include "phase/gather.hpp"
 
 #include "phase/exclusive.hpp"
@@ -625,6 +626,14 @@ std::vector<CollectiveRegistrator> _{
         return std::make_unique<Combiner>(std::move(phases));
       },
       "checked_corrected_gossip_bcast"
+    },
+
+    {
+      [](ReachedNodes &rn)
+      {
+        return std::make_unique<MultiTree<Binomial>>(rn);
+      },
+      "binomial_multitree"
     },
   }
 };
