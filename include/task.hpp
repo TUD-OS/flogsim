@@ -180,7 +180,7 @@ public:
   {
     rescheduled().inc();
     typedef typename std::remove_cv<
-      typename std::remove_pointer<typeof(task)>::type>::type task_t;
+      typename std::remove_pointer<decltype(task)>::type>::type task_t;
     return std::make_unique<task_t>(task->seq(), task->tag(), time,
                                     task->sender(), task->receiver());
   }
