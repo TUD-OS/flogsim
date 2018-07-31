@@ -55,7 +55,7 @@ Result MultiTree<T>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
   assert(inner_count <= num_nodes() / 2);
 
   int cur_root = inner_count;
-  for (int i = 1; i < tree_count; i++) {
+  for (unsigned i = 1; i < tree_count; i++) {
     if (cur_root + inner_count > num_nodes()) {
       throw std::runtime_error("Tree fan out is too low");
     }
