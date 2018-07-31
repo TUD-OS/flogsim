@@ -61,7 +61,7 @@ OpportunisticCorrection<send_over_root, optimised>::dispatch(
   int receiver;
   Tag tag;
 
-  if (sent_dist[node_id].left <= sent_dist[node_id].right) {
+  if (sent_dist[node_id].left < sent_dist[node_id].right) {
     receiver = node_id - ++sent_dist[node_id].left;  // send left
     tag = Tag::RING_LEFT;
   } else {
