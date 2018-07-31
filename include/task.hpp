@@ -272,6 +272,7 @@ public:
   SendStartTask(Sequence seq, Tag tag, Time time, int sender, int receiver) :
     TaskCounted(TaskData{seq, tag, time, sender, receiver})
   {
+    assert((sender != receiver) && "Sending to oneself is silly");
   }
 
   bool execute(Timeline &timeline, TaskQueue &tq) const override final;
