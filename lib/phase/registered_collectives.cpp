@@ -635,6 +635,13 @@ std::vector<CollectiveRegistrator> _{
       },
       "binomial_multitree"
     },
+    {
+      [](ReachedNodes &rn)
+      {
+        return std::make_unique<MultiTree<KAry>>(rn);
+      },
+      "kary_multitree"
+    },
   }
 };
 }

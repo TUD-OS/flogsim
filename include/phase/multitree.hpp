@@ -13,7 +13,6 @@ class MultiTree : public Phase
 {
 private:
   const TOPOLOGY topology;
-  std::default_random_engine &generator;
   size_t tree_count;
 
   std::vector<int> roots;

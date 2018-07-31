@@ -17,8 +17,7 @@ template<typename T>
 MultiTree<T>::MultiTree(ReachedNodes &reached_nodes)
   : Phase(reached_nodes),
     topology(reached_nodes.size(), NodeOrder::INTERLEAVED),
-    generator(Globals::get().entropy().generator),
-    tree_count(Globals::get().conf().k)
+    tree_count(Globals::get().conf().d)
 {
 }
 
@@ -41,21 +40,36 @@ Result MultiTree<T>::dispatch(const InitTask &, TaskQueue &tq, int node_id)
   if(!reached_nodes[node_id]) {
     return Result::ONGOING;
   }
-  std::uniform_int_distribution<int> distribution(1, num_nodes() - 1);
 
-  // We send tree_count - 1 messages, to create tree_count - 1
-  // tree. The last tree is started by the root
-  std::set<int> other_roots;
-  while (other_roots.size() < tree_count - 1) {
-    int receiver = distribution(generator);
-    other_roots.insert(receiver);
+  // Find how many non-leaf nodes a topology has, assuming that all
+  // the leaf nodes have higher ranks
+  int inner_count = 1;
+  while (inner_count < num_nodes()) {
+    if (topology.receivers(Rank(inner_count)).size() == 0) {
+      break;
+    }
+    inner_count++;
   }
 
-  roots.push_back(0);
-  for (int receiver : other_roots) {
-    roots.push_back(receiver);
+  // If leaf nodes are less than half, something is broken
+  assert(inner_count <= num_nodes() / 2);
+
+  int cur_root = inner_count;
+  for (int i = 1; i < tree_count; i++) {
+    if (cur_root + inner_count > num_nodes()) {
+      throw std::runtime_error("Tree fan out is too low");
+    }
+    roots.push_back(cur_root);
+    cur_root += inner_count;
+  }
+
+  for (int receiver : roots) {
     tq.schedule(SendStartTask::make_new(Tag::GOSSIP, tq.now(), 0, receiver));
   }
+
+  // Ther Rank 0 is the root of the first tree, but we need to add it
+  // after sending "Gossip" messages
+  roots.insert(roots.begin(), 0);
 
   post_sends(0, tq);
   return Result::DONE_PHASE;
@@ -100,3 +114,4 @@ Result MultiTree<T>::dispatch(const FinishTask &, TaskQueue &tq, int node_id)
 
 // explicit instantiation
 template class MultiTree<Binomial>;
+template class MultiTree<KAry>;
