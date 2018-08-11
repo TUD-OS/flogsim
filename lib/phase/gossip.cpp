@@ -64,9 +64,15 @@ Gossip::dispatch(const IdleTask &, TaskQueue &tq, int node_id)
 }
 
 Phase::Result
-Gossip::dispatch(const TimerTask &, TaskQueue &, int)
+Gossip::dispatch(const TimerTask &, TaskQueue &, int node_id)
 {
-  return Result::DONE_PHASE;
+  // Only nodes colored by gossip participate in the next phases
+  // (e.g. correction)
+  if (reached_nodes[node_id]) {
+    return Result::DONE_PHASE;
+  } else {
+    return Result::DONE_COLL;
+  }
 }
 
 Phase::Result
