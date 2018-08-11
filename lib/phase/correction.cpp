@@ -206,6 +206,7 @@ int CheckedCorrection<send_over_root>::get_dir(int node_id)
   }
 }
 
+// If we are throttling we may skip a send opportunity
 template<bool send_over_root>
 bool CheckedCorrection<send_over_root>::should_skip(
   TaskQueue &tq, Ring &ring, int node_id)
