@@ -89,7 +89,11 @@ Result Combiner::dispatch(const RecvStartTask &t, TaskQueue &tq, int node_id)
 
 Result Combiner::dispatch(const RecvEndTask &t, TaskQueue &tq, int node_id)
 {
-  return forward(t, tq, node_id);
+  auto ret = forward(t, tq, node_id);
+
+  reached_nodes[node_id] = true;
+
+  return ret;
 }
 
 Result Combiner::dispatch(const SendStartTask &t, TaskQueue &tq, int node_id)
