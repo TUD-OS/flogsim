@@ -71,9 +71,6 @@ class TaskQueue
 
     ~Queue()
     {
-      for (auto task: items) {
-        delete task;
-      }
     }
   private:
     queue_t items;
