@@ -10,6 +10,8 @@ struct Configuration
   std::string results_format;
   // Id of the experiment parameters
   std::string id;
+  // Header of the output
+  std::string header;
   unsigned repeat;
   bool no_header;
 

@@ -50,6 +50,9 @@ po::options_description create_options_description(ConfigurationArgs &conf)
     ("id",
      po::value<std::string>(&conf.id)->value_name("ID"),
      "Id of the experiment. Used together with 'csv-id' format.")
+    ("header",
+     po::value<std::string>(&conf.header)->value_name("HEADER"),
+     "Header format for the output. Used together with 'csv-columns' format.")
     ("repeat,r",
      po::value<unsigned>(&conf.repeat)->value_name("NUM")->default_value(1),
      "How many times we should repeat the experiment.")
@@ -158,8 +161,11 @@ void validate_options(ConfigurationArgs &conf, po::variables_map &args)
     conf.limit = INT64_MAX;
   }
 
+  // Set a default results format
+  conf.results_format = "table";
   // Check specification for results format
   bool need_id = false;
+  bool need_header = false;
   if (args.count("results-format")) {
     conf.results_format = args["results-format"].as<std::string>();
     if (conf.results_format == "table") {
@@ -175,17 +181,29 @@ void validate_options(ConfigurationArgs &conf, po::variables_map &args)
                   << "to provide an experiment id (--id)." << std::endl;
         throw po::validation_error(po::validation_error::invalid_option_value);
       }
+    } else if (conf.results_format == "csv-columns") {
+      if (args.count("header")) {
+        // OK
+        need_header = true;
+      } else {
+        std::cerr << "Format 'csv-columns' expects the user "
+                  << "to provide a header (--header)." << std::endl;
+        throw po::validation_error(po::validation_error::invalid_option_value);
+      }
     } else {
       std::cerr << "Unknown output format: "
                 << conf.results_format << std::endl;
       throw po::validation_error(po::validation_error::invalid_option_value);
     }
-  } else {
-    conf.results_format = "table";
   }
 
   if (args.count("id") && !need_id) {
     std::cerr << "Unexpected parameter --id." << std::endl;
+    throw po::validation_error(po::validation_error::invalid_option_value);
+  }
+
+  if (args.count("header") && !need_header) {
+    std::cerr << "Unexpected parameter --header." << std::endl;
     throw po::validation_error(po::validation_error::invalid_option_value);
   }
 }
