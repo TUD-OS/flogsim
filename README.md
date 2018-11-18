@@ -35,13 +35,14 @@ Possible parameters for --faults are "none" and "uniform". If you want
 explicitly specify list of failed nodes pass the node ids in comma
 separated list, like `--faults 1,4,7`.
 
-Possible parameters for --collective are "binary_bcast" and
-"correctedtree_bcast"
+Possible parameters for --coll are `kary_bcast`,
+`checked_corrected_kary_bcast`, etc. For the full list run the
+simulator with `--coll list`.
 
 Example usage
 
 ```bash
-./flogsim --P 128 --o 1 --L 4 --faults uniform --F 4 --coll correctedtree_bcast
+./flogsim -P 128 -o 1 -L 4 --faults uniform -F 4 --coll checked_corrected_kary_bcast
 ```
 
 ## Result printing
@@ -56,7 +57,15 @@ Format 'csv-id' allows to save on experiment description. Instead the
 user is expected to provide additional token, which identifies the
 experiment as parameter '--id'.
 
+Format 'csv-columns' requires additional parameter `--header` with a
+coma separated list of column names. If a column is not known, the
+simulator prints an empty value when the result is generated.
+
 # Visualisation
+
+To be able to visualise the trace, add parameter `--log` when running
+the simulator. The argument sets the prefix for the trace, for
+example: `--log log`.
 
 You can use `../script/plot_trace.R` script to visualize generated
 traces. Run the script with `--help` to see all available options.
