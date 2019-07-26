@@ -73,4 +73,5 @@ KAry::KAry(int num_nodes, NodeOrder order) :
       }
     }
   }
+  calc_leaves();
 }

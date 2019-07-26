@@ -116,6 +116,10 @@ Result Combiner::dispatch(const FinishTask &t, TaskQueue &tq, int node_id)
   return Result::ONGOING;
 }
 
+void Combiner::mark_init_reached() {
+  phases[0]->mark_init_reached();
+}
+
 Time Combiner::deadline() const
 {
   Time length{0};

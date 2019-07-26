@@ -9,6 +9,7 @@
 #include "reached_nodes.hpp"
 #include "timeline.hpp"
 #include "phase.hpp"
+#include "topology/topology.hpp"
 
 class SendStartTask;
 class SendEndTask;
@@ -28,9 +29,11 @@ class FaultInjector;
 //
 // This class is responsible to set up reach_nodes. It either accepts
 // explicit list of reached nodes as an initializer list (for example
-// only root: {0}) or it enables everybody.
+// only root: {0}) or it enables nobody.
 class Collective
 {
+protected:
+  const Topology topology;
 private:
   void forward(const auto &t, TaskQueue &tq, const int node_id);
 
@@ -60,10 +63,12 @@ public:
 
   void run(Timeline &, std::unique_ptr<Phase> &&);
 
-  Collective(FaultInjector *faults);
+  Collective(FaultInjector *faults,
+             Topology _topology);
   Collective(std::initializer_list<int> selected,
-             FaultInjector *faults);
-  // Factory method, which creates collectives based on
+             FaultInjector *faults,
+             Topology _topology);
+  //  Factory method, which creates collectives based on
   // configuration.
   static std::unique_ptr<Collective> create();
 };

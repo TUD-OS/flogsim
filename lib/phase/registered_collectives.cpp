@@ -642,6 +642,34 @@ std::vector<CollectiveRegistrator> _{
       },
       "kary_multitree"
     },
+    {
+      [](ReachedNodes &rn)
+      {
+        return std::make_unique<Gather<KAry>>(rn);
+      },
+      "kary_reduction"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        return std::make_unique<Gather<Binomial>>(rn);
+      },
+      "binomial_reduction"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        return std::make_unique<Gather<Lame>>(rn);
+      },
+      "lame_reduction"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        return std::make_unique<Gather<Optimal>>(rn);
+      },
+      "optimal_reduction"
+    },
   }
 };
 }

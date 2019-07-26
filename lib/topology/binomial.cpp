@@ -71,4 +71,5 @@ Binomial::Binomial(int num_nodes, NodeOrder order)
       break;
     }
   }
+  calc_leaves();
 }

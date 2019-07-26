@@ -138,4 +138,5 @@ Optimal::Optimal(int num_nodes, NodeOrder order)
       add_edge(Rank(cur.parent), Rank(receiver));
     }
   }
+  calc_leaves();
 }

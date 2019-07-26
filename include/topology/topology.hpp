@@ -18,6 +18,8 @@ class Topology {
 
   std::vector<Node> nodes;
 
+  std::vector<Rank> leaves;
+
   bool direction_down = true;
   NodeOrder order;
   protected:
@@ -46,6 +48,18 @@ class Topology {
 
     const std::vector<Rank> &senders(Rank receiver) const {
       return direction_down ? nodes[receiver.get()].parents : nodes[receiver.get()].children;
+    }
+
+    void calc_leaves() {
+      for (int node = 0; node < num_nodes(); node++) {
+        if (nodes[node].children.size() == 0) {
+          leaves.push_back(Rank(node));
+        }
+      }
+    }
+
+    const std::vector<Rank> &get_leaves() const {
+      return leaves;
     }
 
     Time deadline() const;

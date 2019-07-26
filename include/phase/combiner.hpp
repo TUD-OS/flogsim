@@ -60,5 +60,7 @@ public:
   virtual Result dispatch(const SendEndTask &t, TaskQueue &tq, int node_id) override;
   virtual Result dispatch(const FinishTask &t, TaskQueue &tq, int node_id) override;
 
+  void mark_init_reached();
+
   virtual Time deadline() const;
 };

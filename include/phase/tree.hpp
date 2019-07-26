@@ -16,7 +16,7 @@ protected:
 
   const TOPOLOGY topology;
 public:
-  Tree(ReachedNodes &reached_nodes, NodeOrder order = NodeOrder::INTERLEAVED) : 
+  Tree(ReachedNodes &reached_nodes, NodeOrder order = NodeOrder::INTERLEAVED) :
     Phase(reached_nodes),
     topology(reached_nodes.size(), order)
   {

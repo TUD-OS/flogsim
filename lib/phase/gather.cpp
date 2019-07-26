@@ -12,8 +12,7 @@ using Result = Phase::Result;
 
 template <typename T>
 Gather<T>::Gather(ReachedNodes &reached_nodes, NodeOrder order)
-    : Phase(reached_nodes),
-      to_receive(reached_nodes.size()),
+    : Phase(reached_nodes), to_receive(reached_nodes.size()),
       topology(reached_nodes.size(), order) {
   // Change traversal order
   topology.lookup_up();
@@ -35,8 +34,8 @@ Result Gather<T>::post_sends(const int sender, TaskQueue &tq) {
 
   for (Rank receiver : topology.receivers(Rank(sender))) {
     assert(receiver.get() < num_nodes());
-    tq.schedule(SendStartTask::make_new(Tag::GATHER, tq.now(),
-					sender, receiver.get()));
+    tq.schedule(
+        SendStartTask::make_new(Tag::GATHER, tq.now(), sender, receiver.get()));
   }
 
   to_receive[sender]--;
@@ -49,7 +48,7 @@ Result Gather<T>::dispatch(const InitTask &, TaskQueue &tq, int node_id) {
     return Result::ONGOING;
   }
 
-  const int root[[maybe_unused]] = 0;
+  const int root [[maybe_unused]] = 0;
   assert(node_id == root && "SimpleGather init on non-root node");
   assert(reached_nodes[root] && "Root unreached in gather");
 

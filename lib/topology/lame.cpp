@@ -71,6 +71,7 @@ Lame::Lame(int num_nodes, NodeOrder order) :
       lvl ++;
     }
   }
+  calc_leaves();
 }
 
 Time Lame::latency_at_node(int id, int t) const

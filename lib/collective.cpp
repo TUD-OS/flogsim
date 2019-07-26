@@ -7,20 +7,26 @@
 #include "task_queue.hpp"
 #include "phase.hpp"
 #include "fault_injector.hpp"
-
-// Enable everybody
-Collective::Collective(FaultInjector *faults)
-  : Collective{{}, faults}
-{
-  reached_nodes.assign(reached_nodes.size(), true);
-}
+#include "topology/topology.hpp"
 
 // Enable root selected
-Collective::Collective(std::initializer_list<int> selected,
-                       FaultInjector *faults)
+Collective::Collective(FaultInjector *faults, Topology _topology)
   : done_nodes(Globals::get().model().P),
     coloured_nodes(Globals::get().model().P),
     reached_nodes(Globals::get().model().P),
+    topology(_topology),
+    faults(faults)
+{
+  coloured_nodes[0] = true;
+}
+
+Collective::Collective(std::initializer_list<int> selected,
+                       FaultInjector *faults,
+                       Topology _topology)
+  : done_nodes(Globals::get().model().P),
+    coloured_nodes(Globals::get().model().P),
+    reached_nodes(Globals::get().model().P),
+    topology(_topology),
     faults(faults)
 {
   for (auto i : selected) {
