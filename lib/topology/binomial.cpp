@@ -6,6 +6,7 @@
 
 namespace
 {
+// See Section 3.2.2 of Corrected Trees paper for explanation of the formula
 int get_lvl(int sender)
 {
   int lvl = 0;
