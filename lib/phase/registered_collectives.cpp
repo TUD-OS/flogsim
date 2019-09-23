@@ -4,6 +4,7 @@
 #include "collective_registry.hpp"
 #include "phase.hpp"
 
+#include "phase/dependency_init.hpp"
 #include "phase/gossip.hpp"
 #include "phase/tree.hpp"
 #include "phase/multitree.hpp"
@@ -21,28 +22,44 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<Tree<KAry>>(rn);
+        auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
+          add_phase<Tree<KAry>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
       },
       "kary_bcast"
     },
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<Tree<Binomial>>(rn);
+        auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
+          add_phase<Tree<Binomial>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
       },
       "binomial_bcast"
     },
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<Tree<Lame>>(rn);
+        auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
+          add_phase<Tree<Lame>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
       },
       "lame_bcast"
     },
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<Tree<Optimal>>(rn);
+        auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
+          add_phase<Tree<Optimal>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
       },
       "optimal_bcast"
     },
@@ -51,6 +68,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<KAry>>().
           add_phase<Gather<KAry>>();
 
@@ -62,6 +80,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Binomial>>().
           add_phase<Gather<Binomial>>();
 
@@ -73,6 +92,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Lame>>().
           add_phase<Gather<Lame>>();
 
@@ -84,6 +104,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Optimal>>().
           add_phase<Gather<Optimal>>();
 
@@ -95,7 +116,11 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<Gossip>(rn);
+        auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
+          add_phase<Gossip>();
+
+        return std::make_unique<Combiner>(std::move(phases));
       },
       "gossip_bcast"
     },
@@ -104,6 +129,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Exclusive>(std::make_unique<Tree<Binomial>>(rn)).
           add_phase<OpportunisticCorrection<false, false>>();
 
@@ -115,6 +141,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Exclusive>(std::make_unique<Tree<Binomial>>(rn)).
           add_phase<OpportunisticCorrection<false, true>>();
 
@@ -126,6 +153,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Binomial>>().
           add_phase<OpportunisticCorrection<false, false>>();
 
@@ -137,6 +165,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Binomial>>().
           add_phase<OpportunisticCorrection<false, true>>();
 
@@ -148,6 +177,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Exclusive>(std::make_unique<Tree<KAry>>(rn)).
           add_phase<CheckedCorrection<true>>();
 
@@ -161,6 +191,7 @@ std::vector<CollectiveRegistrator> _{
         auto tree = std::make_unique<Tree<KAry>>(rn, NodeOrder::INORDER);
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Exclusive>(std::move(tree)).
           add_phase<CheckedCorrection<true>>();
 
@@ -172,6 +203,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<KAry>>().
           add_phase<CheckedCorrection<false>>();
 
@@ -186,6 +218,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<CheckedCorrection<false>>();
 
@@ -197,6 +230,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Exclusive>(std::make_unique<Tree<Binomial>>(rn)).
           add_phase<CheckedCorrection<true>>();
 
@@ -210,6 +244,7 @@ std::vector<CollectiveRegistrator> _{
         auto tree = std::make_unique<Tree<Binomial>>(rn, NodeOrder::INORDER);
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Exclusive>(std::move(tree)).
           add_phase<CheckedCorrection<true>>();
 
@@ -221,6 +256,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Binomial>>().
           add_phase<CheckedCorrection<false>>();
 
@@ -235,6 +271,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<CheckedCorrection<false>>();
 
@@ -249,6 +286,7 @@ std::vector<CollectiveRegistrator> _{
         correction->throttled();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Binomial>>().
           add_phase(std::move(correction));
 
@@ -260,6 +298,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Lame>>().
           add_phase<CheckedCorrection<false>>();
 
@@ -274,6 +313,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<CheckedCorrection<false>>();
 
@@ -285,6 +325,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Exclusive>(std::make_unique<Tree<Lame>>(rn)).
           add_phase<CheckedCorrection<true>>();
 
@@ -296,6 +337,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Optimal>>().
           add_phase<CheckedCorrection<false>>();
 
@@ -310,6 +352,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<CheckedCorrection<false>>();
 
@@ -324,6 +367,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<CheckedCorrection<true>>();
 
@@ -335,6 +379,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Exclusive>(std::make_unique<Tree<Optimal>>(rn)).
           add_phase<CheckedCorrection<true>>();
 
@@ -346,6 +391,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Optimal>>().
           add_phase<Gossip>().
           add_phase<CheckedCorrection<false>>();
@@ -359,6 +405,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Tree<Binomial>>().
           add_phase<Gossip>().
           add_phase<CheckedCorrection<false>>();
@@ -375,6 +422,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<false, false>>();
 
@@ -389,6 +437,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<true, true>>();
 
@@ -403,6 +452,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<false, false>>();
 
@@ -417,6 +467,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<true, true>>();
 
@@ -431,6 +482,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<false, false>>();
 
@@ -445,6 +497,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<true, true>>();
 
@@ -459,6 +512,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<false, false>>();
 
@@ -473,6 +527,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<true, true>>();
 
@@ -488,6 +543,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<false, false>>();
 
@@ -502,6 +558,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<true, true>>();
 
@@ -516,6 +573,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<false, false>>();
 
@@ -530,6 +588,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<true, true>>();
 
@@ -544,6 +603,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<false, false>>();
 
@@ -558,6 +618,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<true, true>>();
 
@@ -572,6 +633,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<false, false>>();
 
@@ -586,6 +648,7 @@ std::vector<CollectiveRegistrator> _{
         tree->forward_unexpected_message();
 
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase(std::move(tree)).
           add_phase<OpportunisticCorrection<true, true>>();
 
@@ -598,6 +661,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Gossip>().
           add_phase<OpportunisticCorrection<true, false>>();
 
@@ -609,6 +673,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Gossip>().
           add_phase<OpportunisticCorrection<true, true>>();
 
@@ -620,6 +685,7 @@ std::vector<CollectiveRegistrator> _{
       [](ReachedNodes &rn)
       {
         auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
           add_phase<Gossip>().
           add_phase<CheckedCorrection<true>>();
 
@@ -631,16 +697,58 @@ std::vector<CollectiveRegistrator> _{
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<MultiTree<Binomial>>(rn);
+        auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
+          add_phase<MultiTree<Binomial>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
       },
       "binomial_multitree"
     },
     {
       [](ReachedNodes &rn)
       {
-        return std::make_unique<MultiTree<KAry>>(rn);
+        auto phases = Combiner::Phases(rn).
+          add_phase<BcastDepInit>().
+          add_phase<MultiTree<KAry>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
       },
       "kary_multitree"
+    },
+
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<ReductionDepInit<KAry>>().
+          add_phase<Gather<KAry>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "kary_reduction"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<ReductionDepInit<Binomial>>().
+          add_phase<Gather<Binomial>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "binomial_reduction"
+    },
+    {
+      [](ReachedNodes &rn)
+      {
+        auto phases = Combiner::Phases(rn).
+          add_phase<ReductionDepInit<Lame>>().
+          add_phase<Gather<Lame>>();
+
+        return std::make_unique<Combiner>(std::move(phases));
+      },
+      "lame_reduction"
     },
   }
 };

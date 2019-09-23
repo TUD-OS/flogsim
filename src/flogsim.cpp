@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     auto faults = FaultInjector::create();
 
     try {
-      auto coll = Collective({0}, faults.get());
+      auto coll = Collective(faults.get());
 
       coll.run(timeline, CollectiveRegistry::create(coll.reached_nodes));
 

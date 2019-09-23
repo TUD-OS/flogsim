@@ -48,5 +48,15 @@ class Topology {
       return direction_down ? nodes[receiver.get()].parents : nodes[receiver.get()].children;
     }
 
+    const std::vector<Rank> leaves() const {
+      std::vector<Rank> leaves;
+      for(int i = 0; i < num_nodes(); i++) {
+        if(nodes[i].children.size() == 0) {
+          leaves.push_back(Rank(i));
+        }
+      }
+      return leaves;
+    }
+
     Time deadline() const;
 };

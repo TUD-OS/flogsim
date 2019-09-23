@@ -12,7 +12,6 @@
 Collective::Collective(FaultInjector *faults)
   : Collective{{}, faults}
 {
-  reached_nodes.assign(reached_nodes.size(), true);
 }
 
 // Enable root selected
