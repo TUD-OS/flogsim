@@ -53,6 +53,7 @@ cpu.col <- names(trace.df)[1]
 trace.df[, (event.cols) := lapply(.SD, function(x) strsplit(gsub("\\s+", " ", x), " ")) ,.SDcols = event.cols]
 trace.df <- melt(trace.df, id.vars=cpu.col)
 trace.df <- unnest(trace.df, value)
+trace.df <- as.data.table(trace.df)
 
 trace.df[, variable := as.character(variable)]
 
@@ -61,7 +62,8 @@ trace.df[, c("variable", "field") := colsplit(trace.df$variable, "_", c("event",
 cols <- c("value", "field")
 trace.df[, (cols) := lapply(.SD, function(x) strsplit(x, "\\|")) ,.SDcols = cols]
 trace.df[, id := 1:nrow(.SD)]
-trace.df <- unnest(trace.df, value, field)
+trace.df <- unnest(trace.df, cols)
+trace.df <- as.data.table(trace.df)
 
 trace.df[, CPU := as.integer(CPU)]
 
